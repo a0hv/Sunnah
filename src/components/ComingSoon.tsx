@@ -32,7 +32,7 @@ export function ComingSoon({
         <div className="w-16 h-16 mx-auto rounded-2xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark flex items-center justify-center text-emerald-brand dark:text-emerald-brand-dark shadow-sm">
           <Icon className="w-8 h-8" />
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold font-quran text-slate-900 dark:text-white">
+        <h1 className="text-3xl sm:text-4xl font-bold font-sans text-slate-900 dark:text-white">
           {title}
         </h1>
         <p className="text-base text-muted-light dark:text-muted-dark max-w-xl mx-auto">

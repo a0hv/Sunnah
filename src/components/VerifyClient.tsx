@@ -270,7 +270,7 @@ ${pair.authentic.text}
           </a>
         </div>
 
-        <h2 className="text-xl sm:text-2xl font-bold font-quran text-slate-900 dark:text-white">
+        <h2 className="text-xl sm:text-2xl font-bold font-sans text-slate-900 dark:text-white">
           «كفى بالمرء كذبًا أن يحدّث بكل ما سمع»
         </h2>
 
@@ -453,7 +453,7 @@ ${pair.authentic.text}
                 </div>
 
                 {/* Main Hadith Text */}
-                <p className="font-quran font-bold text-base sm:text-lg leading-[2.2] text-slate-900 dark:text-white text-justify">
+                <p className="font-hadith text-base sm:text-lg leading-[2.2] text-slate-900 dark:text-white text-justify">
                   {item.hadithText}
                 </p>
 
@@ -524,7 +524,7 @@ ${pair.authentic.text}
             <span className="text-xs font-semibold text-amber-600 dark:text-amber-300 uppercase tracking-wider block">
               المقارنة والبيان
             </span>
-            <h2 className="text-xl sm:text-2xl font-bold font-quran text-slate-900 dark:text-white">
+            <h2 className="text-xl sm:text-2xl font-bold font-sans text-slate-900 dark:text-white">
               أحاديث مشتهرة لا تصح وبدائلها الصحيحة
             </h2>
           </div>
@@ -599,7 +599,7 @@ ${pair.authentic.text}
                       </span>
                     </div>
 
-                    <p className="font-quran text-base sm:text-lg leading-relaxed text-rose-950 dark:text-rose-100 text-justify">
+                    <p className="font-hadith text-base sm:text-lg leading-[2.2] text-rose-950 dark:text-rose-100 text-justify">
                       {pair.unauthentic.text}
                     </p>
 
@@ -620,7 +620,7 @@ ${pair.authentic.text}
                       </span>
                     </div>
 
-                    <p className="font-quran font-bold text-base sm:text-lg leading-relaxed text-emerald-950 dark:text-emerald-100 text-justify">
+                    <p className="font-hadith text-base sm:text-lg leading-[2.2] text-emerald-950 dark:text-emerald-100 text-justify">
                       {pair.authentic.text}
                     </p>
 
@@ -647,7 +647,7 @@ ${pair.authentic.text}
             <span className="text-xs font-semibold text-emerald-brand dark:text-emerald-brand-dark uppercase tracking-wider block">
               الضبط الأصولي والفقهي
             </span>
-            <h2 className="text-xl sm:text-2xl font-bold font-quran text-slate-900 dark:text-white">
+            <h2 className="text-xl sm:text-2xl font-bold font-sans text-slate-900 dark:text-white">
               ميزان مراتب الأحكام الفقهية الست
             </h2>
           </div>

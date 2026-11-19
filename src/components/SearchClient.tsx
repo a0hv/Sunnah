@@ -175,7 +175,7 @@ export function SearchClient() {
                 <Sparkles className="w-4 h-4" />
               </span>
               <div>
-                <h2 className="font-bold text-base text-slate-900 dark:text-white font-quran">
+                <h2 className="font-bold text-base text-slate-900 dark:text-white font-sans">
                   أفضل ما يناسب بحثك في السنة والأذكار
                 </h2>
                 {results.bestMatch.situationTitle && (
@@ -217,11 +217,11 @@ export function SearchClient() {
                     </span>
                   </div>
 
-                  <h3 className="font-quran font-bold text-base text-slate-900 dark:text-white leading-snug">
+                  <h3 className="font-sans font-bold text-base text-slate-900 dark:text-white leading-snug">
                     {results.bestMatch.hadith.title}
                   </h3>
 
-                  <p className="font-quran text-sm sm:text-base leading-loose text-charcoal-light dark:text-charcoal-dark line-clamp-3">
+                  <p className="font-hadith text-sm sm:text-base leading-[2.2] text-charcoal-light dark:text-charcoal-dark line-clamp-3">
                     <HighlightArabicText text={results.bestMatch.hadith.hadeeth} query={debouncedQuery} />
                   </p>
 
@@ -307,7 +307,7 @@ export function SearchClient() {
                     </Link>
                   </div>
 
-                  <p className="font-quran text-base sm:text-lg leading-loose text-charcoal-light dark:text-charcoal-dark line-clamp-4 pt-1">
+                  <p className="font-hadith text-base sm:text-lg leading-[2.2] text-charcoal-light dark:text-charcoal-dark line-clamp-4 pt-1">
                     <HighlightArabicText text={results.bestMatch.dhikr.text} query={debouncedQuery} />
                   </p>
 
@@ -473,7 +473,7 @@ export function SearchClient() {
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-emerald-brand dark:text-emerald-brand-dark">
                 <BookOpen className="w-4 h-4" />
-                <h3 className="font-bold text-sm font-quran">
+                <h3 className="font-bold text-sm font-sans">
                   الأحاديث النبوية المشروحة ({results.hadiths.length})
                 </h3>
               </div>
@@ -497,11 +497,11 @@ export function SearchClient() {
                         </div>
                       </div>
 
-                      <h4 className="font-quran font-bold text-base sm:text-lg text-slate-900 dark:text-white">
+                      <h4 className="font-sans font-bold text-base sm:text-lg text-slate-900 dark:text-white">
                         <HighlightArabicText text={h.title} query={debouncedQuery} />
                       </h4>
 
-                      <p className="font-quran text-base sm:text-lg leading-loose text-charcoal-light dark:text-charcoal-dark">
+                      <p className="font-hadith text-base sm:text-lg leading-[2.2] text-charcoal-light dark:text-charcoal-dark">
                         <HighlightArabicText text={h.hadeeth} query={debouncedQuery} />
                       </p>
 
@@ -609,7 +609,7 @@ export function SearchClient() {
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-emerald-brand dark:text-emerald-brand-dark">
                 <Sparkles className="w-4 h-4" />
-                <h3 className="font-bold text-sm font-quran">
+                <h3 className="font-bold text-sm font-sans">
                   أذكار حصن المسلم ({results.hisn.length})
                 </h3>
               </div>
@@ -634,7 +634,7 @@ export function SearchClient() {
                       )}
                     </div>
 
-                    <p className="font-quran text-base sm:text-lg leading-loose text-charcoal-light dark:text-charcoal-dark">
+                    <p className="font-hadith text-base sm:text-lg leading-[2.2] text-charcoal-light dark:text-charcoal-dark">
                       <HighlightArabicText text={d.text} query={debouncedQuery} />
                     </p>
 
@@ -703,7 +703,7 @@ export function SearchClient() {
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-emerald-brand dark:text-emerald-brand-dark">
                 <Scroll className="w-4 h-4" />
-                <h3 className="font-bold text-sm font-quran">
+                <h3 className="font-bold text-sm font-sans">
                   أحاديث الأربعين النووية ({results.nawawi.length})
                 </h3>
               </div>
@@ -733,7 +733,7 @@ export function SearchClient() {
                       )}
                     </div>
 
-                    <p className="font-quran text-base sm:text-lg leading-loose text-charcoal-light dark:text-charcoal-dark">
+                    <p className="font-hadith text-base sm:text-lg leading-[2.2] text-charcoal-light dark:text-charcoal-dark">
                       <HighlightArabicText text={n.text} query={debouncedQuery} />
                     </p>
 
@@ -798,7 +798,7 @@ export function SearchClient() {
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-emerald-brand dark:text-emerald-brand-dark">
                 <Compass className="w-4 h-4" />
-                <h3 className="font-bold text-sm font-quran">
+                <h3 className="font-bold text-sm font-sans">
                   محطات السيرة النبوية ({results.seerah.length})
                 </h3>
               </div>
@@ -887,7 +887,7 @@ export function SearchClient() {
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-rose-500">
                 <ShieldAlert className="w-4 h-4" />
-                <h3 className="font-bold text-sm font-quran">
+                <h3 className="font-bold text-sm font-sans">
                   أحاديث منتشرة لا تصح من قسم «تثبّت» ({results.fake.length})
                 </h3>
               </div>
@@ -907,7 +907,7 @@ export function SearchClient() {
                       </Link>
                     </div>
 
-                    <p className="font-quran text-base sm:text-lg leading-loose text-charcoal-light dark:text-charcoal-dark">
+                    <p className="font-hadith text-base sm:text-lg leading-[2.2] text-charcoal-light dark:text-charcoal-dark">
                       «<HighlightArabicText text={f.hadithText} query={debouncedQuery} />»
                     </p>
 

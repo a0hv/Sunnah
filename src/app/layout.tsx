@@ -1,21 +1,63 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Sans_Arabic, Amiri } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 
-const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
-  subsets: ['arabic'],
-  weight: ['400', '500', '600', '700'],
+const thmanyah = localFont({
+  src: [
+    {
+      path: '../../public/fonts/thmanyah-sans-Light.woff2',
+      weight: '300',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/thmanyah-sans-Regular.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/thmanyah-sans-Medium.woff2',
+      weight: '500',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/thmanyah-sans-Bold.woff2',
+      weight: '700',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/thmanyah-sans-Black.woff2',
+      weight: '900',
+      style: 'normal',
+    },
+  ],
   variable: '--font-sans',
   display: 'swap',
 });
 
-const amiri = Amiri({
-  subsets: ['arabic'],
-  weight: ['400', '700'],
+const lotus = localFont({
+  src: [
+    {
+      path: '../../public/fonts/lotus-naskh.ttf',
+      weight: '400',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-hadith',
+  display: 'swap',
+});
+
+const uthmanic = localFont({
+  src: [
+    {
+      path: '../../public/fonts/uthmanic-hafs-v20.ttf',
+      weight: '400',
+      style: 'normal',
+    },
+  ],
   variable: '--font-quran',
   display: 'swap',
 });
@@ -36,7 +78,7 @@ export default function RootLayout({
       lang="ar"
       dir="rtl"
       suppressHydrationWarning
-      className={`${ibmPlexSansArabic.variable} ${amiri.variable}`}
+      className={`${thmanyah.variable} ${lotus.variable} ${uthmanic.variable}`}
     >
       <head>
         <script

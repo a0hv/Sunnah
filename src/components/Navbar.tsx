@@ -34,7 +34,7 @@ export function Navbar() {
               <BookOpen className="w-5 h-5" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-base sm:text-lg tracking-tight font-quran text-slate-900 dark:text-white">
+              <span className="font-bold text-base sm:text-lg tracking-tight font-sans text-slate-900 dark:text-white">
                 منصة السنة
               </span>
               <span className="text-[10px] text-muted-light dark:text-muted-dark font-sans -mt-1 hidden sm:inline-block">

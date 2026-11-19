@@ -29,6 +29,7 @@ import type { ExplainedHadith, HadeethEncData, HadeethCategory } from '@/types/h
 import { normalizeArabic } from '@/lib/arabic-search';
 import { getDorarHadithUrl } from '@/lib/external-refs';
 import { FormattedArabicText } from './FormattedArabicText';
+import { HadithText } from './HadithText';
 import { ShareCardModal, type ShareCardData } from './ShareCardModal';
 
 const hadeethData = hadeethRaw as unknown as HadeethEncData;
@@ -187,7 +188,7 @@ export function HadithsClient() {
             <span>المصدر: موسوعة الأحاديث النبوية — HadeethEnc.com (إشراف علمي، بدون تعديل على النص)</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-bold font-quran text-slate-900 dark:text-white leading-tight">
+          <h1 className="text-3xl sm:text-4xl font-bold font-sans text-slate-900 dark:text-white leading-tight">
             الأحاديث النبوية المشروحة
           </h1>
 
@@ -352,15 +353,16 @@ export function HadithsClient() {
                 </div>
 
                 {/* Hadith Title */}
-                <h2 className="text-lg sm:text-xl font-bold font-quran text-slate-900 dark:text-white leading-snug">
+                <h2 className="text-lg sm:text-xl font-bold font-sans text-slate-900 dark:text-white leading-snug">
                   {h.title}
                 </h2>
 
                 {/* Hadith Text Box */}
                 <div className="p-4 sm:p-5 rounded-2xl bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark">
-                  <p className="font-quran text-base sm:text-xl leading-loose sm:leading-[2.3] text-charcoal-light dark:text-charcoal-dark select-text">
-                    <FormattedArabicText text={h.hadeeth} />
-                  </p>
+                  <HadithText
+                    text={h.hadeeth}
+                    className="text-base sm:text-xl"
+                  />
                 </div>
 
                 {/* Words Meanings (غريب الحديث) if present */}
@@ -376,7 +378,7 @@ export function HadithsClient() {
                           key={idx}
                           className="px-2.5 py-1 rounded-xl bg-surface-light dark:bg-surface-dark border border-gold-accent/30 text-charcoal-light dark:text-charcoal-dark"
                         >
-                          <strong className="text-gold-accent dark:text-gold-accent-dark font-bold font-quran text-sm">
+                          <strong className="text-gold-accent dark:text-gold-accent-dark font-bold font-sans text-sm">
                             «{wm.word}»:
                           </strong>{' '}
                           <span className="text-[11px] leading-relaxed">{wm.meaning}</span>

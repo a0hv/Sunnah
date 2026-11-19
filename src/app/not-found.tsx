@@ -9,7 +9,7 @@ export default function NotFound() {
         ٤٠٤
       </div>
       <div className="space-y-2">
-        <h1 className="text-2xl sm:text-3xl font-bold font-quran text-slate-900 dark:text-white">
+        <h1 className="text-2xl sm:text-3xl font-bold font-sans text-slate-900 dark:text-white">
           الصفحة غير موجودة
         </h1>
         <p className="text-xs sm:text-sm text-muted-light dark:text-muted-dark max-w-md leading-relaxed">

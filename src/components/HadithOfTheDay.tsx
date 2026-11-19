@@ -17,6 +17,7 @@ import {
 import hadeethRaw from '@/data/hadeethenc.json';
 import { getDorarHadithUrl } from '@/lib/external-refs';
 import { FormattedArabicText } from './FormattedArabicText';
+import { HadithText } from './HadithText';
 import { ShareCardModal, type ShareCardData } from './ShareCardModal';
 import type { ExplainedHadith, HadeethEncData } from '@/types/hadith';
 
@@ -154,12 +155,13 @@ export function HadithOfTheDay() {
 
       {/* Main Hadith Title & Arabic Text */}
       <div className="relative z-10 space-y-3 py-1">
-        <h3 className="font-quran font-bold text-base sm:text-lg text-emerald-brand dark:text-emerald-brand-dark">
+        <h3 className="font-sans font-bold text-base sm:text-lg text-emerald-brand dark:text-emerald-brand-dark">
           {currentHadith.title}
         </h3>
-        <p className="font-quran font-bold text-lg sm:text-xl md:text-2xl leading-[2.3] text-slate-900 dark:text-white text-justify">
-          <FormattedArabicText text={currentHadith.hadeeth} />
-        </p>
+        <HadithText
+          text={currentHadith.hadeeth}
+          className="text-lg sm:text-xl md:text-2xl"
+        />
       </div>
 
       {/* Explanation Summary & First Hint Box */}

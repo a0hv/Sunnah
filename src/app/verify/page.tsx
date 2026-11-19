@@ -16,7 +16,7 @@ export default function VerifyPage() {
         <span className="text-xs font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-wider block">
           منصة السنة • صيانة الحديث الشريف والتثبت العلمي
         </span>
-        <h1 className="text-3xl sm:text-4xl font-bold font-quran text-slate-900 dark:text-white">
+        <h1 className="text-3xl sm:text-4xl font-bold font-sans text-slate-900 dark:text-white">
           قسم «تثبّت»
         </h1>
         <p className="text-xs sm:text-sm text-muted-light dark:text-muted-dark leading-relaxed">

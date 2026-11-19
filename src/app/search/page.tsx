@@ -16,7 +16,7 @@ export default function SearchPage() {
         <span className="text-xs font-semibold text-emerald-brand dark:text-emerald-brand-dark uppercase tracking-wider block">
           منصة السنة • محرك البحث الموثق وقاموس المواقف
         </span>
-        <h1 className="text-3xl sm:text-4xl font-bold font-quran text-slate-900 dark:text-white">
+        <h1 className="text-3xl sm:text-4xl font-bold font-sans text-slate-900 dark:text-white">
           البحث في السنة النبوية
         </h1>
         <p className="text-xs sm:text-sm text-muted-light dark:text-muted-dark leading-relaxed">

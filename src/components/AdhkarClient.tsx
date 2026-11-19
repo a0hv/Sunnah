@@ -254,7 +254,7 @@ export function AdhkarClient() {
               <span className="w-8 h-8 rounded-xl bg-emerald-brand/10 dark:bg-emerald-brand-dark/20 text-emerald-brand dark:text-emerald-brand-dark flex items-center justify-center">
                 <BookOpen className="w-4 h-4" />
               </span>
-              <h2 className="text-xl sm:text-2xl font-bold font-quran text-slate-900 dark:text-white">
+              <h2 className="text-xl sm:text-2xl font-bold font-sans text-slate-900 dark:text-white">
                 الأذكار
               </h2>
             </div>
@@ -363,7 +363,7 @@ export function AdhkarClient() {
                       <span className="w-6 h-6 rounded-md bg-emerald-brand/10 text-emerald-brand dark:text-emerald-brand-dark font-sans font-bold text-xs flex items-center justify-center">
                         {category.id}
                       </span>
-                      <h3 className="font-quran font-bold text-lg text-slate-900 dark:text-white">
+                      <h3 className="font-sans font-bold text-lg text-slate-900 dark:text-white">
                         {category.title}
                       </h3>
                     </div>
@@ -411,7 +411,7 @@ export function AdhkarClient() {
                               </span>
                             )}
                           </div>
-                          <p className="font-quran font-bold text-base sm:text-lg leading-[2.1] text-slate-900 dark:text-white text-justify">
+                          <p className="font-hadith text-base sm:text-lg leading-[2.2] text-slate-900 dark:text-white text-justify">
                             {item.text}
                           </p>
                           <div className="flex items-center justify-between pt-1">
@@ -531,7 +531,7 @@ export function AdhkarClient() {
                     <span className="w-6 h-6 rounded-md bg-emerald-brand text-white font-sans font-bold text-xs flex items-center justify-center">
                       {activeCategory.id}
                     </span>
-                    <h3 className="font-quran font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
+                    <h3 className="font-sans font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
                       {activeCategory.title}
                     </h3>
                   </div>
@@ -665,7 +665,7 @@ export function AdhkarClient() {
                     </div>
 
                     {/* Main Dhikr Text */}
-                    <p className="font-quran font-bold text-lg sm:text-xl md:text-2xl leading-[2.2] text-slate-900 dark:text-white text-justify">
+                    <p className="font-hadith text-lg sm:text-xl md:text-2xl leading-[2.2] text-slate-900 dark:text-white text-justify">
                       {item.text}
                     </p>
 

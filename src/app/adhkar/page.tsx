@@ -16,7 +16,7 @@ export default function AdhkarPage() {
         <span className="text-xs font-semibold text-emerald-brand dark:text-emerald-brand-dark uppercase tracking-wider block">
           منصة السنة • حصن المسلم والأوراد النبوية
         </span>
-        <h1 className="text-3xl sm:text-4xl font-bold font-quran text-slate-900 dark:text-white">
+        <h1 className="text-3xl sm:text-4xl font-bold font-sans text-slate-900 dark:text-white">
           الأذكار
         </h1>
         <p className="text-xs sm:text-sm text-muted-light dark:text-muted-dark leading-relaxed">

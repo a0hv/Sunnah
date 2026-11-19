@@ -25,6 +25,7 @@ import nawawiRaw from '@/data/nawawi40.json';
 import { normalizeArabic } from '@/lib/arabic-search';
 import { getDorarHadithUrl } from '@/lib/external-refs';
 import { FormattedArabicText } from './FormattedArabicText';
+import { HadithText } from './HadithText';
 import { ShareCardModal, type ShareCardData } from './ShareCardModal';
 import type { NawawiHadith, Nawawi40Data } from '@/types/book';
 
@@ -176,7 +177,7 @@ export function NawawiClient() {
               <Scroll className="w-3.5 h-3.5" />
               <span>متابعة الحفظ والتسميع الذاتي للأربعين النووية</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold font-quran text-slate-900 dark:text-white">
+            <h2 className="text-xl sm:text-2xl font-bold font-sans text-slate-900 dark:text-white">
               سجل حفظ الأحاديث الـ ٤٢
             </h2>
             <p className="text-xs text-muted-light dark:text-muted-dark max-w-xl leading-relaxed">
@@ -371,7 +372,7 @@ export function NawawiClient() {
                     {h.id}
                   </span>
                   <div>
-                    <h3 className="font-quran font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
+                    <h3 className="font-sans font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
                       {h.title}
                     </h3>
                     {h.narrator && (
@@ -423,7 +424,7 @@ export function NawawiClient() {
               <div className="py-5 relative">
                 {isBlurred ? (
                   <div className="space-y-3">
-                    <p className="font-quran text-lg sm:text-xl leading-loose select-none filter blur-sm transition-all duration-300 opacity-60">
+                    <p className="font-hadith text-lg sm:text-xl leading-[2.2] select-none filter blur-sm transition-all duration-300 opacity-60">
                       {h.text}
                     </p>
                     <div className="text-center pt-2">
@@ -438,10 +439,9 @@ export function NawawiClient() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <FormattedArabicText
+                    <HadithText
                       text={h.text}
-                      as="p"
-                      className="font-quran text-lg sm:text-xl leading-loose text-charcoal-light dark:text-charcoal-dark select-text"
+                      className="text-lg sm:text-xl"
                     />
 
                     {globalTestingMode && isIndividualRevealed && (
