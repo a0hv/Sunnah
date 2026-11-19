@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import { Amiri } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Navbar } from '@/components/Navbar';
@@ -38,14 +39,9 @@ const thmanyah = localFont({
   display: 'swap',
 });
 
-const lotus = localFont({
-  src: [
-    {
-      path: '../../public/fonts/lotus-naskh.ttf',
-      weight: '400',
-      style: 'normal',
-    },
-  ],
+const amiri = Amiri({
+  subsets: ['arabic'],
+  weight: ['400', '700'],
   variable: '--font-hadith',
   display: 'swap',
 });
@@ -78,7 +74,7 @@ export default function RootLayout({
       lang="ar"
       dir="rtl"
       suppressHydrationWarning
-      className={`${thmanyah.variable} ${lotus.variable} ${uthmanic.variable}`}
+      className={`${thmanyah.variable} ${amiri.variable} ${uthmanic.variable}`}
     >
       <head>
         <script

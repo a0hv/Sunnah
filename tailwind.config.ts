@@ -12,6 +12,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ['var(--font-sans)', 'sans-serif'],
+        hadith: ['var(--font-hadith)', 'serif'],
         quran: ['var(--font-quran)', 'serif'],
       },
       colors: {

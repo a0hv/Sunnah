@@ -122,7 +122,7 @@ export function HadithText({
           return (
             <span
               key={idx}
-              className="text-[#0B4F3F] dark:text-[#7AD3B8] font-medium transition-colors"
+              className="text-[#0B4F3F] dark:text-[#F87171] font-bold transition-colors"
             >
               {seg.text}
             </span>
