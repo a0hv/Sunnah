@@ -33,9 +33,8 @@ interface StationItem {
   priority: 'رئيسية' | 'مؤكدة' | 'مستحبة' | string;
   hisnCategoryIds: number[];
   hisnCategoryTitle: string;
-  riyadBookId: number;
-  riyadBookTitle: string;
-  riyadSearchQuery: string;
+  searchTopic?: string;
+  searchQuery?: string;
 }
 
 interface DailySunnahData {
@@ -214,7 +213,7 @@ export function DailyTrackerClient() {
               محطات يومك وليلتك مع هدي النبوة
             </h2>
             <p className="text-xs text-muted-light dark:text-muted-dark max-w-xl leading-relaxed">
-              ١٢ محطة مرتبة زمنياً، كل محطة مربوطة بأبوابها المعتمدة في «حصن المسلم» وكتابها من «رياض الصالحين».
+              ١٢ محطة مرتبة زمنياً، كل محطة مربوطة بأبوابها المعتمدة في «حصن المسلم» ومحرك البحث في السنة.
             </p>
           </div>
 
@@ -406,7 +405,7 @@ export function DailyTrackerClient() {
                 </div>
               </div>
 
-              {/* Action Buttons: Hisn al-Muslim + Riyad as-Salihin */}
+              {/* Action Buttons: Hisn al-Muslim + Search */}
               <div className="mt-4 pt-3 border-t border-subtle-light/70 dark:border-subtle-dark/70 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-2">
                   {/* Link to Hisn al-Muslim Category */}
@@ -421,14 +420,14 @@ export function DailyTrackerClient() {
                     </Link>
                   )}
 
-                  {/* Link to Hadiths & Search */}
-                  {station.riyadSearchQuery && (
+                  {/* Link to Search */}
+                  {station.searchQuery && (
                     <Link
-                      href={`/search?q=${encodeURIComponent(station.riyadSearchQuery)}`}
+                      href={`/search?q=${encodeURIComponent(station.searchQuery)}`}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark hover:border-emerald-brand/50 text-charcoal-light dark:text-charcoal-dark text-xs font-medium transition-colors"
                     >
                       <BookOpen className="w-3.5 h-3.5 text-muted-light dark:text-muted-dark" />
-                      <span>الأحاديث المشروحة: {station.riyadBookTitle}</span>
+                      <span>البحث في السنن: {station.searchTopic || station.searchQuery}</span>
                     </Link>
                   )}
                 </div>

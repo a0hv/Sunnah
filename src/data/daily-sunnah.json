@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "سنن اليوم والليلة",
-    "description": "المحطات النبوية اليومية للمسلم من الاستيقاظ حتى المنام، موثقة ومربوطة بأبواب حصن المسلم وكتب رياض الصالحين",
+    "description": "المحطات النبوية اليومية للمسلم من الاستيقاظ حتى المنام، موثقة ومربوطة بأبواب حصن المسلم ومحرك البحث في السنة",
     "version": "2.0.0"
   },
   "stations": [
@@ -21,11 +21,13 @@
       ],
       "hadithQuote": "«كان النبي ﷺ إذا استيقظ من الليل يشوص فاه بالسواك»",
       "priority": "مؤكدة",
-      "hisnCategoryIds": [1, 30],
+      "hisnCategoryIds": [
+        1,
+        30
+      ],
       "hisnCategoryTitle": "أذكار الاستيقاظ من النوم",
-      "riyadBookId": 5,
-      "riyadBookTitle": "كتاب آداب النوم",
-      "riyadSearchQuery": "الاستيقاظ"
+      "searchTopic": "آداب النوم",
+      "searchQuery": "الاستيقاظ"
     },
     {
       "id": "station-wudoo-restroom",
@@ -44,11 +46,15 @@
       ],
       "hadithQuote": "«من توضأ فأحسن الوضوء خرجت خطاياه من جسده حتى تخرج من تحت أظفاره»",
       "priority": "مؤكدة",
-      "hisnCategoryIds": [6, 7, 8, 9],
+      "hisnCategoryIds": [
+        6,
+        7,
+        8,
+        9
+      ],
       "hisnCategoryTitle": "أدعية الخلاء والوضوء",
-      "riyadBookId": 9,
-      "riyadBookTitle": "كتاب الفضائل (باب فضل الوضوء)",
-      "riyadSearchQuery": "الوضوء"
+      "searchTopic": "الفضائل (باب فضل الوضوء)",
+      "searchQuery": "الوضوء"
     },
     {
       "id": "station-dressing",
@@ -65,11 +71,15 @@
       ],
       "hadithQuote": "«إذا انتعل أحدكم فليبدأ باليمين، وإذا نزع فليبدأ بالشمال»",
       "priority": "مستحبة",
-      "hisnCategoryIds": [2, 3, 4, 5],
+      "hisnCategoryIds": [
+        2,
+        3,
+        4,
+        5
+      ],
       "hisnCategoryTitle": "أدعية اللباس والثياب",
-      "riyadBookId": 4,
-      "riyadBookTitle": "كتاب اللباس",
-      "riyadSearchQuery": "اللباس"
+      "searchTopic": "اللباس",
+      "searchQuery": "اللباس"
     },
     {
       "id": "station-morning-adhkar",
@@ -88,11 +98,12 @@
       ],
       "hadithQuote": "«من قال حين يصبح وحين يمسي: سبحان الله وبحمده مائة مرة لم يأت أحد يوم القيامة بأفضل مما جاء به»",
       "priority": "مؤكدة",
-      "hisnCategoryIds": [27],
+      "hisnCategoryIds": [
+        27
+      ],
       "hisnCategoryTitle": "أذكار الصباح",
-      "riyadBookId": 16,
-      "riyadBookTitle": "كتاب الأذكار",
-      "riyadSearchQuery": "أذكار الصباح"
+      "searchTopic": "الأذكار",
+      "searchQuery": "أذكار الصباح"
     },
     {
       "id": "station-leaving-riding",
@@ -109,11 +120,14 @@
       ],
       "hadithQuote": "«إذا قال العبد: بسم الله توكلت على الله... يقال له: هُديت وكُفيت ووُقيت وتنحى عنه الشيطان»",
       "priority": "مؤكدة",
-      "hisnCategoryIds": [10, 96, 97],
+      "hisnCategoryIds": [
+        10,
+        96,
+        97
+      ],
       "hisnCategoryTitle": "الخروج من المنزل ودعاء الركوب",
-      "riyadBookId": 8,
-      "riyadBookTitle": "كتاب آداب السفر",
-      "riyadSearchQuery": "الخروج من المنزل"
+      "searchTopic": "آداب السفر",
+      "searchQuery": "الخروج من المنزل"
     },
     {
       "id": "station-mosque-prayer",
@@ -132,11 +146,16 @@
       ],
       "hadithQuote": "«من غدا إلى المسجد أو راح، أعد الله له في الجنة نزلاً كلما غدا أو راح»",
       "priority": "رئيسية",
-      "hisnCategoryIds": [15, 12, 13, 14, 25],
+      "hisnCategoryIds": [
+        15,
+        12,
+        13,
+        14,
+        25
+      ],
       "hisnCategoryTitle": "أذكار الأذان والمساجد ودبر الصلاة",
-      "riyadBookId": 9,
-      "riyadBookTitle": "كتاب الفضائل (فضل الصلوات والمساجد)",
-      "riyadSearchQuery": "الصلاة"
+      "searchTopic": "الفضائل (فضل الصلوات والمساجد)",
+      "searchQuery": "الصلاة"
     },
     {
       "id": "station-eating-drinking",
@@ -154,11 +173,14 @@
       ],
       "hadithQuote": "«يا غلام، سمّ الله، وكل بيمينك، وكل مما يليك»",
       "priority": "مؤكدة",
-      "hisnCategoryIds": [70, 71, 72],
+      "hisnCategoryIds": [
+        70,
+        71,
+        72
+      ],
       "hisnCategoryTitle": "أدعية الطعام والشراب والضيافة",
-      "riyadBookId": 3,
-      "riyadBookTitle": "كتاب أدب الطعام",
-      "riyadSearchQuery": "الطعام"
+      "searchTopic": "أدب الطعام",
+      "searchQuery": "الطعام"
     },
     {
       "id": "station-entering-home-salam",
@@ -175,11 +197,13 @@
       ],
       "hadithQuote": "«إذا دخل الرجل بيته فذكر الله عند دخوله وعند طعامه، قال الشيطان: لا مبيت لكم ولا عشاء»",
       "priority": "مستحبة",
-      "hisnCategoryIds": [11, 109],
+      "hisnCategoryIds": [
+        11,
+        109
+      ],
       "hisnCategoryTitle": "أذكار دخول المنزل وإفشاء السلام",
-      "riyadBookId": 6,
-      "riyadBookTitle": "كتاب السلام",
-      "riyadSearchQuery": "السلام"
+      "searchTopic": "السلام",
+      "searchQuery": "السلام"
     },
     {
       "id": "station-evening-adhkar",
@@ -197,11 +221,12 @@
       ],
       "hadithQuote": "«من قال: أعوذ بكلمات الله التامات من شر ما خلق، ثلاث مرات لم تضره حمة تلك الليلة»",
       "priority": "مؤكدة",
-      "hisnCategoryIds": [28],
+      "hisnCategoryIds": [
+        28
+      ],
       "hisnCategoryTitle": "أذكار المساء",
-      "riyadBookId": 16,
-      "riyadBookTitle": "كتاب الأذكار",
-      "riyadSearchQuery": "أذكار المساء"
+      "searchTopic": "الأذكار",
+      "searchQuery": "أذكار المساء"
     },
     {
       "id": "station-sunan-rawatib-witr",
@@ -218,11 +243,13 @@
       ],
       "hadithQuote": "«من صلى في يوم وليلة ثنتي عشرة ركعة بُني له بيت في الجنة»",
       "priority": "مؤكدة",
-      "hisnCategoryIds": [33, 34],
+      "hisnCategoryIds": [
+        33,
+        34
+      ],
       "hisnCategoryTitle": "دعاء قنوت الوتر وأذكار ختامه",
-      "riyadBookId": 9,
-      "riyadBookTitle": "كتاب الفضائل (فضل السنن الرواتب والوتر)",
-      "riyadSearchQuery": "الرواتب"
+      "searchTopic": "الفضائل (فضل السنن الرواتب والوتر)",
+      "searchQuery": "الرواتب"
     },
     {
       "id": "station-istighfar-tasbeeh",
@@ -240,11 +267,14 @@
       ],
       "hadithQuote": "«طوبى لمن وجد في صحيفته استغفارًا كثيرًا»",
       "priority": "مستحبة",
-      "hisnCategoryIds": [108, 130, 131],
+      "hisnCategoryIds": [
+        108,
+        130,
+        131
+      ],
       "hisnCategoryTitle": "الاستغفار وفضل التسبيح والصلاة على النبي",
-      "riyadBookId": 20,
-      "riyadBookTitle": "كتاب الاستغفار",
-      "riyadSearchQuery": "الاستغفار"
+      "searchTopic": "الاستغفار",
+      "searchQuery": "الاستغفار"
     },
     {
       "id": "station-sleep-dreams",
@@ -264,11 +294,14 @@
       ],
       "hadithQuote": "«إذا أويت إلى فراشك فتوضأ وضوءك للصلاة، ثم اضطجع على شقك الأيمن...»",
       "priority": "مؤكدة",
-      "hisnCategoryIds": [29, 31, 32],
+      "hisnCategoryIds": [
+        29,
+        31,
+        32
+      ],
       "hisnCategoryTitle": "أذكار النوم والفزع والرؤيا",
-      "riyadBookId": 5,
-      "riyadBookTitle": "كتاب آداب النوم",
-      "riyadSearchQuery": "أذكار النوم"
+      "searchTopic": "آداب النوم",
+      "searchQuery": "أذكار النوم"
     }
   ]
 }

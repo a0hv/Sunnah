@@ -12,7 +12,7 @@ export function Footer() {
           <div className="md:col-span-2 space-y-3">
             <BrandLogo size="md" showSubtitle={false} />
             <p className="text-xs text-muted-light dark:text-muted-dark leading-relaxed max-w-md">
-              منصة رقمية حديثة تجمع أصول الحديث النبوي الشريف والآداب والأذكار اليومية؛ تضم الأحاديث المشروحة، حصن المسلم، السيرة النبوية، الأربعون النووية، قسم تثبّت، ومتتبع سنن يومك وليلتك بتصميم تفاعلي وبحث فوري.
+              منصة رقمية حديثة تجمع أصول الحديث النبوي الشريف والآداب والأذكار اليومية؛ تضم حصن المسلم، الأربعون النووية، السيرة النبوية، قسم تثبّت، ومتتبع سنن يومك وليلتك بتصميم تفاعلي وبحث فوري.
             </p>
             <p className="text-xs text-muted-light dark:text-muted-dark pt-1">
               خدمة لكتاب الله وسنة نبيه ﷺ • وقف رقمي لجميع المسلمين
@@ -27,10 +27,10 @@ export function Footer() {
             <ul className="space-y-2 text-xs text-muted-light dark:text-muted-dark">
               <li>
                 <Link
-                  href="/hadiths"
+                  href="/nawawi40"
                   className="hover:text-emerald-brand dark:hover:text-emerald-brand-dark transition-colors"
                 >
-                  الأحاديث النبوية المشروحة (HadeethEnc)
+                  كتاب «الأربعون النووية»
                 </Link>
               </li>
               <li>
@@ -92,10 +92,10 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/hadiths"
+                  href="/nawawi40"
                   className="hover:text-emerald-brand dark:hover:text-emerald-brand-dark transition-colors"
                 >
-                  المفضلة والأحاديث المحفوظة
+                  الأربعون النووية ونظام التسميع
                 </Link>
               </li>
               <li>
@@ -124,10 +124,10 @@ export function Footer() {
             </Link>
             <span>•</span>
             <Link
-              href="/hadiths"
+              href="/nawawi40"
               className="hover:text-emerald-brand dark:hover:text-emerald-brand-dark transition-colors"
             >
-              الأحاديث المشروحة
+              الأربعون النووية
             </Link>
             <span>•</span>
             <Link

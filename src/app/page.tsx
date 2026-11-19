@@ -18,19 +18,19 @@ import {
 import { HadithOfTheDay } from '@/components/HadithOfTheDay';
 
 export const metadata: Metadata = {
-  title: 'منصة السنة | الأحاديث المشروحة وحصن المسلم وتثبّت',
+  title: 'منصة السنة | الأربعون النووية وحصن المسلم وتثبّت',
   description:
-    'منصة السنة النبوية الشاملة: الأحاديث النبوية المشروحة من موسوعة HadeethEnc، حصن المسلم، قسم تثبّت للأحاديث المنتشرة التي لا تصح، الأربعون النووية، السيرة النبوية، ومتتبع سنن اليوم والليلة.',
+    'منصة السنة النبوية الشاملة: الأربعون النووية، حصن المسلم، قسم تثبّت للأحاديث المنتشرة التي لا تصح، السيرة النبوية، ومتتبع سنن اليوم والليلة.',
 };
 
 const PILLARS = [
   {
-    href: '/hadiths',
-    title: 'الأحاديث المشروحة',
-    subtitle: 'موسوعة الأحاديث النبوية (HadeethEnc)',
-    badge: '٥٣٩ حديثاً • شروح وفوائد',
-    icon: BookOpen,
-    desc: 'متون الأحاديث النبوية الصحيحة والحسنة مشفوعة بالشرح الميسر والفوائد التربوية ومعاني الكلمات الغريبة والتخريج.',
+    href: '/nawawi40',
+    title: 'الأربعون النووية',
+    subtitle: 'كليات وقواعد الإسلام',
+    badge: '٤٢ حديثاً • ميزة التسميع',
+    icon: Scroll,
+    desc: 'الأحاديث الجامعة التي عليها مدار الدين وقواعد الشريعة، مشكولة ومحققة مع ميزة التسميع الذاتي ورصد الحفظ.',
     highlight: true,
   },
   {
@@ -69,54 +69,6 @@ const PILLARS = [
     desc: 'مسيرة الحبيب المصطفى ﷺ من المولد الشريف حتى الرفيق الأعلى: ٣٠ محطة متسلسلة مع الشواهد القرآنية والدروس التربوية.',
     highlight: false,
   },
-  {
-    href: '/nawawi40',
-    title: 'الأربعون النووية',
-    subtitle: 'كليات وقواعد الإسلام',
-    badge: '٤٢ حديثاً • ميزة التسميع',
-    icon: Scroll,
-    desc: 'الأحاديث الجامعة التي عليها مدار الدين وقواعد الشريعة، مشكولة ومحققة مع ميزة التسميع الذاتي ورصد الحفظ.',
-    highlight: false,
-  },
-];
-
-const PROMINENT_HADITH_CATEGORIES = [
-  {
-    id: '266',
-    title: 'فقه الأخلاق والسلوك',
-    hadithsCount: 55,
-    topics: 'الصدق، الحياء، الصبر، الإحسان، كظم الغيظ، والتواضع',
-  },
-  {
-    id: '267',
-    title: 'الآداب الشرعية',
-    hadithsCount: 65,
-    topics: 'آداب الطعام والشراب، الاستئذان، السلام، وعيادة المريض',
-  },
-  {
-    id: '121',
-    title: 'فقه العبادات',
-    hadithsCount: 75,
-    topics: 'الطهارة والوضوء، الصلاة، الجنائز، الزكاة، الصيام، والحج',
-  },
-  {
-    id: '124',
-    title: 'فقه الأسرة والمجتمع',
-    hadithsCount: 45,
-    topics: 'حقوق الزوجين، تربية الأولاد، بر الوالدين، وصلة الأرحام',
-  },
-  {
-    id: '265',
-    title: 'الفضائل ومحاسن الأعمال',
-    hadithsCount: 55,
-    topics: 'فضائل الأعمال الصالحة، الذكر والدعاء، ومحبة الله ورسوله',
-  },
-  {
-    id: '122',
-    title: 'فقه المعاملات المالية',
-    hadithsCount: 40,
-    topics: 'الأمانة في البيع والشراء، تحريم الربا والغش، وسداد الديون',
-  },
 ];
 
 const SEARCH_SUGGESTIONS = [
@@ -144,7 +96,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-base sm:text-lg text-muted-light dark:text-muted-dark max-w-2xl mx-auto leading-relaxed font-text">
-            المرجع الرقمي العصري لكلام سيد المرسلين ﷺ: كتاب «رياض الصالحين» كاملاً، وكتاب «حصن المسلم» بالعدّاد التفاعلي، والسيرة النبوية، والأربعون النووية.
+            المرجع الرقمي العصري لكلام سيد المرسلين ﷺ: كتاب «الأربعون النووية» بنظام التسميع الذاتي، وكتاب «حصن المسلم» بالعدّاد التفاعلي، والسيرة النبوية، وقسم تثبّت، ومتتبع سنن اليوم والليلة.
           </p>
         </div>
 
@@ -253,75 +205,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 3. بطاقة حديث اليوم المشروح */}
+      {/* 3. بطاقة حديث اليوم من الأربعين النووية */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
         <div className="text-center space-y-1">
           <span className="text-xs font-bold text-gold-accent dark:text-gold-accent-dark uppercase tracking-wider block">
             وردك اليومي من هدي النبوة
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white">
-            حديث اليوم المشروح
+            حديث اليوم من الأربعين النووية
           </h2>
         </div>
 
         <HadithOfTheDay />
       </section>
 
-      {/* 4. استعراض سريع لأبرز كتب رياض الصالحين */}
-      {/* 4. الأحاديث النبوية المشروحة Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-subtle-light dark:border-subtle-dark pb-4">
-          <div>
-            <span className="text-xs font-bold text-emerald-brand dark:text-emerald-brand-dark uppercase tracking-wider block">
-              موسوعة الأحاديث النبوية (HadeethEnc)
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white">
-              أبواب الأحاديث النبوية المشروحة
-            </h2>
-          </div>
-          <Link
-            href="/hadiths"
-            className="text-xs sm:text-sm font-bold text-emerald-brand dark:text-emerald-brand-dark hover:underline inline-flex items-center gap-1"
-          >
-            <span>استعراض كافة الأحاديث (٥٣٩ حديثاً مشروحاً)</span>
-            <ArrowLeft className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {PROMINENT_HADITH_CATEGORIES.map((c, idx) => (
-            <Link
-              key={c.id}
-              href="/hadiths"
-              className="group p-5 rounded-3xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark hover:border-emerald-brand/50 transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between space-y-3"
-            >
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="w-7 h-7 rounded-lg bg-emerald-brand/10 dark:bg-emerald-brand-dark/20 text-emerald-brand dark:text-emerald-brand-dark text-xs font-bold font-sans flex items-center justify-center">
-                    {idx + 1}
-                  </span>
-                  <span className="text-xs font-bold text-muted-light dark:text-muted-dark font-sans">
-                    {c.hadithsCount} حديثاً
-                  </span>
-                </div>
-                <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white group-hover:text-emerald-brand transition-colors">
-                  {c.title}
-                </h3>
-                <p className="text-xs text-muted-light dark:text-muted-dark leading-relaxed font-text">
-                  أبواب: {c.topics}
-                </p>
-              </div>
-
-              <div className="pt-2 border-t border-subtle-light/60 dark:border-subtle-dark/60 flex items-center justify-between text-xs font-semibold text-emerald-brand">
-                <span>تصفح أحاديث القسم بشروحها</span>
-                <ChevronLeft className="w-3.5 h-3.5 group-hover:translate-x-[-2px] transition-transform" />
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* 5. متتبع سنن اليوم والليلة Banner */}
+      {/* 4. متتبع سنن اليوم والليلة Banner */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="p-8 sm:p-10 rounded-3xl bg-linear-to-r from-emerald-brand/10 via-surface-light to-gold-accent/10 dark:from-emerald-brand-dark/20 dark:via-surface-dark dark:to-gold-accent-dark/15 border border-emerald-brand/20 dark:border-emerald-brand-dark/30 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-start">

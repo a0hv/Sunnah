@@ -1,11 +1,11 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { BookOpen, CheckCircle2, Heart, Sparkles, ShieldCheck, CalendarCheck, ExternalLink, ArrowLeft, Scroll } from 'lucide-react';
+import { BookOpen, CheckCircle2, Heart, Sparkles, ShieldCheck, CalendarCheck, ExternalLink, ArrowLeft, Scroll, Compass } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'عن منصة السنة والمنهج العلمي | منصة السنة',
-  description: 'التعريف بمنصة السنة النبوية، ومصادرها العلمية المعتمدة: رياض الصالحين للإمام النووي، وحصن المسلم، والأربعون النووية، وتثبّت، ومتتبع سنن اليوم والليلة.',
+  description: 'التعريف بمنصة السنة النبوية ومصادرها العلمية المعتمدة: الأربعون النووية، حصن المسلم، السيرة النبوية، قسم تثبّت، ومتتبع سنن اليوم والليلة.',
 };
 
 export default function AboutPage() {
@@ -59,20 +59,20 @@ export default function AboutPage() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* الأحاديث النبوية المشروحة */}
+          {/* السيرة النبوية */}
           <div className="p-6 rounded-3xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark space-y-3">
             <div className="flex items-center gap-2 text-emerald-brand dark:text-emerald-brand-dark font-bold text-sm">
-              <BookOpen className="w-5 h-5" />
-              <span>موسوعة الأحاديث النبوية المشروحة</span>
+              <Compass className="w-5 h-5" />
+              <span>السيرة النبوية العطرة</span>
             </div>
             <p className="text-xs text-muted-light dark:text-muted-dark leading-relaxed">
-              من موسوعة «HadeethEnc.com» التابعة لـ IslamHouse.com بإشراف علمي موثوق؛ تتضمن مئات الأحاديث الصحيحة والحسنة المقسمة موضوعيًا مع الشرح الميسر والفوائد المستنبطة ومعاني الكلمات الغريبة والتخريج.
+              محطات حياة الحبيب المصطفى ﷺ من المولد الشريف والبعثة والهجرة إلى حجة الوداع والرفيق الأعلى، مقسمة زمنياً وموضوعياً مع استخلاص الدروس والعبر والأماكن والشخصيات.
             </p>
             <Link
-              href="/hadiths"
+              href="/seerah"
               className="inline-flex items-center gap-1 text-xs font-bold text-emerald-brand hover:underline pt-2"
             >
-              <span>تصفح الأحاديث المشروحة</span>
+              <span>تصفح السيرة النبوية</span>
               <ArrowLeft className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -120,7 +120,7 @@ export default function AboutPage() {
               <span>متتبع سنن اليوم والليلة</span>
             </div>
             <p className="text-xs text-muted-light dark:text-muted-dark leading-relaxed">
-              ١٢ محطة مرتبة زمنياً من الاستيقاظ حتى النوم، مربوطة بأبواب «حصن المسلم» و«رياض الصالحين» مع حفظ الإنجاز اليومي محلياً في متصفحك وبلا حاجة لأي حساب خارجي.
+              ١٢ محطة مرتبة زمنياً من الاستيقاظ حتى النوم، مربوطة بأبواب «حصن المسلم» ومحرك البحث الموثق في السنة مع حفظ الإنجاز اليومي محلياً في متصفحك وبلا حاجة لأي حساب خارجي.
             </p>
             <Link
               href="/daily-tracker"

@@ -1,5 +1,4 @@
 import React from 'react';
-import hadeethDataRaw from '@/data/hadeethenc.json';
 import hisnDataRaw from '@/data/hisn-al-muslim.json';
 import fakeDataRaw from '@/data/fake-hadiths.json';
 import nawawiDataRaw from '@/data/nawawi40.json';
@@ -10,25 +9,6 @@ import { getDorarHadithUrl } from './external-refs';
 export interface HighlightSegment {
   text: string;
   isMatch: boolean;
-}
-
-export interface WordMeaningItem {
-  word: string;
-  meaning: string;
-}
-
-export interface HadeethSearchResult {
-  id: string;
-  title: string;
-  categoryTitle: string;
-  hadeeth: string;
-  attribution: string;
-  grade: string;
-  explanation: string;
-  hints: string[];
-  wordsMeanings: WordMeaningItem[];
-  dorarUrl: string;
-  score: number;
 }
 
 export interface HisnSearchResult {
@@ -77,7 +57,7 @@ export interface FakeHadithSearchResult {
 }
 
 export interface BestMatchSummary {
-  hadith?: HadeethSearchResult;
+  hadith?: NawawiSearchResult;
   dhikr?: HisnSearchResult;
   situationTitle?: string;
   guidanceText?: string;
@@ -88,9 +68,8 @@ export interface PlatformSearchResults {
   expandedTerms: string[];
   totalCount: number;
   bestMatch?: BestMatchSummary;
-  hadiths: HadeethSearchResult[];
-  hisn: HisnSearchResult[];
   nawawi: NawawiSearchResult[];
+  hisn: HisnSearchResult[];
   seerah: SeerahSearchResult[];
   fake: FakeHadithSearchResult[];
 }
@@ -282,8 +261,8 @@ export const SEMANTIC_EXPANSIONS: SemanticExpansionRule[] = [
 
 // ================= SEARCH ALGORITHM =================
 /**
- * Main search function across Explained Hadiths (HadeethEnc), Hisn al-Muslim,
- * Nawawi 40, Prophetic Seerah, and Fake Hadiths Verification.
+ * Main search function across Nawawi 40, Hisn al-Muslim,
+ * Prophetic Seerah, and Fake Hadiths Verification.
  */
 export function searchPlatform(query: string): PlatformSearchResults {
   const normalizedQuery = normalizeArabic(query);
@@ -291,9 +270,8 @@ export function searchPlatform(query: string): PlatformSearchResults {
     query,
     expandedTerms: [],
     totalCount: 0,
-    hadiths: [],
-    hisn: [],
     nawawi: [],
+    hisn: [],
     seerah: [],
     fake: [],
   };
@@ -333,82 +311,7 @@ export function searchPlatform(query: string): PlatformSearchResults {
 
   const expandedTerms = Array.from(expandedTermsSet);
 
-  // 2. Search Explained Hadiths (HadeethEnc.com)
-  const hadeethResults: HadeethSearchResult[] = [];
-  const hadeethData = hadeethDataRaw as any;
-  if (hadeethData?.hadiths) {
-    for (const h of hadeethData.hadiths) {
-      const normTitle = normalizeArabic(h.title || '');
-      const normText = normalizeArabic(h.hadeeth || '');
-      const normExpl = normalizeArabic(h.explanation || '');
-      const normCat = normalizeArabic(h.categoryTitle || '');
-      const normHints = normalizeArabic((h.hints || []).join(' '));
-      const normWords = normalizeArabic(
-        (h.wordsMeanings || []).map((w: any) => `${w.word} ${w.meaning}`).join(' ')
-      );
-
-      let score = 0;
-
-      // Exact phrase match
-      if (normTitle.includes(normalizedQuery)) {
-        score += 85;
-      } else if (normText.includes(normalizedQuery)) {
-        score += 65;
-      } else if (normExpl.includes(normalizedQuery)) {
-        score += 50;
-      } else if (normHints.includes(normalizedQuery)) {
-        score += 45;
-      }
-
-      // Token overlap
-      if (queryTokens.every((t) => normText.includes(t) || normExpl.includes(t) || normHints.includes(t))) {
-        score += 40;
-      } else if (strippedTokens.some((st) => st.length >= 3 && (normText.includes(st) || normExpl.includes(st)))) {
-        score += 20;
-      }
-
-      if (normCat.includes(normalizedQuery)) {
-        score += 25;
-      }
-      if (normWords.includes(normalizedQuery)) {
-        score += 30;
-      }
-
-      // Semantic expansion boost
-      if (expandedTerms.length > 0) {
-        let titleHits = 0;
-        let textHits = 0;
-        let otherHits = 0;
-        for (const term of expandedTerms) {
-          if (normTitle.includes(term)) titleHits++;
-          if (normText.includes(term)) textHits++;
-          if (normExpl.includes(term) || normHints.includes(term)) otherHits++;
-        }
-        if (titleHits > 0) score += Math.min(60, titleHits * 25);
-        if (textHits > 0) score += Math.min(45, textHits * 18);
-        if (otherHits > 0) score += Math.min(30, otherHits * 10);
-      }
-
-      if (score > 0) {
-        hadeethResults.push({
-          id: String(h.id),
-          title: h.title,
-          categoryTitle: h.categoryTitle,
-          hadeeth: h.hadeeth,
-          attribution: h.attribution,
-          grade: h.grade,
-          explanation: h.explanation,
-          hints: h.hints || [],
-          wordsMeanings: h.wordsMeanings || [],
-          dorarUrl: getDorarHadithUrl(h.hadeeth),
-          score,
-        });
-      }
-    }
-  }
-  hadeethResults.sort((a, b) => b.score - a.score);
-
-  // 3. Search Hisn al-Muslim (أذكار وأدعية)
+  // 2. Search Hisn al-Muslim (أذكار وأدعية)
   const hisnResults: HisnSearchResult[] = [];
   const hisnData = hisnDataRaw as any;
   if (hisnData?.categories) {
@@ -617,21 +520,20 @@ export function searchPlatform(query: string): PlatformSearchResults {
   }
   fakeResults.sort((a, b) => b.score - a.score);
 
-  // 7. Assemble Best Match (أقرب حديث بشرحه وفوائده + أقرب ذكر من حصن المسلم)
+  // 6. Assemble Best Match (أقرب حديث من الأربعين النووية + أقرب ذكر من حصن المسلم)
   let bestMatch: BestMatchSummary | undefined;
-  if (hadeethResults.length > 0 || hisnResults.length > 0) {
+  if (nawawiResults.length > 0 || hisnResults.length > 0) {
     bestMatch = {
-      hadith: hadeethResults[0],
+      hadith: nawawiResults[0],
       dhikr: hisnResults[0],
-      situationTitle: matchedRule?.title || (hadeethResults[0] ? hadeethResults[0].title : undefined),
+      situationTitle: matchedRule?.title || (nawawiResults[0] ? nawawiResults[0].title : undefined),
       guidanceText: matchedRule?.guidance,
     };
   }
 
   const totalCount =
-    hadeethResults.length +
-    hisnResults.length +
     nawawiResults.length +
+    hisnResults.length +
     seerahResults.length +
     fakeResults.length;
 
@@ -640,9 +542,8 @@ export function searchPlatform(query: string): PlatformSearchResults {
     expandedTerms,
     totalCount,
     bestMatch,
-    hadiths: hadeethResults,
-    hisn: hisnResults,
     nawawi: nawawiResults,
+    hisn: hisnResults,
     seerah: seerahResults,
     fake: fakeResults,
   };

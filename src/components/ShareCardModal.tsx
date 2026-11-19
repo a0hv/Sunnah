@@ -90,7 +90,7 @@ export function ShareCardModal({ isOpen = true, onClose, data }: ShareCardModalP
           ? 'حصن المسلم'
           : data.type === 'fake-hadith'
           ? 'تثبّت الحديثي'
-          : 'رياض الصالحين');
+          : 'الأربعون النووية');
 
       const sourceLabel =
         data.source ||
@@ -98,7 +98,7 @@ export function ShareCardModal({ isOpen = true, onClose, data }: ShareCardModalP
           ? 'حصن المسلم'
           : data.type === 'fake-hadith'
           ? 'تثبّت — الدرر السنية'
-          : 'رياض الصالحين للإمام النووي');
+          : 'الأربعون النووية — الإمام النووي');
 
       const citationLabel =
         data.citation ||

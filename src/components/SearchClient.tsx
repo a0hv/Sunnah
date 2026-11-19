@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
   Search,
-  BookOpen,
   Sparkles,
   ShieldAlert,
   Scroll,
@@ -17,14 +16,11 @@ import {
   X,
   Compass,
   Lightbulb,
-  ChevronDown,
-  ChevronUp,
 } from 'lucide-react';
 import {
   searchPlatform,
   HighlightArabicText,
   type PlatformSearchResults,
-  type HadeethSearchResult,
   type HisnSearchResult,
   type FakeHadithSearchResult,
   type NawawiSearchResult,
@@ -46,7 +42,7 @@ const SAMPLE_QUERIES = [
   'غزوة بدر',
 ];
 
-type SearchTab = 'all' | 'hadiths' | 'hisn' | 'nawawi' | 'seerah' | 'fake';
+type SearchTab = 'all' | 'nawawi' | 'hisn' | 'seerah' | 'fake';
 
 export function SearchClient() {
   const searchParams = useSearchParams();
@@ -58,7 +54,6 @@ export function SearchClient() {
   const [copiedId, setCopiedId] = useState<string | number | null>(null);
   const [feedbackToast, setFeedbackToast] = useState<string | null>(null);
   const [shareCardData, setShareCardData] = useState<ShareCardData | null>(null);
-  const [expandedExplanation, setExpandedExplanation] = useState<Record<string, boolean>>({});
   const [, startTransition] = useTransition();
 
   // Keep debounced query up to date
@@ -99,13 +94,6 @@ export function SearchClient() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const toggleExplanation = (id: string) => {
-    setExpandedExplanation((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
-
   return (
     <div className="space-y-8 text-start max-w-5xl mx-auto">
       {/* Toast */}
@@ -134,7 +122,7 @@ export function SearchClient() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="ابحث في الأحاديث المشروحة، الفوائد، أذكار حصن المسلم، أو اكتب حالتك (مخنوق، قلقان، دين، مراتي، كابوس...)"
+            placeholder="ابحث في الأربعين النووية، أذكار حصن المسلم، السيرة النبوية، أو اكتب حالتك (مخنوق، قلقان، دين، كابوس...)"
             className="w-full py-4 px-3.5 bg-transparent text-sm sm:text-base text-slate-900 dark:text-white placeholder:text-muted-light/60 dark:placeholder:text-muted-dark/60 focus:outline-hidden font-sans"
             autoFocus
           />
@@ -204,16 +192,16 @@ export function SearchClient() {
 
           {/* Unified Grid: Top Hadith + Top Hisn Dhikr */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Top Explained Hadith */}
+            {/* Top Nawawi Hadith */}
             {results.bestMatch.hadith && (
               <div className="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark border border-emerald-brand/30 space-y-3 flex flex-col justify-between">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="px-2.5 py-0.5 rounded-full font-bold bg-emerald-brand/10 text-emerald-brand dark:text-emerald-brand-dark">
-                      حديث نبوي مشروح
+                      الأربعون النووية
                     </span>
                     <span className="text-[11px] text-muted-light dark:text-muted-dark">
-                      {results.bestMatch.hadith.grade} • {results.bestMatch.hadith.attribution}
+                      {results.bestMatch.hadith.narrator || 'الحديث النبوي الشريف'}
                     </span>
                   </div>
 
@@ -221,35 +209,24 @@ export function SearchClient() {
                     {results.bestMatch.hadith.title}
                   </h3>
 
-                  <p className="font-hadith text-sm sm:text-base leading-[2.85] text-charcoal-light dark:text-charcoal-dark line-clamp-3">
-                    <HighlightArabicText text={results.bestMatch.hadith.hadeeth} query={debouncedQuery} />
+                  <p className="font-hadith text-sm sm:text-base leading-[2.85] text-charcoal-light dark:text-charcoal-dark line-clamp-4">
+                    <HighlightArabicText text={results.bestMatch.hadith.text} query={debouncedQuery} />
                   </p>
 
-                  <div className="p-3 rounded-xl bg-paper-light dark:bg-paper-dark text-xs space-y-1 border border-subtle-light dark:border-subtle-dark">
-                    <span className="font-bold text-emerald-brand dark:text-emerald-brand-dark block text-[11px]">
-                      من الشرح المبسط:
-                    </span>
-                    <p className="line-clamp-2 text-muted-light dark:text-muted-dark leading-relaxed">
-                      {results.bestMatch.hadith.explanation}
-                    </p>
-                  </div>
-
-                  {results.bestMatch.hadith.hints[0] && (
-                    <div className="flex items-start gap-1.5 text-xs text-charcoal-light dark:text-charcoal-dark pt-1">
-                      <Lightbulb className="w-3.5 h-3.5 text-gold-accent shrink-0 mt-0.5" />
-                      <span className="line-clamp-2">
-                        <strong>فائدة:</strong> {results.bestMatch.hadith.hints[0]}
-                      </span>
+                  {results.bestMatch.hadith.source && (
+                    <div className="p-2.5 rounded-xl bg-paper-light dark:bg-paper-dark text-xs border border-subtle-light dark:border-subtle-dark text-muted-light dark:text-muted-dark">
+                      <span>المصدر: </span>
+                      <strong className="text-charcoal-light dark:text-charcoal-dark">{results.bestMatch.hadith.source}</strong>
                     </div>
                   )}
                 </div>
 
                 <div className="pt-3 border-t border-subtle-light/70 dark:border-subtle-dark/70 flex items-center justify-between text-xs">
                   <Link
-                    href={`/hadiths#hadith-${results.bestMatch.hadith.id}`}
+                    href={`/nawawi40#hadith-${results.bestMatch.hadith.id}`}
                     className="inline-flex items-center gap-1 font-bold text-emerald-brand hover:underline"
                   >
-                    <span>فتح الشرح الكامل والفوائد</span>
+                    <span>فتح الحديث في الأربعين النووية</span>
                     <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
                   </Link>
 
@@ -258,7 +235,7 @@ export function SearchClient() {
                       onClick={() =>
                         copyText(
                           `bm-h-${results.bestMatch?.hadith?.id}`,
-                          `${results.bestMatch?.hadith?.title}\n\n${results.bestMatch?.hadith?.hadeeth}\n\nالشرح: ${results.bestMatch?.hadith?.explanation}\n— منصة السنة | HadeethEnc.com`
+                          `${results.bestMatch?.hadith?.title}\n\n${results.bestMatch?.hadith?.text}\n\n[الأربعون النووية — الإمام النووي]`
                         )
                       }
                       className="p-1.5 rounded-lg text-muted-light hover:text-charcoal-light transition-colors"
@@ -275,10 +252,10 @@ export function SearchClient() {
                         setShareCardData({
                           type: 'hadith',
                           title: results.bestMatch?.hadith?.title,
-                          sectionTitle: results.bestMatch?.hadith?.categoryTitle,
-                          text: results.bestMatch?.hadith?.hadeeth || '',
-                          citation: `${results.bestMatch?.hadith?.grade} • ${results.bestMatch?.hadith?.attribution}`,
-                          source: 'منصة السنة — المصدر: HadeethEnc.com',
+                          sectionTitle: 'الأربعون النووية',
+                          text: results.bestMatch?.hadith?.text || '',
+                          citation: results.bestMatch?.hadith?.narrator,
+                          source: results.bestMatch?.hadith?.source || 'الأربعون النووية — الإمام النووي',
                         })
                       }
                       className="p-1.5 rounded-lg text-muted-light hover:text-charcoal-light transition-colors"
@@ -388,14 +365,14 @@ export function SearchClient() {
                 الكل ({results.totalCount})
               </button>
               <button
-                onClick={() => setActiveTab('hadiths')}
+                onClick={() => setActiveTab('nawawi')}
                 className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-colors ${
-                  activeTab === 'hadiths'
+                  activeTab === 'nawawi'
                     ? 'bg-emerald-brand text-white shadow-2xs font-semibold'
                     : 'bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark text-muted-light dark:text-muted-dark hover:text-charcoal-light'
                 }`}
               >
-                الأحاديث المشروحة ({results.hadiths.length})
+                الأربعون النووية ({results.nawawi.length})
               </button>
               <button
                 onClick={() => setActiveTab('hisn')}
@@ -406,16 +383,6 @@ export function SearchClient() {
                 }`}
               >
                 حصن المسلم ({results.hisn.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('nawawi')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-colors ${
-                  activeTab === 'nawawi'
-                    ? 'bg-emerald-brand text-white shadow-2xs font-semibold'
-                    : 'bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark text-muted-light dark:text-muted-dark hover:text-charcoal-light'
-                }`}
-              >
-                الأربعون النووية ({results.nawawi.length})
               </button>
               <button
                 onClick={() => setActiveTab('seerah')}
@@ -468,143 +435,7 @@ export function SearchClient() {
             </div>
           )}
 
-          {/* LAYER 1: الأحاديث المشروحة (HadeethEnc.com) */}
-          {(activeTab === 'all' || activeTab === 'hadiths') && results.hadiths.length > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-emerald-brand dark:text-emerald-brand-dark">
-                <BookOpen className="w-4 h-4" />
-                <h3 className="font-bold text-sm font-sans">
-                  الأحاديث النبوية المشروحة ({results.hadiths.length})
-                </h3>
-              </div>
-
-              <div className="space-y-4">
-                {results.hadiths.slice(0, activeTab === 'all' ? 8 : 40).map((h) => {
-                  const isExp = Boolean(expandedExplanation[h.id]);
-                  return (
-                    <div
-                      key={`hadith-${h.id}`}
-                      className="p-5 sm:p-6 rounded-3xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark space-y-3 shadow-xs hover:border-emerald-brand/40 transition-colors"
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-light dark:text-muted-dark">
-                        <div className="flex items-center gap-2">
-                          <span className="px-2.5 py-0.5 rounded-full font-bold bg-emerald-brand/10 text-emerald-brand dark:text-emerald-brand-dark text-[11px]">
-                            {h.categoryTitle}
-                          </span>
-                          <span className="font-semibold text-charcoal-light dark:text-charcoal-dark">
-                            {h.grade} • {h.attribution}
-                          </span>
-                        </div>
-                      </div>
-
-                      <h4 className="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white">
-                        <HighlightArabicText text={h.title} query={debouncedQuery} />
-                      </h4>
-
-                      <p className="font-hadith text-base sm:text-lg leading-[2.85] text-charcoal-light dark:text-charcoal-dark">
-                        <HighlightArabicText text={h.hadeeth} query={debouncedQuery} />
-                      </p>
-
-                      {/* Explanation Snippet */}
-                      <div className="p-3.5 rounded-2xl bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark space-y-1.5 text-xs">
-                        <div className="flex items-center justify-between font-bold text-emerald-brand dark:text-emerald-brand-dark">
-                          <span>الشرح المبسط:</span>
-                          {h.explanation.length > 250 && (
-                            <button
-                              onClick={() => toggleExplanation(h.id)}
-                              className="text-[11px] text-emerald-brand hover:underline font-semibold flex items-center gap-1"
-                            >
-                              {isExp ? (
-                                <>
-                                  <ChevronUp className="w-3.5 h-3.5" />
-                                  <span>طي</span>
-                                </>
-                              ) : (
-                                <>
-                                  <ChevronDown className="w-3.5 h-3.5" />
-                                  <span>توسيع</span>
-                                </>
-                              )}
-                            </button>
-                          )}
-                        </div>
-                        <p
-                          className={`text-charcoal-light dark:text-charcoal-dark leading-relaxed ${
-                            h.explanation.length > 250 && !isExp ? 'line-clamp-2' : ''
-                          }`}
-                        >
-                          <HighlightArabicText text={h.explanation} query={debouncedQuery} />
-                        </p>
-                      </div>
-
-                      {/* Pedagogical Hint */}
-                      {h.hints && h.hints.length > 0 && (
-                        <div className="flex items-start gap-1.5 text-xs text-charcoal-light dark:text-charcoal-dark pt-1">
-                          <Lightbulb className="w-3.5 h-3.5 text-gold-accent shrink-0 mt-0.5" />
-                          <span>
-                            <strong>فائدة:</strong> {h.hints[0]}
-                          </span>
-                        </div>
-                      )}
-
-                      <div className="pt-3 border-t border-subtle-light/70 dark:border-subtle-dark/70 flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex items-center gap-3 text-xs">
-                          <Link
-                            href={`/hadiths#hadith-${h.id}`}
-                            className="inline-flex items-center gap-1 font-bold text-emerald-brand hover:underline"
-                          >
-                            <span>فتح في الأحاديث المشروحة</span>
-                            <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
-                          </Link>
-                          <a
-                            href={h.dorarUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-muted-light hover:text-emerald-brand transition-colors"
-                          >
-                            <span>الدرر السنية</span>
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => copyText(`h-${h.id}`, `${h.title}\n\n${h.hadeeth}\n\n${h.explanation}`)}
-                            className="p-1.5 rounded-lg text-muted-light hover:text-charcoal-light transition-colors"
-                            title="نسخ الحديث"
-                          >
-                            {copiedId === `h-${h.id}` ? (
-                              <Check className="w-4 h-4 text-emerald-500" />
-                            ) : (
-                              <Copy className="w-4 h-4" />
-                            )}
-                          </button>
-                          <button
-                            onClick={() =>
-                              setShareCardData({
-                                type: 'hadith',
-                                title: h.title,
-                                sectionTitle: h.categoryTitle,
-                                text: h.hadeeth,
-                                citation: `${h.grade} • ${h.attribution}`,
-                                source: 'منصة السنة — المصدر: HadeethEnc.com',
-                              })
-                            }
-                            className="p-1.5 rounded-lg text-muted-light hover:text-charcoal-light transition-colors"
-                            title="مشاركة كبطاقة"
-                          >
-                            <Share2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* LAYER 2: Hisn al-Muslim (أذكار) */}
+          {/* LAYER 1: Hisn al-Muslim (أذكار) */}
           {(activeTab === 'all' || activeTab === 'hisn') && results.hisn.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-emerald-brand dark:text-emerald-brand-dark">

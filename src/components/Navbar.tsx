@@ -9,12 +9,11 @@ import { BrandLogo } from './BrandLogo';
 
 const NAV_LINKS = [
   { href: '/', label: 'الرئيسية' },
-  { href: '/hadiths', label: 'الأحاديث المشروحة' },
+  { href: '/nawawi40', label: 'الأربعون النووية' },
   { href: '/adhkar', label: 'حصن المسلم' },
   { href: '/daily-tracker', label: 'يومك وليلتك' },
   { href: '/verify', label: 'تثبّت' },
   { href: '/seerah', label: 'السيرة النبوية' },
-  { href: '/nawawi40', label: 'الأربعون النووية' },
   { href: '/search', label: 'البحث' },
 ];
 

@@ -271,40 +271,6 @@ export interface HisnAlMuslimData {
   categories: HisnCategory[];
 }
 
-// Riyad as-Salihin Types
-export interface RiyadHadith {
-  id: number;
-  number: number;
-  numberInBook: number;
-  bookId: number;
-  bookSlug: string;
-  bookTitle: string;
-  arabic: string;
-  english?: string;
-  narrator?: string;
-}
-
-export interface RiyadBook {
-  id: number;
-  slug: string;
-  title: string;
-  englishTitle: string;
-  hadithsCount: number;
-  hadiths: RiyadHadith[];
-}
-
-export interface RiyadData {
-  meta: {
-    title: string;
-    author: string;
-    booksCount: number;
-    hadithsCount: number;
-    source: string;
-    importedAt: string;
-  };
-  books: RiyadBook[];
-}
-
 // Dorar.net Fake Hadiths Types
 export interface DorarFakeHadith {
   id: number;

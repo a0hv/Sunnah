@@ -7,22 +7,26 @@ import {
   Shuffle,
   Copy,
   Check,
-  BookOpen,
+  Scroll,
   ArrowRight,
   Quote,
   ExternalLink,
-  Lightbulb,
   CheckCircle2,
 } from 'lucide-react';
-import hadeethRaw from '@/data/hadeethenc.json';
+import nawawiRaw from '@/data/nawawi40.json';
 import { getDorarHadithUrl } from '@/lib/external-refs';
-import { FormattedArabicText } from './FormattedArabicText';
 import { HadithText } from './HadithText';
 import { ShareCardModal, type ShareCardData } from './ShareCardModal';
-import type { ExplainedHadith, HadeethEncData } from '@/types/hadith';
 
-const hadeethData = hadeethRaw as unknown as HadeethEncData;
-const HADITHS: ExplainedHadith[] = hadeethData.hadiths || [];
+interface NawawiItem {
+  id: number;
+  title: string;
+  text: string;
+  narrator: string;
+  source: string;
+}
+
+const HADITHS: NawawiItem[] = (nawawiRaw as { hadiths: NawawiItem[] }).hadiths || [];
 
 export function HadithOfTheDay() {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -60,8 +64,7 @@ export function HadithOfTheDay() {
   const handleCopy = async () => {
     if (!currentHadith) return;
     try {
-      const firstHint = currentHadith.hints[0] ? `\n\nفائدة: ${currentHadith.hints[0]}` : '';
-      const textToCopy = `«${currentHadith.title}»\n\n${currentHadith.hadeeth}\n\n[${currentHadith.grade} • ${currentHadith.attribution}]\n\nالشرح: ${currentHadith.explanation}${firstHint}\n\n— منصة السنة | المصدر: HadeethEnc.com`;
+      const textToCopy = `«الحديث ${currentHadith.id}: ${currentHadith.title}»\n\n${currentHadith.text}\n\n[الراوي: ${currentHadith.narrator} • ${currentHadith.source}]\n\n— منصة السنة | الأربعون النووية للإمام النووي`;
       await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -74,12 +77,11 @@ export function HadithOfTheDay() {
     if (!currentHadith) return;
     setShareCardData({
       type: 'hadith',
-      title: currentHadith.title,
-      sectionTitle: currentHadith.categoryTitle,
-      text: currentHadith.hadeeth,
-      citation: `${currentHadith.grade} • ${currentHadith.attribution}`,
-      source: 'منصة السنة — المصدر: HadeethEnc.com',
-      explanation: currentHadith.hints[0] ? `• الفائدة: ${currentHadith.hints[0]}` : undefined,
+      title: `الحديث ${currentHadith.id}: ${currentHadith.title}`,
+      sectionTitle: 'الأربعون النووية',
+      text: currentHadith.text,
+      citation: `الراوي: ${currentHadith.narrator} • ${currentHadith.source}`,
+      source: 'منصة السنة — الأربعون النووية للإمام النووي',
     });
   };
 
@@ -101,17 +103,17 @@ export function HadithOfTheDay() {
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-gold-accent dark:text-gold-accent-dark">
-                حديث اليوم المشروح
+                حديث اليوم
               </span>
               <span className="text-[11px] text-muted-light dark:text-muted-dark font-sans">
-                • {currentHadith.categoryTitle}
+                • الأربعون النووية (الحديث رقم {currentHadith.id})
               </span>
             </div>
             <div className="flex items-center gap-1.5 text-xs font-medium text-muted-light dark:text-muted-dark font-sans">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-brand dark:text-emerald-brand-dark shrink-0" />
-              <span>{currentHadith.grade || 'صحيح'}</span>
+              <span>الراوي: {currentHadith.narrator}</span>
               <span className="opacity-60">•</span>
-              <span>{currentHadith.attribution || 'متفق عليه'}</span>
+              <span>{currentHadith.source}</span>
             </div>
           </div>
         </div>
@@ -141,7 +143,7 @@ export function HadithOfTheDay() {
           <button
             type="button"
             onClick={handleCopy}
-            title="نسخ نص الحديث وشرحه"
+            title="نسخ نص الحديث"
             className="p-2 rounded-xl border border-subtle-light dark:border-subtle-dark bg-paper-light dark:bg-paper-dark text-xs text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark transition-colors shadow-2xs"
           >
             {copied ? (
@@ -156,47 +158,20 @@ export function HadithOfTheDay() {
       {/* Main Hadith Title & Arabic Text */}
       <div className="relative z-10 space-y-3 py-1">
         <h3 className="font-display font-bold text-base sm:text-lg text-emerald-brand dark:text-emerald-brand-dark">
-          {currentHadith.title}
+          الحديث {currentHadith.id}: {currentHadith.title}
         </h3>
         <HadithText
-          text={currentHadith.hadeeth}
+          text={currentHadith.text}
           className="text-lg sm:text-xl md:text-2xl"
         />
       </div>
 
-      {/* Explanation Summary & First Hint Box */}
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-        {/* Explanation Summary */}
-        <div className="p-4 rounded-2xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark space-y-1.5 text-xs">
-          <div className="flex items-center gap-1.5 font-bold text-emerald-brand dark:text-emerald-brand-dark">
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>الشرح الميسر:</span>
-          </div>
-          <p className="font-text text-charcoal-light dark:text-charcoal-dark leading-[1.9] line-clamp-3">
-            {currentHadith.explanation}
-          </p>
-        </div>
-
-        {/* First Pedagogical Benefit */}
-        {currentHadith.hints && currentHadith.hints.length > 0 && (
-          <div className="p-4 rounded-2xl bg-emerald-brand/5 border border-emerald-brand/15 space-y-1.5 text-xs">
-            <div className="flex items-center gap-1.5 font-bold text-gold-accent dark:text-gold-accent-dark">
-              <Lightbulb className="w-3.5 h-3.5" />
-              <span>فائدة تربوية مستنبطة:</span>
-            </div>
-            <p className="font-text text-charcoal-light dark:text-charcoal-dark leading-[1.9] line-clamp-3">
-              {currentHadith.hints[0]}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Footer Info & Link to Hadiths Section */}
+      {/* Footer Info & Link to Nawawi Section */}
       <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-subtle-light/70 dark:border-subtle-dark/70 text-xs text-muted-light dark:text-muted-dark relative z-10">
         <div className="flex items-center gap-3">
-          <span>المصدر: HadeethEnc.com</span>
+          <span>المصدر: الأربعون النووية — الإمام النووي</span>
           <a
-            href={getDorarHadithUrl(currentHadith.hadeeth)}
+            href={getDorarHadithUrl(currentHadith.text)}
             target="_blank"
             rel="noopener noreferrer"
             title="تخريج وتحقيق الحديث في الموسوعة الحديثية — الدرر السنية"
@@ -208,10 +183,11 @@ export function HadithOfTheDay() {
         </div>
 
         <Link
-          href={`/hadiths#hadith-${currentHadith.id}`}
+          href={`/nawawi40#hadith-${currentHadith.id}`}
           className="inline-flex items-center gap-1.5 font-bold text-emerald-brand dark:text-emerald-brand-dark hover:underline"
         >
-          <span>تصفح الحديث في الأحاديث المشروحة</span>
+          <Scroll className="w-3.5 h-3.5 text-emerald-brand" />
+          <span>تصفح الحديث في الأربعين النووية</span>
           <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
         </Link>
       </div>
