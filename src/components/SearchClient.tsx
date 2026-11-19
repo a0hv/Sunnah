@@ -296,7 +296,7 @@ export function SearchClient() {
               <div className="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gold-accent/30 space-y-3 flex flex-col justify-between">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="px-2.5 py-0.5 rounded-full font-bold bg-gold-accent/15 text-gold-accent dark:text-gold-accent-dark">
+                    <span className="px-2.5 py-0.5 rounded-full font-bold bg-gold-accent/15 text-gold-accent dark:text-amber-300">
                       الذكر المأثور من حصن المسلم
                     </span>
                     <Link

@@ -115,7 +115,7 @@ export default function AboutPage() {
 
           {/* متتبع سنن اليوم والليلة */}
           <div className="p-6 rounded-3xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark space-y-3">
-            <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold text-sm">
+            <div className="flex items-center gap-2 text-amber-600 dark:text-amber-300 font-bold text-sm">
               <CalendarCheck className="w-5 h-5" />
               <span>متتبع سنن اليوم والليلة</span>
             </div>
@@ -124,7 +124,7 @@ export default function AboutPage() {
             </p>
             <Link
               href="/daily-tracker"
-              className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline pt-2"
+              className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-300 hover:underline pt-2"
             >
               <span>بدء التتبع اليومي</span>
               <ArrowLeft className="w-3.5 h-3.5" />

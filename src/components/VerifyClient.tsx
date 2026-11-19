@@ -254,7 +254,7 @@ ${pair.authentic.text}
       {/* 1. Header & Source Attribution Banner */}
       <div className="p-6 sm:p-8 rounded-3xl bg-linear-to-br from-amber-500/10 via-surface-light to-emerald-brand/10 dark:from-amber-500/15 dark:via-surface-dark dark:to-emerald-brand/15 border border-amber-500/30 dark:border-amber-500/40 shadow-xs space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-subtle-light/70 dark:border-subtle-dark/70 pb-3">
-          <div className="flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
             <ShieldAlert className="w-4 h-4 shrink-0" />
             <span>قاعدة الأمانة والتثبت في النقل عن رسول الله ﷺ</span>
           </div>
@@ -359,7 +359,7 @@ ${pair.authentic.text}
                 href="https://dorar.net/fake-hadith"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-amber-700 dark:text-amber-400 hover:underline font-bold inline-flex items-center gap-1"
+                className="text-amber-700 dark:text-amber-300 hover:underline font-bold inline-flex items-center gap-1"
               >
                 <span>موسوعة الأحاديث المنتشرة بالدرر السنية</span>
                 <ExternalLink className="w-3 h-3" />
@@ -370,7 +370,7 @@ ${pair.authentic.text}
           {/* Fallback if no local match */}
           {filteredFakeHadiths.length === 0 && searchQuery && (
             <div className="p-8 sm:p-10 text-center rounded-3xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-300 flex items-center justify-center mx-auto">
                 <Search className="w-6 h-6" />
               </div>
               <div className="space-y-1">
@@ -460,7 +460,7 @@ ${pair.authentic.text}
                 {/* Explanation if present */}
                 {item.explanation && (
                   <div className="p-3 rounded-xl bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark text-xs text-muted-light dark:text-muted-dark leading-relaxed">
-                    <span className="font-bold text-amber-700 dark:text-amber-400 me-1">
+                    <span className="font-bold text-amber-700 dark:text-amber-300 me-1">
                       البيان والبديل:
                     </span>
                     <span>{item.explanation}</span>
@@ -521,7 +521,7 @@ ${pair.authentic.text}
       {activeTab === 'comparative' && (
         <div className="space-y-6 animate-in fade-in duration-200">
           <div className="border-s-4 border-amber-500 ps-4 py-1 text-start">
-            <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">
+            <span className="text-xs font-semibold text-amber-600 dark:text-amber-300 uppercase tracking-wider block">
               المقارنة والبيان
             </span>
             <h2 className="text-xl sm:text-2xl font-bold font-quran text-slate-900 dark:text-white">
@@ -538,7 +538,7 @@ ${pair.authentic.text}
                 {/* Header: Topic Title & WhatsApp Sharing Action */}
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-subtle-light/70 dark:border-subtle-dark/70 pb-4">
                   <div className="flex items-center gap-2.5">
-                    <span className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-400 font-sans font-bold text-xs flex items-center justify-center">
+                    <span className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-300 font-sans font-bold text-xs flex items-center justify-center">
                       {idx + 1}
                     </span>
                     <h3 className="text-base sm:text-lg font-bold text-charcoal-light dark:text-charcoal-dark">

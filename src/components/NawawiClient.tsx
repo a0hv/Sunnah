@@ -217,7 +217,7 @@ export function NawawiClient() {
                 المحفوظ: <strong className="text-emerald-600 dark:text-emerald-400 font-mono text-sm">{memorizedCount}</strong> من أصل {totalCount} حديثاً
               </span>
               <span className="text-muted-light dark:text-muted-dark">•</span>
-              <span className="text-amber-600 dark:text-amber-400">
+              <span className="text-amber-600 dark:text-amber-300">
                 قيد الحفظ: <strong className="font-mono">{inProgressCount}</strong>
               </span>
             </div>

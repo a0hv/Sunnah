@@ -43,6 +43,20 @@
     font-family: var(--font-quran);
     line-height: 2.1;
   }
+
+  mark {
+    background-color: rgba(253, 230, 138, 0.8);
+    color: #1c1917;
+    border-radius: 0.25rem;
+    padding: 0 0.125rem;
+  }
+
+  .dark mark {
+    background-color: rgba(251, 191, 36, 0.25);
+    color: #fde68a;
+    outline: 1px solid rgba(251, 191, 36, 0.4);
+    font-weight: 600;
+  }
 }
 
 /* Scrollbar with logical width and smooth colors */

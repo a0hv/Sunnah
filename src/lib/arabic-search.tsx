@@ -692,7 +692,7 @@ export function HighlightArabicText({
             return (
               <mark
                 key={index}
-                className="bg-gold-accent/25 dark:bg-gold-accent-dark/30 text-charcoal-light dark:text-charcoal-dark font-semibold px-0.5 rounded-sm"
+                className="bg-amber-200/80 text-stone-900 rounded px-0.5 dark:bg-amber-400/25 dark:text-amber-200 dark:ring-1 dark:ring-amber-400/40 font-semibold"
               >
                 {part}
               </mark>

@@ -32,7 +32,7 @@ export function FormattedArabicText({
               target="_blank"
               rel="noopener noreferrer"
               title="اقرأ الآية وتفسيرها في Quran.com"
-              className="font-quran font-bold text-gold-accent dark:text-gold-accent-dark text-[1.15em] leading-[2.1] px-1 select-text hover:underline decoration-gold-accent/50 underline-offset-4 transition-colors"
+              className="font-quran font-bold text-gold-accent dark:text-amber-300 text-[1.15em] leading-[2.1] px-1 select-text hover:underline decoration-gold-accent/50 dark:decoration-amber-300/50 underline-offset-4 transition-colors"
             >
               {part}
             </a>
