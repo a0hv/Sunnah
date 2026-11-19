@@ -661,7 +661,7 @@ export function HighlightArabicText({
   className = '',
 }: HighlightArabicTextProps) {
   if (!text) return null;
-  const cleanQ = query.trim();
+  const cleanQ = query.replace(/[:،؛.؟!«»"”'’[\](){}<>–—/\\+\-_]/g, ' ').trim();
   if (!cleanQ) return <span className={className}>{text}</span>;
 
   // Split tokens (>= 2 chars)
@@ -674,31 +674,39 @@ export function HighlightArabicText({
     return <span className={className}>{text}</span>;
   }
 
-  // Regex based matching on normalized words
+  // Tokenize text into individual words and delimiters (spaces, punctuation)
   try {
-    const escaped = normTokens
-      .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-      .join('|');
-    const regex = new RegExp(`(${escaped})`, 'gi');
-
-    // Split preserving separators
-    const parts = text.split(regex);
+    const segments = text.split(/(\s+|[،؛.؟!«»"”'’[\](){}<>–—]+)/);
 
     return (
       <span className={className}>
-        {parts.map((part, index) => {
-          const isMatch = normTokens.some((t) => normalizeArabic(part).includes(t));
+        {segments.map((segment, index) => {
+          if (!segment) return null;
+          const normSeg = normalizeArabic(segment);
+          const isMatch = normTokens.some((qToken) => {
+            if (!normSeg || normSeg.length < 2) return false;
+            if (normSeg === qToken) return true;
+            // Check common Arabic prefixes (ال، و، ف، ب، ل)
+            if (normSeg.startsWith('ال') && normSeg.slice(2) === qToken) return true;
+            if (normSeg.startsWith('و') && normSeg.slice(1) === qToken) return true;
+            if (normSeg.startsWith('ف') && normSeg.slice(1) === qToken) return true;
+            if (normSeg.startsWith('ب') && normSeg.slice(1) === qToken) return true;
+            if (normSeg.startsWith('ل') && normSeg.slice(1) === qToken) return true;
+            if (qToken.startsWith('ال') && qToken.slice(2) === normSeg) return true;
+            return false;
+          });
+
           if (isMatch) {
             return (
               <mark
                 key={index}
                 className="bg-amber-200/80 text-stone-900 rounded px-0.5 dark:bg-amber-400/25 dark:text-amber-200 dark:ring-1 dark:ring-amber-400/40 font-semibold"
               >
-                {part}
+                {segment}
               </mark>
             );
           }
-          return <React.Fragment key={index}>{part}</React.Fragment>;
+          return <React.Fragment key={index}>{segment}</React.Fragment>;
         })}
       </span>
     );
