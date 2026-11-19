@@ -221,7 +221,7 @@ export function SearchClient() {
                     {results.bestMatch.hadith.title}
                   </h3>
 
-                  <p className="font-hadith text-sm sm:text-base leading-[2.2] text-charcoal-light dark:text-charcoal-dark line-clamp-3">
+                  <p className="font-hadith text-sm sm:text-base leading-[2.85] text-charcoal-light dark:text-charcoal-dark line-clamp-3">
                     <HighlightArabicText text={results.bestMatch.hadith.hadeeth} query={debouncedQuery} />
                   </p>
 
@@ -307,7 +307,7 @@ export function SearchClient() {
                     </Link>
                   </div>
 
-                  <p className="font-hadith text-base sm:text-lg leading-[2.2] text-charcoal-light dark:text-charcoal-dark line-clamp-4 pt-1">
+                  <p className="font-hadith text-base sm:text-lg leading-[2.85] text-charcoal-light dark:text-charcoal-dark line-clamp-4 pt-1">
                     <HighlightArabicText text={results.bestMatch.dhikr.text} query={debouncedQuery} />
                   </p>
 
@@ -501,7 +501,7 @@ export function SearchClient() {
                         <HighlightArabicText text={h.title} query={debouncedQuery} />
                       </h4>
 
-                      <p className="font-hadith text-base sm:text-lg leading-[2.2] text-charcoal-light dark:text-charcoal-dark">
+                      <p className="font-hadith text-base sm:text-lg leading-[2.85] text-charcoal-light dark:text-charcoal-dark">
                         <HighlightArabicText text={h.hadeeth} query={debouncedQuery} />
                       </p>
 
@@ -634,7 +634,7 @@ export function SearchClient() {
                       )}
                     </div>
 
-                    <p className="font-hadith text-base sm:text-lg leading-[2.2] text-charcoal-light dark:text-charcoal-dark">
+                    <p className="font-hadith text-base sm:text-lg leading-[2.85] text-charcoal-light dark:text-charcoal-dark">
                       <HighlightArabicText text={d.text} query={debouncedQuery} />
                     </p>
 
@@ -733,7 +733,7 @@ export function SearchClient() {
                       )}
                     </div>
 
-                    <p className="font-hadith text-base sm:text-lg leading-[2.2] text-charcoal-light dark:text-charcoal-dark">
+                    <p className="font-hadith text-base sm:text-lg leading-[2.85] text-charcoal-light dark:text-charcoal-dark">
                       <HighlightArabicText text={n.text} query={debouncedQuery} />
                     </p>
 
@@ -907,7 +907,7 @@ export function SearchClient() {
                       </Link>
                     </div>
 
-                    <p className="font-hadith text-base sm:text-lg leading-[2.2] text-charcoal-light dark:text-charcoal-dark">
+                    <p className="font-hadith text-base sm:text-lg leading-[2.85] text-charcoal-light dark:text-charcoal-dark">
                       «<HighlightArabicText text={f.hadithText} query={debouncedQuery} />»
                     </p>
 

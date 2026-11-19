@@ -453,7 +453,7 @@ ${pair.authentic.text}
                 </div>
 
                 {/* Main Hadith Text */}
-                <p className="font-hadith text-base sm:text-lg leading-[2.2] text-slate-900 dark:text-white text-justify">
+                <p className="font-hadith text-base sm:text-lg leading-[2.85] text-slate-900 dark:text-white text-justify">
                   {item.hadithText}
                 </p>
 
@@ -599,7 +599,7 @@ ${pair.authentic.text}
                       </span>
                     </div>
 
-                    <p className="font-hadith text-base sm:text-lg leading-[2.2] text-rose-950 dark:text-rose-100 text-justify">
+                    <p className="font-hadith text-base sm:text-lg leading-[2.85] text-rose-950 dark:text-rose-100 text-justify">
                       {pair.unauthentic.text}
                     </p>
 
@@ -620,7 +620,7 @@ ${pair.authentic.text}
                       </span>
                     </div>
 
-                    <p className="font-hadith text-base sm:text-lg leading-[2.2] text-emerald-950 dark:text-emerald-100 text-justify">
+                    <p className="font-hadith text-base sm:text-lg leading-[2.85] text-emerald-950 dark:text-emerald-100 text-justify">
                       {pair.authentic.text}
                     </p>
 

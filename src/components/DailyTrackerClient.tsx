@@ -398,7 +398,7 @@ export function DailyTrackerClient() {
 
                     {/* Hadith Quote */}
                     {station.hadithQuote && (
-                      <div className="p-3 rounded-2xl bg-paper-light dark:bg-paper-dark border border-subtle-light/70 dark:border-subtle-dark/70 text-xs sm:text-sm font-hadith text-slate-800 dark:text-slate-200 leading-[2.2]">
+                      <div className="p-3.5 rounded-2xl bg-paper-light dark:bg-paper-dark border border-subtle-light/70 dark:border-subtle-dark/70 text-xs sm:text-sm font-hadith text-slate-800 dark:text-slate-200 leading-[2.85]">
                         {station.hadithQuote}
                       </div>
                     )}

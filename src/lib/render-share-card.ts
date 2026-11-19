@@ -225,15 +225,15 @@ export async function renderShareCardToCanvas(
   else if (text.length > 120) fontSize = 36;
 
   let lines: string[] = [];
-  let lineHeight = fontSize * 1.95;
+  let lineHeight = fontSize * 2.35;
 
   // Auto-scale down if text overflows available area
   while (fontSize >= 20) {
     ctx.font = `bold ${fontSize}px "Amiri", "Traditional Arabic", serif`;
     lines = wrapText(ctx, text, maxTextWidth);
-    const totalTextHeight = lines.length * (fontSize * 1.95);
+    const totalTextHeight = lines.length * (fontSize * 2.35);
     if (totalTextHeight <= availableHeight - 30) {
-      lineHeight = fontSize * 1.95;
+      lineHeight = fontSize * 2.35;
       break;
     }
     fontSize -= 2;

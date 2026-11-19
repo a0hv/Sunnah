@@ -411,7 +411,7 @@ export function AdhkarClient() {
                               </span>
                             )}
                           </div>
-                          <p className="font-hadith text-base sm:text-lg leading-[2.2] text-slate-900 dark:text-white text-justify">
+                          <p className="font-hadith text-base sm:text-lg leading-[2.85] text-slate-900 dark:text-white text-justify">
                             {item.text}
                           </p>
                           <div className="flex items-center justify-between pt-1">
@@ -665,7 +665,7 @@ export function AdhkarClient() {
                     </div>
 
                     {/* Main Dhikr Text */}
-                    <p className="font-hadith text-lg sm:text-xl md:text-2xl leading-[2.2] text-slate-900 dark:text-white text-justify">
+                    <p className="font-hadith text-lg sm:text-xl md:text-2xl leading-[2.85] text-slate-900 dark:text-white text-justify">
                       {item.text}
                     </p>
 

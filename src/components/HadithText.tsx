@@ -88,7 +88,7 @@ export function HadithText({
 
   return (
     <Component
-      className={`font-hadith leading-[2.25] text-justify select-text ${className}`}
+      className={`font-hadith leading-[2.85] text-justify select-text ${className}`}
     >
       {segments.map((seg, idx) => {
         if (seg.type === 'quran') {

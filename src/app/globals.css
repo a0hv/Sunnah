@@ -181,12 +181,12 @@
 
   .font-hadith {
     font-family: var(--font-hadith), 'Amiri', serif;
-    line-height: 2.25;
+    line-height: 2.85 !important;
   }
 
   .font-quran {
     font-family: 'UthmanicHafs', serif;
-    line-height: 2.1;
+    line-height: 2.6 !important;
   }
 
   mark {

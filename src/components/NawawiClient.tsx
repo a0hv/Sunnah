@@ -424,7 +424,7 @@ export function NawawiClient() {
               <div className="py-5 relative">
                 {isBlurred ? (
                   <div className="space-y-3">
-                    <p className="font-hadith text-lg sm:text-xl leading-[2.2] select-none filter blur-sm transition-all duration-300 opacity-60">
+                    <p className="font-hadith text-lg sm:text-xl leading-[2.85] select-none filter blur-sm transition-all duration-300 opacity-60">
                       {h.text}
                     </p>
                     <div className="text-center pt-2">
