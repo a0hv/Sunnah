@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { retrieveVerifiedContext } from '@/lib/rag';
+import { retrieveVerifiedContext, isIslamicOrReligiousQuery } from '@/lib/rag';
 import { queryDorarApi } from '@/lib/dorar-api';
 
 export const dynamic = 'force-dynamic';
@@ -93,7 +93,26 @@ export async function POST(req: Request) {
       fullContext = fullContext ? `${fullContext}\n\n---\n\n${dorarBlock}` : dorarBlock;
     }
 
-    // 3. التحقق من وجود مفتاح GEMINI_API_KEY في البيئة
+    // 3. التحقق مما إذا كان السؤال خارج نطاق السنة تماماً مع عدم وجود أي سياق موثق محلي
+    if (!ragResult.hasVerifiedContext && (!dorarResults || dorarResults.length === 0)) {
+      const isReligiousTopic = isIslamicOrReligiousQuery(trimmedMessage);
+      if (!isReligiousTopic) {
+        // سؤال خارج النطاق (مثل الطبخ أو الرياضة): رد لطيف ومباشر بدون استدعاء Gemini وبدون رابط الدرر
+        return NextResponse.json({
+          success: true,
+          reply:
+            'أنا مساعد متخصص في مكتبة منصة السنة الموثّقة (الأربعون النووية، حصن المسلم، السيرة، وتثبّت) فقط، ولم أجد ما يطابق سؤالك في المكتبة حاليًا.',
+          sources: [],
+          dorarUrl: '',
+          isVerifiedOnly: true,
+          hasGeminiKey: Boolean(process.env.GEMINI_API_KEY?.trim()),
+          aiConfigured: false,
+          isOutOfScope: true,
+        });
+      }
+    }
+
+    // 4. التحقق من وجود مفتاح GEMINI_API_KEY في البيئة
     const apiKey = process.env.GEMINI_API_KEY?.trim();
 
     if (!apiKey || apiKey === '' || apiKey === 'your_gemini_api_key_here') {
@@ -118,10 +137,11 @@ export async function POST(req: Request) {
         aiConfigured: false,
         isFakeWarning: ragResult.isFakeWarning,
         errorCode: 'MISSING_KEY',
+        debugReason: 'GEMINI_API_KEY_NOT_CONFIGURED',
       });
     }
 
-    // 4. بناء طلب Gemini API مع السياق الموثق الصارم
+    // 5. بناء طلب Gemini API مع السياق الموثق الصارم
     const userPromptWithContext = `السياق الموثّق المتاح:\n${fullContext ? fullContext : 'لا يوجد سياق موثّق متاح في قواعد البيانات الحالية لهذه المسألة.'}\n\nسؤال المستخدم:\n«${trimmedMessage}»`;
 
     // تكوين سجل المحادثة مع ضمان التناوب الصارم: user -> model -> user
@@ -169,6 +189,7 @@ export async function POST(req: Request) {
 
     let aiResponseText = '';
     let lastErrorCode = 'NETWORK';
+    let lastDebugReason = '';
 
     for (const model of candidateModels) {
       try {
@@ -189,19 +210,27 @@ export async function POST(req: Request) {
           if (aiResponseText) break;
         } else {
           lastErrorCode = `HTTP_${geminiRes.status}`;
-          const errSnippet = await geminiRes.text();
+          let errorMsg = '';
+          try {
+            const errJson = await geminiRes.json();
+            errorMsg = errJson?.error?.message || errJson?.error?.status || `HTTP_${geminiRes.status}`;
+          } catch {
+            errorMsg = (await geminiRes.text().catch(() => `HTTP_${geminiRes.status}`)).slice(0, 150);
+          }
+          lastDebugReason = `${model} -> HTTP ${geminiRes.status}: ${errorMsg}`.slice(0, 250);
           console.error(
-            `Gemini model "${model}" failed with status ${geminiRes.status}: ${errSnippet.slice(0, 180)}`
+            `Gemini model "${model}" failed with status ${geminiRes.status}: ${errorMsg}`
           );
         }
       } catch (err: any) {
         lastErrorCode = 'NETWORK';
+        lastDebugReason = `${model} -> Network error: ${err?.message || String(err)}`.slice(0, 250);
         console.error(`Network error calling Gemini model "${model}":`, err?.message || String(err));
       }
     }
 
     if (!aiResponseText) {
-      // في حال تعذر التوليد، نرجع الرد بالنتائج الموثقة مع كود الخطأ الآمن
+      // في حال تعذر التوليد، نرجع الرد بالنتائج الموثقة مع كود الخطأ الآمن وحقل التشخيص debugReason
       return NextResponse.json({
         success: true,
         reply: ragResult.hasVerifiedContext
@@ -214,6 +243,7 @@ export async function POST(req: Request) {
         aiConfigured: false,
         isFakeWarning: ragResult.isFakeWarning,
         errorCode: lastErrorCode,
+        debugReason: lastDebugReason || 'NO_RESPONSE_TEXT',
       });
     }
 
@@ -236,28 +266,108 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const isDiag = searchParams.get('diag') === '1' || searchParams.get('diag') === 'true';
+
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
   const hasGeminiKey = Boolean(
-    process.env.GEMINI_API_KEY &&
-    process.env.GEMINI_API_KEY.trim() !== '' &&
-    process.env.GEMINI_API_KEY.trim() !== 'your_gemini_api_key_here'
+    apiKey &&
+    apiKey !== '' &&
+    apiKey !== 'your_gemini_api_key_here'
   );
+  const keyLength = apiKey ? apiKey.length : 0;
   const dorarConfigured = Boolean(process.env.DORAR_API_KEY?.trim());
 
+  if (!isDiag) {
+    return NextResponse.json({
+      status: 'ok',
+      service: 'Sunnah Platform AI Assistant API (RAG Engine)',
+      version: '1.0.0',
+      ragEnabled: true,
+      hasGeminiKey,
+      geminiConfigured: hasGeminiKey,
+      dorarConfigured,
+      verifiedDatabases: [
+        'الأربعون النووية (Nawawi 40)',
+        'حصن المسلم (Hisn al-Muslim)',
+        'السيرة النبوية المطهرة (Seerah)',
+        'قسم تثبّت للأحاديث التي لا تصح (Dorar.net Fake Hadiths)',
+        'متتبع سنن اليوم والليلة (Daily Sunnah)',
+      ],
+    });
+  }
+
+  // وضع الفحص التشخيصي الآمن (?diag=1)
+  const candidateModels = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
+  const results: Array<{
+    model: string;
+    status: number;
+    ok: boolean;
+    message: string;
+  }> = [];
+
+  if (!hasGeminiKey) {
+    return NextResponse.json({
+      status: 'diagnostic_complete',
+      hasGeminiKey: false,
+      keyLength: 0,
+      note: 'مفتاح GEMINI_API_KEY غير مهيأ في متغيرات البيئة.',
+      results: [],
+    });
+  }
+
+  for (const model of candidateModels) {
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey!,
+        },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: 'ping' }] }],
+          generationConfig: { maxOutputTokens: 5 },
+        }),
+      });
+
+      if (res.ok) {
+        results.push({
+          model,
+          status: res.status,
+          ok: true,
+          message: 'OK (استجابة ناجحة من الموديل)',
+        });
+      } else {
+        let msg = '';
+        try {
+          const errData = await res.json();
+          msg = errData?.error?.message || errData?.error?.status || `HTTP_${res.status}`;
+        } catch {
+          msg = (await res.text().catch(() => `HTTP_${res.status}`)).slice(0, 160);
+        }
+        results.push({
+          model,
+          status: res.status,
+          ok: false,
+          message: msg.slice(0, 200),
+        });
+      }
+    } catch (e: any) {
+      results.push({
+        model,
+        status: 0,
+        ok: false,
+        message: e?.message || 'Network connection failed',
+      });
+    }
+  }
+
   return NextResponse.json({
-    status: 'ok',
-    service: 'Sunnah Platform AI Assistant API (RAG Engine)',
-    version: '1.0.0',
-    ragEnabled: true,
-    hasGeminiKey,
-    geminiConfigured: hasGeminiKey,
-    dorarConfigured,
-    verifiedDatabases: [
-      'الأربعون النووية (Nawawi 40)',
-      'حصن المسلم (Hisn al-Muslim)',
-      'السيرة النبوية المطهرة (Seerah)',
-      'قسم تثبّت للأحاديث التي لا تصح (Dorar.net Fake Hadiths)',
-      'متتبع سنن اليوم والليلة (Daily Sunnah)',
-    ],
+    status: 'diagnostic_complete',
+    hasGeminiKey: true,
+    keyLength,
+    results,
   });
 }
