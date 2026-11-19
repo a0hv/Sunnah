@@ -34,26 +34,37 @@ const SYSTEM_INSTRUCTION = `
    - أرشد السائل إلى البحث والتحقق في الموسوعة الحديثية بمؤسسة «الدرر السنية» واستشارة أهل العلم الثقات في الفتاوى والأحكام.
 5. الأسلوب والوقار:
    - التزام الوقار التام والصلاة والسلام على رسول الله ﷺ كلما ورد ذكره.
-   - استخدام لغة عربية سليمة وتنسيق Markdown واضح ومريح للقراءة.
+   - استخدام لغة عربية سليمة وتنسيق Markdown واضح ومريح للقراءة بدون رموز معطوبة.
 `;
 
 export async function POST(req: Request) {
   try {
-    let body: ChatRequestBody;
+    let body: any;
     try {
       body = await req.json();
     } catch {
       return NextResponse.json(
-        { error: 'صيغة الطلب غير صالحة (Invalid JSON)' },
+        { error: 'صيغة الطلب غير صالحة (Invalid JSON)', errorCode: 'INVALID_JSON' },
         { status: 400 }
       );
     }
 
-    const { message, history = [] } = body;
+    const message: string =
+      (typeof body.message === 'string' && body.message) ||
+      (Array.isArray(body.messages) && typeof body.messages[body.messages.length - 1]?.content === 'string'
+        ? body.messages[body.messages.length - 1].content
+        : '');
 
-    if (!message || typeof message !== 'string' || message.trim().length < 2) {
+    const history: ChatMessage[] =
+      Array.isArray(body.history)
+        ? body.history
+        : Array.isArray(body.messages)
+        ? body.messages.slice(0, -1)
+        : [];
+
+    if (!message || message.trim().length < 2) {
       return NextResponse.json(
-        { error: 'يرجى إدخال نص بحث أو سؤال لا يقل عن حرفين' },
+        { error: 'يرجى إدخال نص بحث أو سؤال لا يقل عن حرفين', errorCode: 'EMPTY_QUERY' },
         { status: 400 }
       );
     }
@@ -83,9 +94,9 @@ export async function POST(req: Request) {
     }
 
     // 3. التحقق من وجود مفتاح GEMINI_API_KEY في البيئة
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY?.trim();
 
-    if (!apiKey || apiKey.trim() === '' || apiKey === 'your_gemini_api_key_here') {
+    if (!apiKey || apiKey === '' || apiKey === 'your_gemini_api_key_here') {
       // الرد بالنتائج الموثقة المسترجعة مباشرة في حال عدم توفر المفتاح محليًا
       let fallbackReply = '';
 
@@ -103,23 +114,35 @@ export async function POST(req: Request) {
         sources: ragResult.sources,
         dorarUrl: ragResult.dorarSearchUrl,
         isVerifiedOnly: true,
+        hasGeminiKey: false,
         aiConfigured: false,
+        isFakeWarning: ragResult.isFakeWarning,
+        errorCode: 'MISSING_KEY',
       });
     }
 
     // 4. بناء طلب Gemini API مع السياق الموثق الصارم
     const userPromptWithContext = `السياق الموثّق المتاح:\n${fullContext ? fullContext : 'لا يوجد سياق موثّق متاح في قواعد البيانات الحالية لهذه المسألة.'}\n\nسؤال المستخدم:\n«${trimmedMessage}»`;
 
-    // تكوين سجل المحادثة السابق (حتى 4 رسائل لضمان السرعة والدقة)
+    // تكوين سجل المحادثة مع ضمان التناوب الصارم: user -> model -> user
     const contents: any[] = [];
     const validHistory = (history || []).slice(-4);
+    let expectedRole: 'user' | 'model' = 'user';
+
     for (const h of validHistory) {
-      if (h.role === 'user' || h.role === 'assistant') {
+      const role = h.role === 'assistant' ? 'model' : 'user';
+      if (role === expectedRole && h.content?.trim()) {
         contents.push({
-          role: h.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: h.content }],
+          role,
+          parts: [{ text: h.content.trim() }],
         });
+        expectedRole = expectedRole === 'user' ? 'model' : 'user';
       }
+    }
+
+    // إذا كانت آخر رسالة هي user، نحذفها لضمان إلحاق السؤال الحالي كسياق user نهائي
+    if (contents.length > 0 && contents[contents.length - 1].role === 'user') {
+      contents.pop();
     }
 
     contents.push({
@@ -129,28 +152,33 @@ export async function POST(req: Request) {
 
     const payload = {
       contents,
-      systemInstruction: {
+      system_instruction: {
         parts: [{ text: SYSTEM_INSTRUCTION }],
       },
       generationConfig: {
         temperature: 0.2,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 1500,
+        maxOutputTokens: 700,
       },
     };
 
-    // تجربة النموذج السريع gemini-2.5-flash مع العودة لـ gemini-1.5-flash كاحتياط
-    const models = ['gemini-2.5-flash', 'gemini-1.5-flash'];
-    let aiResponseText = '';
-    let lastError = '';
+    // تجربة قائمة الموديلات الاحتياطية المتسلسلة
+    const primaryModel = process.env.GEMINI_MODEL?.trim() || 'gemini-2.5-flash';
+    const candidateModels = Array.from(
+      new Set([primaryModel, 'gemini-2.5-flash-lite', 'gemini-2.0-flash'])
+    );
 
-    for (const model of models) {
+    let aiResponseText = '';
+    let lastErrorCode = 'NETWORK';
+
+    for (const model of candidateModels) {
       try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-        const geminiRes = await fetch(url, {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+        const geminiRes = await fetch(endpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey,
+          },
           body: JSON.stringify(payload),
         });
 
@@ -160,27 +188,32 @@ export async function POST(req: Request) {
             geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
           if (aiResponseText) break;
         } else {
-          const errBody = await geminiRes.text();
-          lastError = `Model ${model} failed with ${geminiRes.status}: ${errBody}`;
-          console.warn(lastError);
+          lastErrorCode = `HTTP_${geminiRes.status}`;
+          const errSnippet = await geminiRes.text();
+          console.error(
+            `Gemini model "${model}" failed with status ${geminiRes.status}: ${errSnippet.slice(0, 180)}`
+          );
         }
       } catch (err: any) {
-        lastError = err?.message || String(err);
-        console.warn(`Error calling model ${model}:`, lastError);
+        lastErrorCode = 'NETWORK';
+        console.error(`Network error calling Gemini model "${model}":`, err?.message || String(err));
       }
     }
 
     if (!aiResponseText) {
-      // في حال تعذر الاتصال بـ Gemini، لا نترك المستخدم بلا إجابة بل نرجع النتائج الموثقة المسترجعة
+      // في حال تعذر التوليد، نرجع الرد بالنتائج الموثقة مع كود الخطأ الآمن
       return NextResponse.json({
         success: true,
         reply: ragResult.hasVerifiedContext
-          ? `تعذر استكمال التوليد بالذكاء الاصطناعي مؤقتاً، ولكن هذه هي النصوص الموثقة المطابقة لسؤالك في المنصة:\n\n${ragResult.sources.map((s) => `• **[${s.category}]** [${s.title}](${s.url})`).join('\n')}`
+          ? `تعذر استكمال التحليل الذكي مؤقتاً، ولكن هذه هي النصوص الموثقة المطابقة لسؤالك في المنصة:\n\n${ragResult.sources.map((s) => `• **[${s.category}]** [${s.title}](${s.url})`).join('\n')}`
           : `تعذر الاتصال بخدمة الذكاء الاصطناعي مؤقتاً. يمكنك التحقق مباشرة من الحديث في [الموسوعة الحديثية بالدرر السنية](${ragResult.dorarSearchUrl}).`,
         sources: ragResult.sources,
         dorarUrl: ragResult.dorarSearchUrl,
         isVerifiedOnly: true,
-        aiConfigured: true,
+        hasGeminiKey: true,
+        aiConfigured: false,
+        isFakeWarning: ragResult.isFakeWarning,
+        errorCode: lastErrorCode,
       });
     }
 
@@ -190,30 +223,34 @@ export async function POST(req: Request) {
       sources: ragResult.sources,
       dorarUrl: ragResult.dorarSearchUrl,
       isVerifiedOnly: true,
+      hasGeminiKey: true,
       aiConfigured: true,
+      isFakeWarning: ragResult.isFakeWarning,
     });
   } catch (error: any) {
-    console.error('API /api/chat error:', error);
+    console.error('Unhandled API /api/chat error:', error?.message || String(error));
     return NextResponse.json(
-      { error: 'حدث خطأ غير متوقع أثناء معالجة الطلب' },
+      { error: 'حدث خطأ غير متوقع أثناء معالجة الطلب', errorCode: 'INTERNAL_ERROR' },
       { status: 500 }
     );
   }
 }
 
 export async function GET() {
-  const geminiConfigured = Boolean(
+  const hasGeminiKey = Boolean(
     process.env.GEMINI_API_KEY &&
-    process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here'
+    process.env.GEMINI_API_KEY.trim() !== '' &&
+    process.env.GEMINI_API_KEY.trim() !== 'your_gemini_api_key_here'
   );
-  const dorarConfigured = Boolean(process.env.DORAR_API_KEY);
+  const dorarConfigured = Boolean(process.env.DORAR_API_KEY?.trim());
 
   return NextResponse.json({
     status: 'ok',
     service: 'Sunnah Platform AI Assistant API (RAG Engine)',
     version: '1.0.0',
     ragEnabled: true,
-    geminiConfigured,
+    hasGeminiKey,
+    geminiConfigured: hasGeminiKey,
     dorarConfigured,
     verifiedDatabases: [
       'الأربعون النووية (Nawawi 40)',

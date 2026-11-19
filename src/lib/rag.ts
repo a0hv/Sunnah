@@ -2,10 +2,10 @@
  * src/lib/rag.ts
  * نظام الاسترجاع الدلالي المعزز (RAG) المحصور بالبيانات الموثّقة لمنصة السنة.
  *
- * القواعد الصارمة:
- * 1. لا يُعتمد إلا على المصادر الموثّقة المعتمدة في مجلد src/data/
- * 2. التحقق الاستباقي من قسم «تثبّت» لكشف أي أحاديث مكذوبة أو لا تصح.
- * 3. تزويد نموذج الذكاء الاصطناعي بسياق منضبط يمنعه من اختلاق أي نصوص أو فتاوى.
+ * معايير الدقة العلمية:
+ * 1. استبعاد كلمات التوقف العربية الشائعة وأدوات الاستفهام لحصر البحث بالكلمات الجوهرية.
+ * 2. تطبيق حد تطابق صارم (Strict Match Threshold) واشتراط تطابق الكلمات الجوهرية كاملة في الاستفسارات المزدوجة لمنع التطابق العشوائي.
+ * 3. الفحص الاستباقي للتحذير من الأحاديث المكذوبة والضعيفة فقط عند تطابق متن الحديث المكذوب بعينه أو السؤال الصريح عن صحته.
  */
 
 import nawawiDataRaw from '@/data/nawawi40.json';
@@ -28,6 +28,49 @@ export function normalizeArabic(text: string): string {
     .toLowerCase();
 }
 
+/**
+ * تجريد السوابق الشائعة (واو العطف، فاء العطف، باء الجر، أل التعريف) لاستخلاص جذر الكلمة المقارن
+ */
+export function cleanStem(word: string): string {
+  let w = word;
+  if (w.startsWith('و') && w.length >= 4) w = w.slice(1);
+  if (w.startsWith('ف') && w.length >= 4) w = w.slice(1);
+  if (w.startsWith('ب') && w.length >= 4) w = w.slice(1);
+  if (w.startsWith('ال') && w.length >= 4) w = w.slice(2);
+  return w;
+}
+
+/**
+ * قائمة كلمات التوقف العربية الشائعة وأدوات الاستفهام والكلمات الوصفية العامة
+ */
+const ARABIC_STOP_WORDS = new Set([
+  'هل', 'ما', 'من', 'في', 'على', 'الي', 'الى', 'إلى', 'عن', 'ان', 'أن', 'إن',
+  'هو', 'هي', 'هم', 'هن', 'ماذا', 'كيف', 'متى', 'أين', 'اين', 'كم', 'لماذا', 'أي', 'اي',
+  'أريد', 'اريد', 'عايز', 'عايزة', 'ابغى', 'أبغى', 'وش', 'إيه', 'ايه',
+  'ثم', 'أو', 'او', 'لو', 'ولو', 'مع', 'عند', 'بعد', 'قبل', 'كل', 'ذلك', 'هذا', 'هذه', 'تلك', 'يا',
+  'كان', 'قال', 'سيدنا', 'الشيخ', 'ملخص', 'شرح', 'تفسير', 'ما هو', 'ما هي',
+  'حديث', 'الحديث', 'احاديث', 'الأحاديث', 'الاحاديث',
+  'صحيح', 'الصحيح', 'ضعيف', 'موضوع', 'مكذوب', 'باطل', 'حكم', 'درجة', 'درجه', 'صحة', 'صحه', 'تثبت'
+]);
+
+/**
+ * استخراج الكلمات الجوهرية (Core Keywords) بعد إزالة كلمات التوقف
+ */
+export function extractCoreTokens(query: string): string[] {
+  const norm = normalizeArabic(query);
+  if (!norm) return [];
+
+  const rawTokens = norm.split(' ').filter((t) => t.length >= 2);
+  const filtered = rawTokens.filter((t) => !ARABIC_STOP_WORDS.has(t));
+
+  // إذا كانت جميع الكلمات كلمات توقف، نعود للكلمات التي يزيد طولها عن حرفين
+  if (filtered.length === 0) {
+    return rawTokens.filter((t) => t.length >= 3);
+  }
+
+  return filtered;
+}
+
 export interface RagSource {
   title: string;
   category: string;
@@ -44,6 +87,77 @@ export interface RagRetrievalResult {
   dorarSearchUrl: string;
 }
 
+/**
+ * حساب درجة التطابق بين نص وسؤال مع حد أدنى صارم للمطابقة
+ */
+export function calculateMatchScore(
+  text: string,
+  title: string,
+  coreTokens: string[],
+  fullNormQuery: string
+): number {
+  if (coreTokens.length === 0) return 0;
+
+  const normText = normalizeArabic(text);
+  const normTitle = normalizeArabic(title);
+
+  let score = 0;
+
+  // تطابق العبارة الكاملة
+  if (fullNormQuery.length >= 5) {
+    if (normTitle.includes(fullNormQuery)) {
+      score += 300;
+    } else if (normText.includes(fullNormQuery)) {
+      score += 150;
+    }
+  }
+
+  let titleMatches = 0;
+  let textMatches = 0;
+  const matchedTokenIndices = new Set<number>();
+
+  for (let i = 0; i < coreTokens.length; i++) {
+    const token = coreTokens[i];
+    const stem = cleanStem(token);
+
+    const inTitle = normTitle.includes(token) || (stem.length >= 3 && normTitle.includes(stem));
+    const inText = normText.includes(token) || (stem.length >= 3 && normText.includes(stem));
+
+    if (inTitle) {
+      titleMatches++;
+      matchedTokenIndices.add(i);
+    }
+    if (inText) {
+      textMatches++;
+      matchedTokenIndices.add(i);
+    }
+  }
+
+  // حد التطابق الأدنى الصارم:
+  // - كلمة واحدة: يجب أن تتطابق
+  // - كلمتان: يجب أن تتطابق الكلمتان معًا (مجموع التطابقين = 2) لمنع التداخل العشوائي
+  // - 3 كلمات فأكثر: يلزم تطابق 60% على الأقل من الكلمات
+  const requiredHits =
+    coreTokens.length <= 1
+      ? 1
+      : coreTokens.length === 2
+      ? 2
+      : Math.min(3, Math.ceil(coreTokens.length * 0.6));
+
+  if (matchedTokenIndices.size < requiredHits) {
+    return 0; // استبعاد فوري
+  }
+
+  score += titleMatches * 60 + textMatches * 20;
+
+  // عقوبة النصوص الضخمة (تجنب تصدر القصص الطويلة التي تحتوي صدفة على كلمات شائعة)
+  if (normText.length > 1000) {
+    score -= Math.min(50, Math.floor(normText.length / 500));
+  }
+
+  return Math.max(0, score);
+}
+
 export function retrieveVerifiedContext(query: string): RagRetrievalResult {
   const normQuery = normalizeArabic(query);
   const dorarSearchUrl = getDorarSearchUrl(query);
@@ -58,10 +172,22 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
     };
   }
 
-  const queryTokens = normQuery.split(' ').filter((t) => t.length >= 2);
+  const coreTokens = extractCoreTokens(query);
   const sources: RagSource[] = [];
   const contextParts: string[] = [];
   let isFakeWarning = false;
+
+  // فحص ما إذا كان المستخدم يسأل صراحة عن صحة أو ثبوت حديث
+  const isExplicitAuthenticityQuery =
+    normQuery.includes('هل') ||
+    normQuery.includes('صحيح') ||
+    normQuery.includes('ضعيف') ||
+    normQuery.includes('مكذوب') ||
+    normQuery.includes('باطل') ||
+    normQuery.includes('تثبت') ||
+    normQuery.includes('حكم') ||
+    normQuery.includes('درجه') ||
+    normQuery.includes('صحه');
 
   // 1. فحص قسم «تثبّت» أولاً لكشف الأحاديث المكذوبة والضعيفة
   const fakeData = fakeDataRaw as any;
@@ -71,165 +197,229 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
     ? fakeData.fakeHadiths
     : [];
 
+  interface ScoredItem<T = any> {
+    item: T;
+    score: number;
+    extra?: any;
+  }
+
+  const scoredFakes: ScoredItem[] = [];
+
   for (const item of fakeList) {
-      const normText = normalizeArabic(item.hadithText || '');
-      const normExpl = normalizeArabic(item.explanation || '');
+    const hadithText = item.hadithText || '';
+    // العنوان المختصر لمتن الحديث
+    const shortTitle = hadithText.slice(0, 140);
+    const score = calculateMatchScore(hadithText, shortTitle, coreTokens, normQuery);
 
-      const isMatch =
-        normText.includes(normQuery) ||
-        (queryTokens.length >= 2 && queryTokens.every((t) => normText.includes(t))) ||
-        (queryTokens.length >= 2 && queryTokens.filter((t) => normText.includes(t)).length >= 2);
-
-      if (isMatch) {
-        isFakeWarning = true;
-        contextParts.push(
-          `[تنبيه علمي فوري من قسم تثبّت]\n` +
-          `الحديث المذكور: «${item.hadithText}»\n` +
-          `الحكم والدرجة: ${item.ruling}\n` +
-          `البيان والتحقيق: ${item.explanation}\n` +
-          `المصدر: الموسوعة الحديثية بمؤسسة «الدرر السنية»`
-        );
-        sources.push({
-          title: `حديث لا يصح: «${item.hadithText.slice(0, 45)}...»`,
-          category: 'قسم تثبّت — الدرر السنية',
-          source: item.ruling,
-          url: '/verify',
-          type: 'fake-hadith',
-        });
-        break; // نكتفي بأبرز مطابقة
-      }
+    // اشتراط حد أدنى مرتفع للأحاديث المكذوبة حتى لا تظهر إلا إذا كان الحديث مقصوداً بذاته
+    if (score >= 80) {
+      scoredFakes.push({ item, score });
     }
+  }
+
+  scoredFakes.sort((a, b) => b.score - a.score);
 
   // 2. البحث في الأربعين النووية (نصوص كاملة وأرقام)
   const nawawiData = nawawiDataRaw as any;
+  const scoredNawawi: ScoredItem[] = [];
   if (Array.isArray(nawawiData?.hadiths)) {
-    let nawawiMatches = 0;
     for (const item of nawawiData.hadiths) {
-      const normTitle = normalizeArabic(item.title || '');
-      const normText = normalizeArabic(item.text || '');
-      const normNarrator = normalizeArabic(item.narrator || '');
+      const score = calculateMatchScore(
+        item.text || '',
+        item.title || '',
+        coreTokens,
+        normQuery
+      );
 
-      const isMatch =
-        normTitle.includes(normQuery) ||
-        normText.includes(normQuery) ||
-        (queryTokens.length >= 2 && queryTokens.every((t) => normText.includes(t) || normTitle.includes(t)));
-
-      if (isMatch && nawawiMatches < 3) {
-        nawawiMatches++;
-        contextParts.push(
-          `[حديث نبوي شريف — الأربعون النووية]\n` +
-          `الحديث رقم (${item.id}): ${item.title}\n` +
-          `المتن: ${item.text}\n` +
-          `الراوي: ${item.narrator || 'صحابي جليل'}\n` +
-          `التخريج والمصدر: ${item.source || 'رواه البخاري ومسلم'}`
-        );
-        sources.push({
-          title: `الحديث (${item.id}): ${item.title}`,
-          category: 'الأربعون النووية',
-          source: item.source || 'الإمام النووي',
-          url: `/nawawi40#hadith-${item.id}`,
-          type: 'nawawi',
-        });
+      if (score > 0) {
+        scoredNawawi.push({ item, score });
       }
     }
+    scoredNawawi.sort((a, b) => b.score - a.score);
   }
 
   // 3. البحث في حصن المسلم (أذكار وأدعية موثقة)
   const hisnData = hisnDataRaw as any;
+  const scoredHisn: ScoredItem[] = [];
   if (Array.isArray(hisnData?.categories)) {
-    let hisnMatches = 0;
     for (const cat of hisnData.categories) {
-      const normCat = normalizeArabic(cat.title || '');
       const catItems = cat.items || cat.adhkar || [];
-
       for (const dhikr of catItems) {
-        const normText = normalizeArabic(dhikr.text || '');
-        const isMatch =
-          normText.includes(normQuery) ||
-          normCat.includes(normQuery) ||
-          (queryTokens.length >= 2 && queryTokens.every((t) => normText.includes(t) || normCat.includes(t)));
+        const score = calculateMatchScore(
+          dhikr.text || '',
+          cat.title || '',
+          coreTokens,
+          normQuery
+        );
 
-        if (isMatch && hisnMatches < 3) {
-          hisnMatches++;
-          contextParts.push(
-            `[ذكر مأثور — حصن المسلم]\n` +
-            `الباب: ${cat.title}\n` +
-            `الذكر: ${dhikr.text}\n` +
-            `التخريج: ${dhikr.reference || 'صحيح الأذكار'}\n` +
-            (dhikr.count > 1 ? `عدد التكرار: ${dhikr.count} مرات` : '')
-          );
-          sources.push({
-            title: cat.title,
-            category: 'حصن المسلم',
-            source: dhikr.reference || 'الشيخ سعيد بن وهف القحطاني',
-            url: `/adhkar?cat=${cat.id}`,
-            type: 'hisn',
-          });
-          break;
+        if (score > 0) {
+          scoredHisn.push({ item: dhikr, score, extra: cat });
         }
       }
-      if (hisnMatches >= 3) break;
     }
+    scoredHisn.sort((a, b) => b.score - a.score);
   }
 
   // 4. البحث في السيرة النبوية (محطات ودروس الرحيق المختوم)
   const seerahData = seerahDataRaw as any;
-  if (Array.isArray(seerahData?.stations)) {
-    let seerahMatches = 0;
-    for (const st of seerahData.stations) {
-      const normTitle = normalizeArabic(st.title || '');
-      const normSummary = normalizeArabic(st.summary || '');
-      const normEra = normalizeArabic(st.eraTitle || '');
+  const scoredSeerah: ScoredItem[] = [];
+  const seerahMilestones = Array.isArray(seerahData?.milestones)
+    ? seerahData.milestones
+    : Array.isArray(seerahData?.stations)
+    ? seerahData.stations
+    : [];
 
-      const isMatch =
-        normTitle.includes(normQuery) ||
-        normSummary.includes(normQuery) ||
-        (queryTokens.length >= 2 && queryTokens.every((t) => normSummary.includes(t) || normTitle.includes(t)));
+  for (const m of seerahMilestones) {
+    const fullText = `${m.summary || ''} ${(m.details || []).join(' ')} ${(m.lessons || []).join(' ')}`;
+    const score = calculateMatchScore(
+      fullText,
+      m.title || '',
+      coreTokens,
+      normQuery
+    );
 
-      if (isMatch && seerahMatches < 2) {
-        seerahMatches++;
-        contextParts.push(
-          `[موقف من السيرة النبوية — الرحيق المختوم]\n` +
-          `المحطة: ${st.title} (${st.eraTitle})\n` +
-          `التاريخ والمكان: ${st.hijriDate} — ${st.location}\n` +
-          `الملخص: ${st.summary}\n` +
-          `أبرز الدروس والعبر: ${(st.lessons || []).slice(0, 3).join(' • ')}`
-        );
-        sources.push({
-          title: st.title,
-          category: 'السيرة النبوية المطهرة',
-          source: 'الرحيق المختوم',
-          url: `/seerah#station-${st.id}`,
-          type: 'seerah',
-        });
-      }
+    if (score > 0) {
+      scoredSeerah.push({ item: m, score });
     }
   }
+  scoredSeerah.sort((a, b) => b.score - a.score);
 
   // 5. البحث في متتبع سنن اليوم والليلة
   const dailyData = dailyDataRaw as any;
+  const scoredDaily: ScoredItem[] = [];
   if (Array.isArray(dailyData?.stations)) {
     for (const d of dailyData.stations) {
-      const normTitle = normalizeArabic(d.title || '');
-      const normDesc = normalizeArabic(d.description || '');
+      const fullText = `${d.description || ''} ${d.hadithQuote || ''} ${(d.sunnahActions || []).join(' ')}`;
+      const score = calculateMatchScore(
+        fullText,
+        d.title || '',
+        coreTokens,
+        normQuery
+      );
 
-      if (normTitle.includes(normQuery) || normDesc.includes(normQuery)) {
-        contextParts.push(
-          `[سنة يومية عملية — متتبع سنن اليوم والليلة]\n` +
-          `المحطة: ${d.title} (${d.timeOfDay})\n` +
-          `الهدي النبوي: ${d.hadithQuote}\n` +
-          `السنن التطبيقية: ${(d.sunnahActions || []).slice(0, 4).join(' • ')}`
-        );
-        sources.push({
-          title: d.title,
-          category: 'سنن اليوم والليلة',
-          source: d.hadithQuote,
-          url: '/daily-tracker',
-          type: 'daily-tracker',
-        });
-        break;
+      if (score > 0) {
+        scoredDaily.push({ item: d, score });
       }
     }
+    scoredDaily.sort((a, b) => b.score - a.score);
+  }
+
+  // حساب أعلى درجة في المصادر المعتمدة الصحيحة
+  const authenticTopScore = Math.max(
+    scoredNawawi[0]?.score || 0,
+    scoredHisn[0]?.score || 0,
+    scoredSeerah[0]?.score || 0,
+    scoredDaily[0]?.score || 0
+  );
+
+  // حساب أعلى درجة بين جميع المصادر لتحديد عتبة الصلة النسبية
+  const overallTopScore = Math.max(
+    authenticTopScore,
+    scoredFakes[0]?.score || 0
+  );
+  const minRelevanceScore = Math.max(40, overallTopScore * 0.3);
+
+  // اتخاذ قرار التحذير من الحديث المكذوب:
+  // يتم تفعيل التحذير فقط إذا:
+  // 1. درجة تطابق الحديث المكذوب عالية (>= 80)
+  // 2. إما أن السؤال صريح عن صحة الحديث، أو أن درجة الحديث المكذوب تفوق أي مصدر معتمد
+  if (
+    scoredFakes.length > 0 &&
+    (isExplicitAuthenticityQuery || scoredFakes[0].score >= authenticTopScore)
+  ) {
+    const topFake = scoredFakes[0].item;
+    isFakeWarning = true;
+    contextParts.push(
+      `[تنبيه علمي فوري من قسم تثبّت]\n` +
+      `الحديث المذكور: «${topFake.hadithText}»\n` +
+      `الحكم والدرجة: ${topFake.ruling}\n` +
+      `المصدر: الموسوعة الحديثية بمؤسسة «الدرر السنية»`
+    );
+    sources.push({
+      title: `حديث لا يصح: «${topFake.hadithText.slice(0, 45)}...»`,
+      category: 'قسم تثبّت — الدرر السنية',
+      source: topFake.ruling,
+      url: '/verify',
+      type: 'fake-hadith',
+    });
+  }
+
+  // إضافة الأربعين النووية إن وُجدت
+  for (const { item } of scoredNawawi.filter((s) => s.score >= minRelevanceScore).slice(0, 2)) {
+    contextParts.push(
+      `[حديث نبوي شريف — الأربعون النووية]\n` +
+      `الحديث رقم (${item.id}): ${item.title}\n` +
+      `المتن: ${item.text}\n` +
+      `الراوي: ${item.narrator || 'صحابي جليل'}\n` +
+      `التخريج والمصدر: ${item.source || 'رواه البخاري ومسلم'}`
+    );
+    sources.push({
+      title: `الحديث (${item.id}): ${item.title}`,
+      category: 'الأربعون النووية',
+      source: item.source || 'الإمام النووي',
+      url: `/nawawi40#hadith-${item.id}`,
+      type: 'nawawi',
+    });
+  }
+
+  // إضافة حصن المسلم إن وُجدت
+  // تجميع الأذكار حسب الباب لتجنب التكرار
+  const addedCatIds = new Set<number>();
+  for (const { item: dhikr, extra: cat } of scoredHisn.filter((s) => s.score >= minRelevanceScore)) {
+    if (addedCatIds.has(cat.id)) continue;
+    addedCatIds.add(cat.id);
+
+    contextParts.push(
+      `[ذكر مأثور — حصن المسلم]\n` +
+      `الباب: ${cat.title}\n` +
+      `الذكر: ${dhikr.text}\n` +
+      `التخريج: ${dhikr.reference || 'صحيح الأذكار'}\n` +
+      (dhikr.count > 1 ? `عدد التكرار: ${dhikr.count} مرات` : '')
+    );
+    sources.push({
+      title: cat.title,
+      category: 'حصن المسلم',
+      source: dhikr.reference || 'الشيخ سعيد بن وهف القحطاني',
+      url: `/adhkar?cat=${cat.id}`,
+      type: 'hisn',
+    });
+
+    if (sources.filter((s) => s.type === 'hisn').length >= 2) break;
+  }
+
+  // إضافة السيرة النبوية إن وُجدت
+  for (const { item: m } of scoredSeerah.filter((s) => s.score >= minRelevanceScore).slice(0, 2)) {
+    contextParts.push(
+      `[موقف من السيرة النبوية — الرحيق المختوم]\n` +
+      `المحطة: ${m.title} (${m.eraTitle || ''})\n` +
+      `التاريخ والمكان: ${m.hijriDate || ''} — ${m.location || ''}\n` +
+      `الملخص: ${m.summary}\n` +
+      `أبرز الدروس والعبر: ${(m.lessons || []).slice(0, 3).join(' • ')}`
+    );
+    sources.push({
+      title: m.title,
+      category: 'السيرة النبوية المطهرة',
+      source: 'الرحيق المختوم',
+      url: `/seerah#${m.id}`,
+      type: 'seerah',
+    });
+  }
+
+  // إضافة سنن اليوم والليلة إن وُجدت
+  for (const { item: d } of scoredDaily.filter((s) => s.score >= minRelevanceScore).slice(0, 1)) {
+    contextParts.push(
+      `[سنة يومية عملية — متتبع سنن اليوم والليلة]\n` +
+      `المحطة: ${d.title} (${d.timeOfDay || ''})\n` +
+      `الهدي النبوي: ${d.hadithQuote || ''}\n` +
+      `السنن التطبيقية: ${(d.sunnahActions || []).slice(0, 4).join(' • ')}`
+    );
+    sources.push({
+      title: d.title,
+      category: 'سنن اليوم والليلة',
+      source: d.hadithQuote || 'سنة نبوية مؤكدة',
+      url: '/daily-tracker',
+      type: 'daily-tracker',
+    });
   }
 
   const hasVerifiedContext = contextParts.length > 0;

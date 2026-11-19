@@ -73,20 +73,20 @@ const PILLARS = [
 
 export default function HomePage() {
   return (
-    <div className="space-y-16 md:space-y-24 py-8 md:py-14 text-start">
+    <div className="space-y-12 sm:space-y-16 md:space-y-24 py-6 sm:py-8 md:py-14 text-start overflow-x-hidden w-full max-w-full">
       {/* 1. Hero Section & AI Assistant */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 sm:space-y-8">
         <div className="space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-brand/10 dark:bg-emerald-brand-dark/15 text-emerald-brand dark:text-emerald-brand-dark border border-emerald-brand/20 dark:border-emerald-brand-dark/30 shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-emerald-brand dark:bg-emerald-brand-dark animate-pulse" />
             <span>منصة السنة النبوية الشاملة • الحديث والأذكار والآداب</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-bold font-display text-slate-900 dark:text-white tracking-tight leading-tight sm:leading-snug">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold font-display text-slate-900 dark:text-white tracking-tight leading-tight sm:leading-snug">
             منصة السنة
           </h1>
 
-          <p className="text-base sm:text-lg text-muted-light dark:text-muted-dark max-w-2xl mx-auto leading-relaxed font-text">
+          <p className="text-sm sm:text-base md:text-lg text-muted-light dark:text-muted-dark max-w-2xl mx-auto leading-relaxed font-text">
             المرجع الرقمي العصري لكلام سيد المرسلين ﷺ: كتاب «الأربعون النووية» بنظام التسميع الذاتي، وكتاب «حصن المسلم» بالعدّاد التفاعلي، والسيرة النبوية، وقسم تثبّت، ومتتبع سنن اليوم والليلة.
           </p>
         </div>
@@ -111,14 +111,14 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {PILLARS.map((pillar) => {
             const Icon = pillar.icon;
             return (
               <Link
                 key={pillar.title}
                 href={pillar.href}
-                className={`group p-6 rounded-3xl border transition-all duration-200 flex flex-col justify-between space-y-4 shadow-xs hover:shadow-md ${
+                className={`group p-5 sm:p-6 rounded-3xl border transition-all duration-200 flex flex-col justify-between space-y-4 shadow-xs hover:shadow-md ${
                   pillar.highlight
                     ? 'bg-gradient-to-b from-surface-light to-emerald-brand/5 dark:from-surface-dark dark:to-emerald-brand-dark/10 border-emerald-brand/30 dark:border-emerald-brand-dark/40 hover:border-emerald-brand'
                     : 'bg-surface-light dark:bg-surface-dark border-subtle-light dark:border-subtle-dark hover:border-emerald-brand/50'
@@ -135,7 +135,7 @@ export default function HomePage() {
                   </div>
 
                   <div>
-                    <h3 className="font-display font-bold text-xl text-slate-900 dark:text-white group-hover:text-emerald-brand dark:group-hover:text-emerald-brand-dark transition-colors">
+                    <h3 className="font-display font-bold text-lg sm:text-xl text-slate-900 dark:text-white group-hover:text-emerald-brand dark:group-hover:text-emerald-brand-dark transition-colors">
                       {pillar.title}
                     </h3>
                     <span className="text-xs text-muted-light dark:text-muted-dark font-sans block">
@@ -174,13 +174,13 @@ export default function HomePage() {
 
       {/* 4. متتبع سنن اليوم والليلة Banner */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="p-8 sm:p-10 rounded-3xl bg-linear-to-r from-emerald-brand/10 via-surface-light to-gold-accent/10 dark:from-emerald-brand-dark/20 dark:via-surface-dark dark:to-gold-accent-dark/15 border border-emerald-brand/20 dark:border-emerald-brand-dark/30 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="p-6 sm:p-8 md:p-10 rounded-3xl bg-linear-to-r from-emerald-brand/10 via-surface-light to-gold-accent/10 dark:from-emerald-brand-dark/20 dark:via-surface-dark dark:to-gold-accent-dark/15 border border-emerald-brand/20 dark:border-emerald-brand-dark/30 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6 w-full">
           <div className="space-y-2 text-center md:text-start">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-brand text-white shadow-2xs">
               <CalendarCheck className="w-3.5 h-3.5" />
               <span>أداة تفاعلية يومية</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-display text-slate-900 dark:text-white">
               متتبع سنن اليوم والليلة
             </h2>
             <p className="text-xs sm:text-sm text-muted-light dark:text-muted-dark max-w-xl leading-relaxed">
@@ -190,7 +190,7 @@ export default function HomePage() {
 
           <Link
             href="/daily-tracker"
-            className="shrink-0 px-6 py-3.5 rounded-2xl bg-emerald-brand text-white font-bold text-sm shadow-md hover:bg-emerald-brand/90 transition-all flex items-center gap-2 group"
+            className="w-full sm:w-auto shrink-0 px-6 py-3.5 rounded-2xl bg-emerald-brand text-white font-bold text-sm shadow-md hover:bg-emerald-brand/90 transition-all flex items-center justify-center gap-2 group"
           >
             <span>بدء تتبع سنن اليوم</span>
             <ArrowRight className="w-4 h-4 rtl:rotate-180 group-hover:-translate-x-1 transition-transform" />

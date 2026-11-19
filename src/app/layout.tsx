@@ -56,11 +56,11 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-paper-light text-charcoal-light dark:bg-paper-dark dark:text-charcoal-dark antialiased font-sans selection:bg-emerald-brand selection:text-white transition-colors">
+      <body className="min-h-screen bg-paper-light text-charcoal-light dark:bg-paper-dark dark:text-charcoal-dark antialiased font-sans selection:bg-emerald-brand selection:text-white transition-colors overflow-x-hidden w-full max-w-full">
         <ThemeProvider>
-          <div className="flex flex-col min-h-screen">
+          <div className="flex flex-col min-h-screen overflow-x-hidden w-full max-w-full">
             <Navbar />
-            <div className="flex-1 pb-20 md:pb-0">
+            <div className="flex-1 pb-20 md:pb-0 overflow-x-hidden w-full max-w-full">
               {children}
             </div>
             <Footer />

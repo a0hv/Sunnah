@@ -10,15 +10,13 @@ import {
   ExternalLink,
   ShieldAlert,
   BookOpen,
-  ArrowRight,
   Scroll,
   CalendarCheck,
   Compass,
   Check,
   Copy,
-  ChevronDown,
 } from 'lucide-react';
-import { FormattedArabicText } from './FormattedArabicText';
+import { getQuranComUrl } from '@/lib/external-refs';
 
 export interface AssistantSource {
   title: string;
@@ -50,7 +48,99 @@ interface SunnahAssistantProps {
 }
 
 /**
- * دالة مساعدة لتنسيق وتجزئة نصوص الرد إلى فقرات، وأحاديث «...»، وآيات ﴿...﴾، وقوائم نقطية.
+ * دالة آمنة لتحويل نصوص Markdown البسيطة ([روابط]، **خط عريض**، «أحاديث»، ﴿آيات﴾)
+ * إلى عناصر React تفاعلية دون ظهور رموز الماركداون الخام.
+ */
+function renderRichMarkdown(text: string): React.ReactNode {
+  if (!text) return null;
+
+  // Regex لالتقاط: الروابط [title](url)، والخط العريض **bold**، والآيات ﴿...﴾، والأقوال «...»
+  const TOKEN_REGEX =
+    /((?:\[[^\]]+\]\([^)]+\))|(?:\*\*[^*]+\*\*)|(?:﴿[^﴾]+﴾)|(?:«[^»]+»))/g;
+
+  const parts = text.split(TOKEN_REGEX);
+
+  return parts.map((part, index) => {
+    if (!part) return null;
+
+    // 1. رابط ماركداون [نص](رابط)
+    if (part.startsWith('[') && part.includes('](') && part.endsWith(')')) {
+      const match = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+      if (match) {
+        const [, linkTitle, linkHref] = match;
+        const isInternal = linkHref.startsWith('/');
+        if (isInternal) {
+          return (
+            <Link
+              key={index}
+              href={linkHref}
+              className="text-emerald-brand dark:text-emerald-brand-dark font-bold underline decoration-emerald-brand/40 underline-offset-4 hover:opacity-80 transition-opacity mx-0.5"
+            >
+              {linkTitle}
+            </Link>
+          );
+        }
+        return (
+          <a
+            key={index}
+            href={linkHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-emerald-brand dark:text-emerald-brand-dark font-bold underline decoration-emerald-brand/40 underline-offset-4 hover:opacity-80 transition-opacity inline-flex items-center gap-0.5 mx-0.5"
+          >
+            <span>{linkTitle}</span>
+            <ExternalLink className="w-3 h-3 inline ms-0.5" />
+          </a>
+        );
+      }
+    }
+
+    // 2. خط عريض **نص**
+    if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+      const boldText = part.slice(2, -2);
+      return (
+        <strong key={index} className="font-bold text-slate-900 dark:text-white">
+          {boldText}
+        </strong>
+      );
+    }
+
+    // 3. آية قرآنية ﴿...﴾
+    if (part.startsWith('﴿') && part.endsWith('﴾')) {
+      const quranUrl = getQuranComUrl(part);
+      return (
+        <a
+          key={index}
+          href={quranUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="اقرأ الآية وتفسيرها في Quran.com"
+          className="font-quran font-bold text-gold-accent dark:text-amber-300 text-[1.12em] px-0.5 select-text hover:underline decoration-gold-accent/50 underline-offset-4 transition-colors"
+        >
+          {part}
+        </a>
+      );
+    }
+
+    // 4. حديث أو قول نبوي «...»
+    if (part.startsWith('«') && part.endsWith('»')) {
+      return (
+        <span
+          key={index}
+          className="font-hadith font-semibold text-emerald-950 dark:text-emerald-200 px-0.5"
+        >
+          {part}
+        </span>
+      );
+    }
+
+    // نص عادي
+    return <React.Fragment key={index}>{part}</React.Fragment>;
+  });
+}
+
+/**
+ * دالة مساعدة لتجزئة نصوص الرد إلى فقرات، وعناوين، وتنبيهات، وقوائم نقطية منسقة.
  */
 function AssistantContent({ content }: { content: string }) {
   if (!content) return null;
@@ -73,31 +163,39 @@ function AssistantContent({ content }: { content: string }) {
               key={idx}
               className="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white pt-2 pb-0.5 border-b border-subtle-light/40 dark:border-subtle-dark/40"
             >
-              {headingText}
+              {renderRichMarkdown(headingText)}
             </h4>
           );
         }
 
-        // تنبيهات هامة
+        // تنبيهات هامة وقسم تثبّت
         if (trimmed.startsWith('⚠️') || trimmed.includes('تنبيه علمي')) {
           return (
             <div
               key={idx}
-              className="p-3 sm:p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs sm:text-sm font-medium leading-relaxed my-2"
+              className="p-3.5 sm:p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/30 text-amber-950 dark:text-amber-200 text-xs sm:text-sm font-medium leading-relaxed my-2 flex items-start gap-2.5"
             >
-              <FormattedArabicText text={trimmed} />
+              <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div className="flex-1 space-y-1">
+                {renderRichMarkdown(trimmed.replace(/^⚠️\s*/, ''))}
+              </div>
             </div>
           );
         }
 
-        // عناصر القوائم
-        if (trimmed.startsWith('•') || trimmed.startsWith('-') || /^\d+\./.test(trimmed)) {
-          const listText = trimmed.replace(/^[•\-\d.]\s*/, '');
+        // عناصر القوائم (• أو - أو * أو رقم.)
+        if (
+          trimmed.startsWith('•') ||
+          trimmed.startsWith('-') ||
+          trimmed.startsWith('* ') ||
+          /^\d+\./.test(trimmed)
+        ) {
+          const listText = trimmed.replace(/^[•\-\*]|\d+\.\s*/, '').trim();
           return (
             <div key={idx} className="flex items-start gap-2 ps-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-brand shrink-0 mt-2.5" />
-              <div className="flex-1">
-                <FormattedArabicText text={listText} />
+              <div className="flex-1 leading-[2]">
+                {renderRichMarkdown(listText)}
               </div>
             </div>
           );
@@ -106,7 +204,7 @@ function AssistantContent({ content }: { content: string }) {
         // فقرة عادية
         return (
           <p key={idx} className="leading-[2.1]">
-            <FormattedArabicText text={trimmed} />
+            {renderRichMarkdown(trimmed)}
           </p>
         );
       })}
@@ -133,7 +231,11 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
   }, [messages, isLoading]);
 
   const copyMessage = (id: string, text: string) => {
-    navigator.clipboard.writeText(text);
+    // تنظيف الماركداون عند النسخ للحافظة
+    const cleanText = text
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)');
+    navigator.clipboard.writeText(cleanText);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
@@ -154,7 +256,6 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
     setIsLoading(true);
 
     try {
-      // إرسال طلب المحادثة إلى مسار API بـ trailing slash (لأن trailingSlash: true)
       const res = await fetch('/api/chat/', {
         method: 'POST',
         headers: {
@@ -170,7 +271,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
       });
 
       if (!res.ok) {
-        throw new Error(`خطأ في الاتصال بالخادم (${res.status})`);
+        throw new Error(`HTTP_${res.status}`);
       }
 
       const data = await res.json();
@@ -187,7 +288,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
-    } catch (err: any) {
+    } catch {
       const errorMsg: AssistantMessage = {
         id: `err-${Date.now()}`,
         role: 'assistant',
@@ -232,14 +333,14 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
 
   return (
     <div
-      className={`rounded-3xl border border-subtle-light dark:border-subtle-dark bg-surface-light dark:bg-surface-dark shadow-xs flex flex-col justify-between overflow-hidden transition-all text-start ${
-        compact ? 'h-full max-h-[85vh] p-4 sm:p-5' : 'p-5 sm:p-8 max-w-3xl mx-auto'
+      className={`rounded-3xl border border-subtle-light dark:border-subtle-dark bg-surface-light dark:bg-surface-dark shadow-xs flex flex-col justify-between overflow-hidden transition-all text-start w-full max-w-full ${
+        compact ? 'h-full max-h-[85vh] p-4 sm:p-5' : 'p-4 sm:p-8 max-w-3xl mx-auto'
       }`}
     >
       {/* 1. Header Bar */}
       <div className="flex items-center justify-between border-b border-subtle-light/60 dark:border-subtle-dark/60 pb-3 mb-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-emerald-brand/10 dark:bg-emerald-brand-dark/20 text-emerald-brand dark:text-emerald-brand-dark flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl bg-emerald-brand/10 dark:bg-emerald-brand-dark/20 text-emerald-brand dark:text-emerald-brand-dark flex items-center justify-center shrink-0">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
@@ -281,13 +382,13 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
 
       {/* 2. Messages List or Empty State */}
       <div
-        className={`flex-1 overflow-y-auto space-y-4 pe-1 ${
+        className={`flex-1 overflow-y-auto space-y-4 pe-1 w-full max-w-full ${
           compact ? 'min-h-[260px]' : messages.length > 0 ? 'min-h-[300px] max-h-[500px]' : ''
         }`}
       >
         {messages.length === 0 ? (
           <div className="text-center py-6 sm:py-8 space-y-4">
-            <div className="space-y-1.5 max-w-lg mx-auto">
+            <div className="space-y-1.5 max-w-lg mx-auto px-2">
               <h4 className="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white">
                 بماذا يمكنني أن أعينك في هدي النبوة اليوم؟
               </h4>
@@ -297,7 +398,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
             </div>
 
             {/* Quick Prompts Pills */}
-            <div className="pt-2">
+            <div className="pt-2 px-1">
               <span className="text-[11px] font-semibold text-muted-light dark:text-muted-dark block mb-2">
                 جرّب السؤال بنقرة واحدة:
               </span>
@@ -307,7 +408,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
                     key={prompt}
                     onClick={() => handleSend(prompt)}
                     disabled={isLoading}
-                    className="px-3.5 py-1.5 rounded-2xl bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark hover:border-emerald-brand/50 text-xs text-charcoal-light dark:text-charcoal-dark font-medium transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+                    className="px-3 py-1.5 rounded-2xl bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark hover:border-emerald-brand/50 text-xs text-charcoal-light dark:text-charcoal-dark font-medium transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 text-start"
                   >
                     «{prompt}»
                   </button>
@@ -316,13 +417,13 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
             </div>
           </div>
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-5 w-full">
             {messages.map((m) => {
               const isUser = m.role === 'user';
               return (
                 <div
                   key={m.id}
-                  className={`flex flex-col space-y-2 animate-in fade-in duration-200 ${
+                  className={`flex flex-col space-y-2 animate-in fade-in duration-200 w-full ${
                     isUser ? 'items-end' : 'items-start'
                   }`}
                 >
@@ -333,7 +434,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
 
                   {/* Bubble */}
                   <div
-                    className={`p-4 rounded-3xl max-w-[90%] sm:max-w-[85%] ${
+                    className={`p-4 rounded-3xl max-w-[92%] sm:max-w-[85%] break-words ${
                       isUser
                         ? 'bg-emerald-brand text-white rounded-te-xs shadow-xs text-sm sm:text-base'
                         : 'bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark rounded-ts-xs shadow-2xs space-y-3'
@@ -357,7 +458,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
                                 <Link
                                   key={sIdx}
                                   href={s.url}
-                                  className="p-2.5 rounded-2xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark hover:border-emerald-brand/60 transition-colors flex items-start gap-2 group text-xs"
+                                  className="p-2.5 rounded-2xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark hover:border-emerald-brand/60 transition-colors flex items-start gap-2 group text-xs overflow-hidden"
                                 >
                                   <div className="p-1 rounded-lg bg-emerald-brand/10 dark:bg-emerald-brand-dark/20 shrink-0 mt-0.5">
                                     {getSourceIcon(s.type)}
@@ -382,7 +483,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
                         )}
 
                         {/* Action buttons (Copy + Dorar) */}
-                        <div className="flex items-center justify-between pt-1 text-xs text-muted-light dark:text-muted-dark">
+                        <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs text-muted-light dark:text-muted-dark">
                           <div className="flex items-center gap-1.5">
                             <button
                               onClick={() => copyMessage(m.id, m.content)}
@@ -441,13 +542,13 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
       </div>
 
       {/* 3. Input Form */}
-      <div className="mt-4 pt-3 border-t border-subtle-light/60 dark:border-subtle-dark/60 space-y-2">
+      <div className="mt-4 pt-3 border-t border-subtle-light/60 dark:border-subtle-dark/60 space-y-2 w-full">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSend();
           }}
-          className="relative flex items-center shadow-xs rounded-2xl bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark focus-within:ring-2 focus-within:ring-emerald-brand transition-all overflow-hidden"
+          className="relative flex items-center shadow-xs rounded-2xl bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark focus-within:ring-2 focus-within:ring-emerald-brand transition-all overflow-hidden w-full"
         >
           <input
             ref={inputRef}
@@ -457,14 +558,14 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
             onKeyDown={handleKeyDown}
             placeholder="اسأل المساعد في الحديث، الأذكار، السيرة، أو صحة حديث..."
             disabled={isLoading}
-            className="w-full py-3.5 ps-4 pe-14 bg-transparent text-sm sm:text-base text-slate-900 dark:text-white placeholder:text-muted-light/60 dark:placeholder:text-muted-dark/60 focus:outline-hidden font-sans"
+            className="w-full py-3 ps-3.5 pe-12 bg-transparent text-xs sm:text-sm md:text-base text-slate-900 dark:text-white placeholder:text-muted-light/60 dark:placeholder:text-muted-dark/60 focus:outline-hidden font-sans"
           />
 
-          <div className="absolute end-2">
+          <div className="absolute end-1.5">
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="w-9 h-9 rounded-xl bg-emerald-brand text-white flex items-center justify-center hover:bg-emerald-brand/90 transition-all disabled:opacity-30 disabled:pointer-events-none shadow-2xs group"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-brand text-white flex items-center justify-center hover:bg-emerald-brand/90 transition-all disabled:opacity-30 disabled:pointer-events-none shadow-2xs group"
               title="إرسال السؤال"
             >
               {isLoading ? (
@@ -477,7 +578,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
         </form>
 
         {/* Disclaimer Footer */}
-        <p className="text-center text-[11px] text-muted-light/80 dark:text-muted-dark/80 font-text">
+        <p className="text-center text-[10px] sm:text-[11px] text-muted-light/80 dark:text-muted-dark/80 font-text">
           إجابات من مكتبة المنصة الموثّقة فقط • ليس مفتيًا شرعيًا
         </p>
       </div>
