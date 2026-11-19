@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, Menu, X, BookOpen } from 'lucide-react';
+import { Search, Menu, X } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
+import { BrandLogo } from './BrandLogo';
 
 const NAV_LINKS = [
   { href: '/', label: 'الرئيسية' },
@@ -25,24 +26,7 @@ export function Navbar() {
     <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-paper-light/90 dark:bg-paper-dark/90 border-b border-subtle-light dark:border-subtle-dark transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand / Logo */}
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="flex items-center gap-2.5 text-charcoal-light dark:text-charcoal-dark hover:opacity-90 transition-opacity group"
-          >
-            <div className="w-9 h-9 rounded-xl bg-emerald-brand/10 dark:bg-emerald-brand-dark/15 border border-emerald-brand/20 dark:border-emerald-brand-dark/30 flex items-center justify-center text-emerald-brand dark:text-emerald-brand-dark shadow-xs group-hover:scale-105 transition-transform">
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-base sm:text-lg tracking-tight font-display text-slate-900 dark:text-white">
-                منصة السنة
-              </span>
-              <span className="text-[10px] text-muted-light dark:text-muted-dark font-sans -mt-1 hidden sm:inline-block">
-                الحديث النبوي والآداب
-              </span>
-            </div>
-          </Link>
-        </div>
+        <BrandLogo size="md" />
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-1 lg:gap-1.5" aria-label="شريط التنقل الرئيسي">

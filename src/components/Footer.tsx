@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { BookOpen, Compass, Sparkles, Scroll, Search, CalendarCheck } from 'lucide-react';
+import { Compass, Sparkles, Scroll, Search, CalendarCheck } from 'lucide-react';
+import { BrandLogo } from './BrandLogo';
 
 export function Footer() {
   return (
@@ -9,14 +10,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Column 1: Brand & Purpose */}
           <div className="md:col-span-2 space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-emerald-brand/10 dark:bg-emerald-brand-dark/15 border border-emerald-brand/20 dark:border-emerald-brand-dark/30 flex items-center justify-center text-emerald-brand dark:text-emerald-brand-dark">
-                <BookOpen className="w-4 h-4" />
-              </div>
-              <h3 className="font-bold text-base text-charcoal-light dark:text-charcoal-dark font-display">
-                منصة السنة
-              </h3>
-            </div>
+            <BrandLogo size="md" showSubtitle={false} />
             <p className="text-xs text-muted-light dark:text-muted-dark leading-relaxed max-w-md">
               منصة رقمية حديثة تجمع أصول الحديث النبوي الشريف والآداب والأذكار اليومية؛ تضم الأحاديث المشروحة، حصن المسلم، السيرة النبوية، الأربعون النووية، قسم تثبّت، ومتتبع سنن يومك وليلتك بتصميم تفاعلي وبحث فوري.
             </p>
