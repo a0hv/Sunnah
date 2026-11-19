@@ -2,7 +2,6 @@ import React from 'react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import {
-  Search,
   BookOpen,
   Sparkles,
   Compass,
@@ -16,6 +15,7 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import { HadithOfTheDay } from '@/components/HadithOfTheDay';
+import { SunnahAssistant } from '@/components/SunnahAssistant';
 
 export const metadata: Metadata = {
   title: 'منصة السنة | الأربعون النووية وحصن المسلم وتثبّت',
@@ -71,19 +71,10 @@ const PILLARS = [
   },
 ];
 
-const SEARCH_SUGGESTIONS = [
-  { label: 'إنما الأعمال بالنيات', q: 'النيات' },
-  { label: 'الصبر واليقين', q: 'الصبر' },
-  { label: 'حسن الخلق', q: 'الخلق' },
-  { label: 'أذكار الصباح والمساء', q: 'الصباح' },
-  { label: 'دعاء السفر', q: 'السفر' },
-  { label: 'التوبة والاستغفار', q: 'التوبة' },
-];
-
 export default function HomePage() {
   return (
     <div className="space-y-16 md:space-y-24 py-8 md:py-14 text-start">
-      {/* 1. Hero Section & Instant Search */}
+      {/* 1. Hero Section & AI Assistant */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
         <div className="space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-brand/10 dark:bg-emerald-brand-dark/15 text-emerald-brand dark:text-emerald-brand-dark border border-emerald-brand/20 dark:border-emerald-brand-dark/30 shadow-2xs">
@@ -100,46 +91,8 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* Search Bar Input */}
-        <div className="max-w-2xl mx-auto space-y-3">
-          <form
-            action="/search"
-            method="GET"
-            className="relative flex items-center shadow-md rounded-2xl overflow-hidden bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark focus-within:ring-2 focus-within:ring-emerald-brand transition-all"
-          >
-            <div className="ps-4 text-muted-light dark:text-muted-dark pointer-events-none">
-              <Search className="w-5 h-5" />
-            </div>
-            <input
-              type="text"
-              name="q"
-              placeholder="ابحث في الأحاديث، الكتب، الأبواب، أو الأذكار..."
-              className="w-full py-4 px-3.5 bg-transparent text-sm sm:text-base text-slate-900 dark:text-white placeholder:text-muted-light/60 dark:placeholder:text-muted-dark/60 focus:outline-hidden font-sans"
-            />
-            <div className="pe-2">
-              <button
-                type="submit"
-                className="px-5 py-2.5 rounded-xl bg-emerald-brand text-white font-bold text-xs sm:text-sm hover:bg-emerald-brand/90 transition-colors shadow-xs"
-              >
-                بحث
-              </button>
-            </div>
-          </form>
-
-          {/* Quick Search Tags */}
-          <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1 text-xs text-muted-light dark:text-muted-dark">
-            <span className="text-[11px] font-semibold me-1">شائع في البحث:</span>
-            {SEARCH_SUGGESTIONS.map((tag) => (
-              <Link
-                key={tag.label}
-                href={`/search?q=${encodeURIComponent(tag.q)}`}
-                className="px-2.5 py-1 rounded-lg bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark hover:border-emerald-brand/40 text-charcoal-light dark:text-charcoal-dark transition-colors"
-              >
-                {tag.label}
-              </Link>
-            ))}
-          </div>
-        </div>
+        {/* 1.1 واجهة المساعد الشخصي الذكي (RAG موثّق) */}
+        <SunnahAssistant />
       </section>
 
       {/* 2. الأركان الأربعة لمنصة السنة */}
