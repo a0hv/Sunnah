@@ -2,12 +2,135 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================================================
+   THMANYAH FONTS DECLARATIONS (@font-face)
+   ========================================================================== */
+
+/* 1. Thmanyah Serif Display — خط ثمانية للعناوين (5 أوزان) */
+@font-face {
+  font-family: 'Thmanyah Display';
+  src: url('/fonts/thmanyah-serif-display-Black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Display';
+  src: url('/fonts/thmanyah-serif-display-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Display';
+  src: url('/fonts/thmanyah-serif-display-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Display';
+  src: url('/fonts/thmanyah-serif-display-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Display';
+  src: url('/fonts/thmanyah-serif-display-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 2. Thmanyah Serif Text — خط ثمانية للنصوص والشروح (5 أوزان) */
+@font-face {
+  font-family: 'Thmanyah Text';
+  src: url('/fonts/thmanyah-serif-text-Black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Text';
+  src: url('/fonts/thmanyah-serif-text-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Text';
+  src: url('/fonts/thmanyah-serif-text-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Text';
+  src: url('/fonts/thmanyah-serif-text-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Text';
+  src: url('/fonts/thmanyah-serif-text-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 3. Thmanyah Sans — خط ثمانية الرقمي للواجهة والأزرار (5 أوزان) */
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('/fonts/thmanyah-sans-Black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('/fonts/thmanyah-sans-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('/fonts/thmanyah-sans-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('/fonts/thmanyah-sans-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('/fonts/thmanyah-sans-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 4. الخط العثماني للآيات القرآنية */
+@font-face {
+  font-family: 'UthmanicHafs';
+  src: url('/fonts/uthmanic-hafs-v20.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --font-sans: 'Thmanyah Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Thmanyah Serif Display', Georgia, serif;
-  --font-text: 'Thmanyah Serif Text', Georgia, serif;
-  --font-hadith: 'Amiri', 'Traditional Arabic', serif;
-  --font-quran: 'UthmanicHafs V20', 'Amiri', serif;
+  --font-display: 'Thmanyah Display', serif;
+  --font-text: 'Thmanyah Text', serif;
+  --font-sans: 'Thmanyah Sans', sans-serif;
+  --font-quran: 'UthmanicHafs', serif;
   
   --bg-paper: #FAF9F5;
   --bg-surface: #FFFFFF;
@@ -33,36 +156,36 @@
     direction: rtl;
     background-color: var(--bg-paper);
     color: var(--text-charcoal);
+    font-family: 'Thmanyah Sans', sans-serif;
   }
   
   body {
-    font-family: var(--font-sans);
+    font-family: 'Thmanyah Sans', sans-serif;
     text-align: start;
     background-color: var(--bg-paper);
     color: var(--text-charcoal);
   }
 
   h1, h2, h3, h4, h5, h6, .font-display {
-    font-family: var(--font-display);
-    letter-spacing: -0.01em;
+    font-family: 'Thmanyah Display', serif !important;
   }
 
   .font-text {
-    font-family: var(--font-text);
+    font-family: 'Thmanyah Text', serif;
     line-height: 2;
   }
 
   .font-sans {
-    font-family: var(--font-sans);
+    font-family: 'Thmanyah Sans', sans-serif;
   }
 
   .font-hadith {
-    font-family: var(--font-hadith);
+    font-family: var(--font-hadith), 'Amiri', serif;
     line-height: 2.25;
   }
 
   .font-quran {
-    font-family: var(--font-quran);
+    font-family: 'UthmanicHafs', serif;
     line-height: 2.1;
   }
 

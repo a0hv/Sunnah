@@ -11,11 +11,11 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-sans)', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-        display: ['var(--font-display)', 'serif'],
-        text: ['var(--font-text)', 'serif'],
+        display: ['"Thmanyah Display"', 'serif'],
+        text: ['"Thmanyah Text"', 'serif'],
+        sans: ['"Thmanyah Sans"', 'sans-serif'],
         hadith: ['var(--font-hadith)', 'serif'],
-        quran: ['var(--font-quran)', 'serif'],
+        quran: ['"UthmanicHafs"', 'serif'],
       },
       colors: {
         paper: {
