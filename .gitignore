@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js Build & Static Export
+.next/
+out/
+build/
+dist/
+*.zip
+
+# TypeScript Build Cache
+*.tsbuildinfo
+next-env.d.ts
+
+# Testing & Coverage
+coverage/
+.nyc_output/
+
+# Heavy Raw Data & Source Dumps
+source/
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel/
+
+# Operating System & IDE
+.DS_Store
+Thumbs.db
+*.pem
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
