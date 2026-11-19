@@ -210,7 +210,7 @@ export function DailyTrackerClient() {
               <Calendar className="w-3.5 h-3.5 text-emerald-brand" />
               <span>{isMounted ? getFormattedArabicDate() : 'اليوم الحالي'}</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold font-sans text-slate-900 dark:text-white">
+            <h2 className="text-xl sm:text-2xl font-bold font-display text-slate-900 dark:text-white">
               محطات يومك وليلتك مع هدي النبوة
             </h2>
             <p className="text-xs text-muted-light dark:text-muted-dark max-w-xl leading-relaxed">
@@ -353,7 +353,7 @@ export function DailyTrackerClient() {
                         {station.order}
                       </span>
                       <h3
-                        className={`font-sans font-bold text-lg sm:text-xl ${
+                        className={`font-display font-bold text-lg sm:text-xl ${
                           isDone
                             ? 'line-through text-muted-light dark:text-muted-dark'
                             : 'text-slate-900 dark:text-white'

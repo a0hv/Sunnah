@@ -188,11 +188,11 @@ export function HadithsClient() {
             <span>المصدر: موسوعة الأحاديث النبوية — HadeethEnc.com (إشراف علمي، بدون تعديل على النص)</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-bold font-sans text-slate-900 dark:text-white leading-tight">
+          <h1 className="text-3xl sm:text-4xl font-bold font-display text-slate-900 dark:text-white leading-tight">
             الأحاديث النبوية المشروحة
           </h1>
 
-          <p className="text-xs sm:text-sm text-muted-light dark:text-muted-dark leading-relaxed font-sans">
+          <p className="text-xs sm:text-sm text-muted-light dark:text-muted-dark leading-relaxed font-text">
             أكثر من ٥٠٠ حديث نبوي شريف صحيح وحسن، تغطي أصول الإيمان ومحاسن الأخلاق والعبادات وفقه الأسرة والمعاملات، مشفوعة ببيان التخريج والدرجة، والشرح الميسر، والفوائد التربوية المستنبطة، ومعاني الكلمات الغريبة.
           </p>
 
@@ -353,7 +353,7 @@ export function HadithsClient() {
                 </div>
 
                 {/* Hadith Title */}
-                <h2 className="text-lg sm:text-xl font-bold font-sans text-slate-900 dark:text-white leading-snug">
+                <h2 className="text-lg sm:text-xl font-bold font-display text-slate-900 dark:text-white leading-snug">
                   {h.title}
                 </h2>
 

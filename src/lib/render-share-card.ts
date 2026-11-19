@@ -193,7 +193,7 @@ export async function renderShareCardToCanvas(
   const badgeY = 110;
   const badgeText = sectionTitle ? `${category} • ${sectionTitle}` : category;
 
-  ctx.font = 'bold 24px "IBM Plex Sans Arabic", "Segoe UI", sans-serif';
+  ctx.font = 'bold 24px "Thmanyah Sans", -apple-system, sans-serif';
   const badgeMetrics = ctx.measureText(badgeText);
   const badgePaddingX = 30;
   const badgeHeight = 44;
@@ -258,7 +258,7 @@ export async function renderShareCardToCanvas(
 
   // 5. Citation / Reference (if provided)
   if (citation) {
-    ctx.font = '22px "IBM Plex Sans Arabic", "Segoe UI", sans-serif';
+    ctx.font = '22px "Thmanyah Sans", -apple-system, sans-serif';
     ctx.fillStyle = theme.subText;
     ctx.textBaseline = 'top';
     const citationY = Math.min(
@@ -292,7 +292,7 @@ export async function renderShareCardToCanvas(
   ctx.fill();
 
   // Formal Platform Signature
-  ctx.font = 'bold 20px "IBM Plex Sans Arabic", "Segoe UI", sans-serif';
+  ctx.font = 'bold 20px "Thmanyah Sans", -apple-system, sans-serif';
   ctx.fillStyle = theme.signature;
   ctx.textBaseline = 'middle';
   const signatureText = source

@@ -19,7 +19,7 @@ export function FormattedArabicText({
   const parts = text.split(regex);
 
   return (
-    <Component className={`leading-relaxed text-charcoal-light dark:text-charcoal-dark ${className}`}>
+    <Component className={`font-text leading-[2] text-charcoal-light dark:text-charcoal-dark ${className}`}>
       {parts.map((part, index) => {
         if (!part) return null;
 

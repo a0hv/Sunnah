@@ -139,11 +139,11 @@ export default function HomePage() {
             <span>منصة السنة النبوية الشاملة • الحديث والأذكار والآداب</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-bold font-sans text-slate-900 dark:text-white tracking-tight leading-tight sm:leading-snug">
+          <h1 className="text-4xl sm:text-6xl font-bold font-display text-slate-900 dark:text-white tracking-tight leading-tight sm:leading-snug">
             منصة السنة
           </h1>
 
-          <p className="text-base sm:text-lg text-muted-light dark:text-muted-dark max-w-2xl mx-auto leading-relaxed font-sans">
+          <p className="text-base sm:text-lg text-muted-light dark:text-muted-dark max-w-2xl mx-auto leading-relaxed font-text">
             المرجع الرقمي العصري لكلام سيد المرسلين ﷺ: كتاب «رياض الصالحين» كاملاً، وكتاب «حصن المسلم» بالعدّاد التفاعلي، والسيرة النبوية، والأربعون النووية.
           </p>
         </div>
@@ -197,7 +197,7 @@ export default function HomePage() {
             <span className="text-xs font-bold text-emerald-brand dark:text-emerald-brand-dark uppercase tracking-wider block">
               أقسام المنصة الأساسية
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold font-sans text-slate-900 dark:text-white">
+            <h2 className="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white">
               أركان منصة السنة
             </h2>
           </div>
@@ -230,7 +230,7 @@ export default function HomePage() {
                   </div>
 
                   <div>
-                    <h3 className="font-sans font-bold text-xl text-slate-900 dark:text-white group-hover:text-emerald-brand dark:group-hover:text-emerald-brand-dark transition-colors">
+                    <h3 className="font-display font-bold text-xl text-slate-900 dark:text-white group-hover:text-emerald-brand dark:group-hover:text-emerald-brand-dark transition-colors">
                       {pillar.title}
                     </h3>
                     <span className="text-xs text-muted-light dark:text-muted-dark font-sans block">
@@ -238,7 +238,7 @@ export default function HomePage() {
                     </span>
                   </div>
 
-                  <p className="text-xs text-muted-light dark:text-muted-dark leading-relaxed">
+                  <p className="text-xs text-muted-light dark:text-muted-dark leading-relaxed font-text">
                     {pillar.desc}
                   </p>
                 </div>
@@ -259,7 +259,7 @@ export default function HomePage() {
           <span className="text-xs font-bold text-gold-accent dark:text-gold-accent-dark uppercase tracking-wider block">
             وردك اليومي من هدي النبوة
           </span>
-          <h2 className="text-2xl sm:text-3xl font-bold font-sans text-slate-900 dark:text-white">
+          <h2 className="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white">
             حديث اليوم المشروح
           </h2>
         </div>
@@ -275,7 +275,7 @@ export default function HomePage() {
             <span className="text-xs font-bold text-emerald-brand dark:text-emerald-brand-dark uppercase tracking-wider block">
               موسوعة الأحاديث النبوية (HadeethEnc)
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold font-sans text-slate-900 dark:text-white">
+            <h2 className="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white">
               أبواب الأحاديث النبوية المشروحة
             </h2>
           </div>
@@ -304,10 +304,10 @@ export default function HomePage() {
                     {c.hadithsCount} حديثاً
                   </span>
                 </div>
-                <h3 className="font-sans font-bold text-lg text-slate-900 dark:text-white group-hover:text-emerald-brand transition-colors">
+                <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white group-hover:text-emerald-brand transition-colors">
                   {c.title}
                 </h3>
-                <p className="text-xs text-muted-light dark:text-muted-dark leading-relaxed">
+                <p className="text-xs text-muted-light dark:text-muted-dark leading-relaxed font-text">
                   أبواب: {c.topics}
                 </p>
               </div>
@@ -329,7 +329,7 @@ export default function HomePage() {
               <CalendarCheck className="w-3.5 h-3.5" />
               <span>أداة تفاعلية يومية</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold font-sans text-slate-900 dark:text-white">
+            <h2 className="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white">
               متتبع سنن اليوم والليلة
             </h2>
             <p className="text-xs sm:text-sm text-muted-light dark:text-muted-dark max-w-xl leading-relaxed">

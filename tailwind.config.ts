@@ -11,7 +11,9 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-sans)', 'sans-serif'],
+        sans: ['var(--font-sans)', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        display: ['var(--font-display)', 'serif'],
+        text: ['var(--font-text)', 'serif'],
         hadith: ['var(--font-hadith)', 'serif'],
         quran: ['var(--font-quran)', 'serif'],
       },

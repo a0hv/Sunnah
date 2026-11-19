@@ -214,11 +214,11 @@ export function SeerahClient() {
             <span>مستند إلى كتاب «الرحيق المختوم» الحائز على الجائزة الأولى لرابطة العالم الإسلامي</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-bold font-sans text-slate-900 dark:text-white leading-tight">
+          <h1 className="text-3xl sm:text-4xl font-bold font-display text-slate-900 dark:text-white leading-tight">
             السيرة النبوية العطرة: دراسةٌ وعبرةٌ واقتداء
           </h1>
 
-          <p className="text-xs sm:text-sm text-muted-light dark:text-muted-dark leading-relaxed font-sans">
+          <p className="text-xs sm:text-sm text-muted-light dark:text-muted-dark leading-relaxed font-text">
             ثلاثون محطة تاريخية متسلسلة بدقة تغطي حياة الحبيب المصطفى ﷺ من المولد الشريف حتى الرفيق الأعلى، تجمع بين التوثيق الزماني والمكاني، واستخراج العبر التربوية والعملية المعاصرة، مع ربط الأحداث بشواهدها القرآنية.
           </p>
 
@@ -492,7 +492,7 @@ export function SeerahClient() {
 
                 {/* Milestone Title & Summary */}
                 <div className="space-y-2">
-                  <h2 className="text-xl sm:text-2xl font-bold font-sans text-slate-900 dark:text-white leading-snug">
+                  <h2 className="text-xl sm:text-2xl font-bold font-display text-slate-900 dark:text-white leading-snug">
                     {milestone.title}
                   </h2>
 

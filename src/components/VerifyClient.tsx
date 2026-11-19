@@ -524,7 +524,7 @@ ${pair.authentic.text}
             <span className="text-xs font-semibold text-amber-600 dark:text-amber-300 uppercase tracking-wider block">
               المقارنة والبيان
             </span>
-            <h2 className="text-xl sm:text-2xl font-bold font-sans text-slate-900 dark:text-white">
+            <h2 className="text-xl sm:text-2xl font-bold font-display text-slate-900 dark:text-white">
               أحاديث مشتهرة لا تصح وبدائلها الصحيحة
             </h2>
           </div>
@@ -647,7 +647,7 @@ ${pair.authentic.text}
             <span className="text-xs font-semibold text-emerald-brand dark:text-emerald-brand-dark uppercase tracking-wider block">
               الضبط الأصولي والفقهي
             </span>
-            <h2 className="text-xl sm:text-2xl font-bold font-sans text-slate-900 dark:text-white">
+            <h2 className="text-xl sm:text-2xl font-bold font-display text-slate-900 dark:text-white">
               ميزان مراتب الأحكام الفقهية الست
             </h2>
           </div>

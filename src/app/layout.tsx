@@ -7,7 +7,7 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 
-const thmanyah = localFont({
+const thmanyahSans = localFont({
   src: [
     {
       path: '../../public/fonts/thmanyah-sans-Light.woff2',
@@ -36,6 +36,70 @@ const thmanyah = localFont({
     },
   ],
   variable: '--font-sans',
+  display: 'swap',
+});
+
+const thmanyahDisplay = localFont({
+  src: [
+    {
+      path: '../../public/fonts/thmanyah-serif-display-Light.woff2',
+      weight: '300',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/thmanyah-serif-display-Regular.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/thmanyah-serif-display-Medium.woff2',
+      weight: '500',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/thmanyah-serif-display-Bold.woff2',
+      weight: '700',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/thmanyah-serif-display-Black.woff2',
+      weight: '900',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-display',
+  display: 'swap',
+});
+
+const thmanyahText = localFont({
+  src: [
+    {
+      path: '../../public/fonts/thmanyah-serif-text-Light.woff2',
+      weight: '300',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/thmanyah-serif-text-Regular.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/thmanyah-serif-text-Medium.woff2',
+      weight: '500',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/thmanyah-serif-text-Bold.woff2',
+      weight: '700',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/thmanyah-serif-text-Black.woff2',
+      weight: '900',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-text',
   display: 'swap',
 });
 
@@ -74,7 +138,7 @@ export default function RootLayout({
       lang="ar"
       dir="rtl"
       suppressHydrationWarning
-      className={`${thmanyah.variable} ${amiri.variable} ${uthmanic.variable}`}
+      className={`${thmanyahSans.variable} ${thmanyahDisplay.variable} ${thmanyahText.variable} ${amiri.variable} ${uthmanic.variable}`}
     >
       <head>
         <script

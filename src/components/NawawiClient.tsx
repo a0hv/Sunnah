@@ -177,7 +177,7 @@ export function NawawiClient() {
               <Scroll className="w-3.5 h-3.5" />
               <span>متابعة الحفظ والتسميع الذاتي للأربعين النووية</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold font-sans text-slate-900 dark:text-white">
+            <h2 className="text-xl sm:text-2xl font-bold font-display text-slate-900 dark:text-white">
               سجل حفظ الأحاديث الـ ٤٢
             </h2>
             <p className="text-xs text-muted-light dark:text-muted-dark max-w-xl leading-relaxed">
@@ -372,7 +372,7 @@ export function NawawiClient() {
                     {h.id}
                   </span>
                   <div>
-                    <h3 className="font-sans font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
+                    <h3 className="font-display font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
                       {h.title}
                     </h3>
                     {h.narrator && (

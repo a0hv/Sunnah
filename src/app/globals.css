@@ -4,6 +4,8 @@
 
 :root {
   --font-sans: 'Thmanyah Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Thmanyah Serif Display', Georgia, serif;
+  --font-text: 'Thmanyah Serif Text', Georgia, serif;
   --font-hadith: 'Amiri', 'Traditional Arabic', serif;
   --font-quran: 'UthmanicHafs V20', 'Amiri', serif;
   
@@ -38,6 +40,20 @@
     text-align: start;
     background-color: var(--bg-paper);
     color: var(--text-charcoal);
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  .font-text {
+    font-family: var(--font-text);
+    line-height: 2;
+  }
+
+  .font-sans {
+    font-family: var(--font-sans);
   }
 
   .font-hadith {

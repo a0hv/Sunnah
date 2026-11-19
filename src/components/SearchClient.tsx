@@ -175,7 +175,7 @@ export function SearchClient() {
                 <Sparkles className="w-4 h-4" />
               </span>
               <div>
-                <h2 className="font-bold text-base text-slate-900 dark:text-white font-sans">
+                <h2 className="font-bold text-base text-slate-900 dark:text-white font-display">
                   أفضل ما يناسب بحثك في السنة والأذكار
                 </h2>
                 {results.bestMatch.situationTitle && (
@@ -217,7 +217,7 @@ export function SearchClient() {
                     </span>
                   </div>
 
-                  <h3 className="font-sans font-bold text-base text-slate-900 dark:text-white leading-snug">
+                  <h3 className="font-display font-bold text-base text-slate-900 dark:text-white leading-snug">
                     {results.bestMatch.hadith.title}
                   </h3>
 
@@ -497,7 +497,7 @@ export function SearchClient() {
                         </div>
                       </div>
 
-                      <h4 className="font-sans font-bold text-base sm:text-lg text-slate-900 dark:text-white">
+                      <h4 className="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white">
                         <HighlightArabicText text={h.title} query={debouncedQuery} />
                       </h4>
 
@@ -831,7 +831,7 @@ export function SearchClient() {
                       </div>
                     </div>
 
-                    <p className="font-sans text-sm sm:text-base leading-relaxed text-charcoal-light dark:text-charcoal-dark">
+                    <p className="font-text text-sm sm:text-base leading-relaxed text-charcoal-light dark:text-charcoal-dark">
                       <HighlightArabicText text={m.summary} query={debouncedQuery} />
                     </p>
 

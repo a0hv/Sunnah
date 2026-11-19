@@ -18,11 +18,11 @@ export default function AboutPage() {
           <span>التعريف والمنهجية العلمية</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl font-bold font-sans text-slate-900 dark:text-white leading-tight">
+        <h1 className="text-3xl sm:text-5xl font-bold font-display text-slate-900 dark:text-white leading-tight">
           عن «منصة السنة»
         </h1>
 
-        <p className="text-lg sm:text-xl text-muted-light dark:text-muted-dark leading-relaxed font-sans max-w-3xl">
+        <p className="text-lg sm:text-xl text-muted-light dark:text-muted-dark leading-relaxed font-text max-w-3xl">
           المرجع الرقمي العصري لكلام سيد المرسلين ﷺ: الجمع بين أصول الحديث النبوي والآداب، والعمل اليومي، والتثبت العلمي.
         </p>
 
@@ -38,11 +38,11 @@ export default function AboutPage() {
 
       {/* الرؤية والرسالة */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold font-sans text-slate-900 dark:text-white flex items-center gap-2">
+        <h2 className="text-2xl font-bold font-display text-slate-900 dark:text-white flex items-center gap-2">
           <Heart className="w-5 h-5 text-emerald-brand" />
           <span>الرؤية والهدف</span>
         </h2>
-        <div className="p-6 rounded-3xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark space-y-4 text-sm text-charcoal-light dark:text-charcoal-dark leading-relaxed font-sans">
+        <div className="p-6 rounded-3xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark space-y-4 text-sm text-charcoal-light dark:text-charcoal-dark leading-[2] font-text">
           <p>
             تأسست <strong>«منصة السنة»</strong> انطلاقاً من واجب خدمة حديث رسول الله صلى الله عليه وسلم وهديه الشريف، وتقريب علوم الحديث والآداب النبوية للمسلم المعاصر في قالب رقمي حديث وسهل التصفح على كافة الأجهزة الذكية.
           </p>
@@ -54,7 +54,7 @@ export default function AboutPage() {
 
       {/* الأركان والمصادر العلمية */}
       <section className="space-y-6">
-        <h2 className="text-2xl font-bold font-sans text-slate-900 dark:text-white">
+        <h2 className="text-2xl font-bold font-display text-slate-900 dark:text-white">
           المصادر العلمية المعتمدة في المنصة
         </h2>
 
@@ -153,7 +153,7 @@ export default function AboutPage() {
 
       {/* الروابط التوثيقية الخارجية */}
       <section className="p-6 sm:p-8 rounded-3xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark space-y-4">
-        <h2 className="text-xl font-bold font-sans text-slate-900 dark:text-white">
+        <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white">
           التوثيق والربط الخارجي المعتمد
         </h2>
         <ul className="space-y-3 text-xs sm:text-sm text-charcoal-light dark:text-charcoal-dark font-sans">

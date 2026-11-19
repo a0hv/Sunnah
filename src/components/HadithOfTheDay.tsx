@@ -155,7 +155,7 @@ export function HadithOfTheDay() {
 
       {/* Main Hadith Title & Arabic Text */}
       <div className="relative z-10 space-y-3 py-1">
-        <h3 className="font-sans font-bold text-base sm:text-lg text-emerald-brand dark:text-emerald-brand-dark">
+        <h3 className="font-display font-bold text-base sm:text-lg text-emerald-brand dark:text-emerald-brand-dark">
           {currentHadith.title}
         </h3>
         <HadithText
@@ -172,7 +172,7 @@ export function HadithOfTheDay() {
             <BookOpen className="w-3.5 h-3.5" />
             <span>الشرح الميسر:</span>
           </div>
-          <p className="text-charcoal-light dark:text-charcoal-dark leading-relaxed line-clamp-3">
+          <p className="font-text text-charcoal-light dark:text-charcoal-dark leading-[1.9] line-clamp-3">
             {currentHadith.explanation}
           </p>
         </div>
@@ -184,7 +184,7 @@ export function HadithOfTheDay() {
               <Lightbulb className="w-3.5 h-3.5" />
               <span>فائدة تربوية مستنبطة:</span>
             </div>
-            <p className="text-charcoal-light dark:text-charcoal-dark leading-relaxed line-clamp-3">
+            <p className="font-text text-charcoal-light dark:text-charcoal-dark leading-[1.9] line-clamp-3">
               {currentHadith.hints[0]}
             </p>
           </div>
