@@ -12,6 +12,7 @@ import {
   Quote,
   ExternalLink,
   Lightbulb,
+  CheckCircle2,
 } from 'lucide-react';
 import hadeethRaw from '@/data/hadeethenc.json';
 import { getDorarHadithUrl } from '@/lib/external-refs';
@@ -96,7 +97,7 @@ export function HadithOfTheDay() {
           <span className="w-8 h-8 rounded-xl bg-gold-accent/15 text-gold-accent dark:text-gold-accent-dark flex items-center justify-center">
             <Sparkles className="w-4 h-4" />
           </span>
-          <div>
+          <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-gold-accent dark:text-gold-accent-dark">
                 حديث اليوم المشروح
@@ -105,9 +106,12 @@ export function HadithOfTheDay() {
                 • {currentHadith.categoryTitle}
               </span>
             </div>
-            <span className="text-xs font-semibold text-muted-light dark:text-muted-dark font-mono">
-              {currentHadith.grade} • {currentHadith.attribution}
-            </span>
+            <div className="flex items-center gap-1.5 text-xs font-medium text-muted-light dark:text-muted-dark font-sans">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-brand dark:text-emerald-brand-dark shrink-0" />
+              <span>{currentHadith.grade || 'صحيح'}</span>
+              <span className="opacity-60">•</span>
+              <span>{currentHadith.attribution || 'متفق عليه'}</span>
+            </div>
           </div>
         </div>
 

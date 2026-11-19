@@ -9,6 +9,7 @@ import {
   Scroll,
   CalendarCheck,
   ArrowLeft,
+  ArrowRight,
   ChevronLeft,
   CheckCircle2,
   TrendingUp,
@@ -252,14 +253,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 3. بطاقة حديث اليوم من رياض الصالحين */}
+      {/* 3. بطاقة حديث اليوم المشروح */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
         <div className="text-center space-y-1">
           <span className="text-xs font-bold text-gold-accent dark:text-gold-accent-dark uppercase tracking-wider block">
             وردك اليومي من هدي النبوة
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold font-quran text-slate-900 dark:text-white">
-            حديث اليوم من رياض الصالحين
+            حديث اليوم المشروح
           </h2>
         </div>
 
@@ -338,10 +339,10 @@ export default function HomePage() {
 
           <Link
             href="/daily-tracker"
-            className="shrink-0 px-6 py-3.5 rounded-2xl bg-emerald-brand text-white font-bold text-sm shadow-md hover:bg-emerald-brand/90 transition-all flex items-center gap-2"
+            className="shrink-0 px-6 py-3.5 rounded-2xl bg-emerald-brand text-white font-bold text-sm shadow-md hover:bg-emerald-brand/90 transition-all flex items-center gap-2 group"
           >
             <span>بدء تتبع سنن اليوم</span>
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 rtl:rotate-180 group-hover:-translate-x-1 transition-transform" />
           </Link>
         </div>
       </section>
