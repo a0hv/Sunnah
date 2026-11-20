@@ -276,11 +276,17 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
 
       const data = await res.json();
 
+      // تنقية نص الرد لضمان بقاء واجهة الشات نظيفة وأنيقة وخالية من أي تشخيص تقني
+      const cleanReply = (data.reply || '')
+        .replace(/>\s*⚠️\s*\*\*تشخيص تقني.*$/gim, '')
+        .replace(/تشخيص تقني مؤقت:.*$/gim, '')
+        .trim();
+
       const assistantMsg: AssistantMessage = {
         id: `asst-${Date.now()}`,
         role: 'assistant',
         content:
-          data.reply ||
+          cleanReply ||
           'لم نجد نصاً مباشراً في هذا الموضوع ضمن قواعد بيانات المنصة الموثقة الحالية.',
         sources: data.sources || [],
         dorarUrl: data.dorarUrl,

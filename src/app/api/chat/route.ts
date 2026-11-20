@@ -227,10 +227,10 @@ export async function POST(req: Request) {
       },
     };
 
-    // تجربة قائمة الموديلات الافتراضية مع fallback تلقائي (gemini-2.5-flash ثم gemini-2.5-flash-lite)
-    const primaryModel = process.env.GEMINI_MODEL?.trim() || 'gemini-2.5-flash';
+    // تجربة قائمة الموديلات الافتراضية مع fallback تلقائي (gemini-3.8-flash ثم gemini-3.5-flash-lite ثم gemini-3.5-flash)
+    const primaryModel = process.env.GEMINI_MODEL?.trim() || 'gemini-3.8-flash';
     const candidateModels = Array.from(
-      new Set([primaryModel, 'gemini-2.5-flash-lite', 'gemini-2.0-flash'])
+      new Set([primaryModel, 'gemini-3.5-flash-lite', 'gemini-3.5-flash'])
     );
 
     let aiResponseText = '';
@@ -283,13 +283,6 @@ export async function POST(req: Request) {
     }
 
     if (!aiResponseText) {
-      // إظهار سبب الخطأ مؤقتًا في نص الرد لتسهيل التشخيص للمستخدم والمطور
-      const debugNote = lastDebugReason
-        ? `\n\n> ⚠️ **تشخيص تقني مؤقت:** \`${lastDebugReason}\``
-        : lastErrorCode !== 'NETWORK'
-        ? `\n\n> ⚠️ **تشخيص تقني مؤقت:** \`${lastErrorCode}\``
-        : '';
-
       const baseReply = ragResult.hasVerifiedContext
         ? `تعذر استكمال التحليل الذكي مؤقتاً، ولكن هذه هي النصوص الموثقة المطابقة لسؤالك في المنصة:\n\n${ragResult.sources.map((s) => `• **[${s.category}]** [${s.title}](${s.url})`).join('\n')}`
         : isGreetingOrChat
@@ -299,7 +292,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           success: true,
-          reply: baseReply + debugNote,
+          reply: baseReply,
           sources: ragResult.sources,
           dorarUrl: isGreetingOrChat ? '' : ragResult.dorarSearchUrl,
           isVerifiedOnly: true,
@@ -371,7 +364,7 @@ export async function GET(req: Request) {
   }
 
   // وضع الفحص التشخيصي الحقيقي (?diag=1)
-  const candidateModels = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+  const candidateModels = ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-3.5-flash'];
   const diagResults: Array<{
     model: string;
     httpStatus: number;
