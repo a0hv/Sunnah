@@ -12,7 +12,7 @@ export function Footer() {
           <div className="md:col-span-2 space-y-3">
             <BrandLogo size="md" showSubtitle={false} />
             <p className="text-xs text-muted-light dark:text-muted-dark leading-relaxed max-w-md">
-              منصة رقمية حديثة تجمع أصول الحديث النبوي الشريف والآداب والأذكار اليومية؛ تضم حصن المسلم، الأربعون النووية، السيرة النبوية، قسم تثبّت، ومتتبع سنن يومك وليلتك بتصميم تفاعلي وبحث فوري.
+              مرجع رقمي شامل يجمع بين الأحاديث الصحيحة وشروحها، العقيدة النبوية، السيرة ومواقف النبي ﷺ، أذكار حصن المسلم، وقسم تثبّت لصيانة الحديث النبوي الشريف بتصميم تفاعلي وبحث فوري.
             </p>
             <p className="text-xs text-muted-light dark:text-muted-dark pt-1">
               خدمة لكتاب الله وسنة نبيه ﷺ • وقف رقمي لجميع المسلمين
@@ -103,7 +103,7 @@ export function Footer() {
                   href="/about"
                   className="hover:text-emerald-brand dark:hover:text-emerald-brand-dark transition-colors"
                 >
-                  عن المنصة والمراجع العلمية
+                  عن الباحث في السنة والمراجع العلمية
                 </Link>
               </li>
             </ul>
@@ -113,7 +113,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="pt-6 border-t border-subtle-light dark:border-subtle-dark flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-muted-light dark:text-muted-dark">
           <div>
-            جميع الحقوق محفوظة © {new Date().getFullYear()} • منصة السنة
+            جميع الحقوق محفوظة © {new Date().getFullYear()} • الباحث في السنة
           </div>
           <div className="flex items-center gap-4">
             <Link

@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { SearchClient } from '@/components/SearchClient';
 
 export const metadata: Metadata = {
-  title: 'البحث الفوري وقاموس المواقف | منصة السنة',
+  title: 'البحث الفوري وقاموس المواقف | الباحث في السنة',
   description:
     'محرك بحث فوري ذكي ودقيق داخل الأربعين النووية، وحصن المسلم، والسيرة النبوية، وأحاديث تثبّت، وقاموس المواقف الحياتية اليومية.',
 };
@@ -14,7 +14,7 @@ export default function SearchPage() {
       {/* Search Page Header */}
       <div className="text-center max-w-2xl mx-auto space-y-2">
         <span className="text-xs font-semibold text-emerald-brand dark:text-emerald-brand-dark uppercase tracking-wider block">
-          منصة السنة • محرك البحث الموثق وقاموس المواقف
+          الباحث في السنة • محرك البحث الموثق وقاموس المواقف
         </span>
         <h1 className="text-3xl sm:text-4xl font-bold font-sans text-slate-900 dark:text-white">
           البحث في السنة النبوية

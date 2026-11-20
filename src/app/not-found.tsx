@@ -13,7 +13,7 @@ export default function NotFound() {
           الصفحة غير موجودة
         </h1>
         <p className="text-xs sm:text-sm text-muted-light dark:text-muted-dark max-w-md leading-relaxed">
-          عذراً، الصفحة التي تبحث عنها غير متوفرة أو تم نقلها. يمكنك العودة للصفحة الرئيسية وتصفح «منصة السنة».
+          عذراً، الصفحة التي تبحث عنها غير متوفرة أو تم نقلها. يمكنك العودة للصفحة الرئيسية وتصفح «الباحث في السنة».
         </p>
       </div>
 

@@ -37,9 +37,10 @@ export interface AssistantMessage {
 
 const QUICK_PROMPTS = [
   'دعاء الهم والحزن',
+  'شرح حديث إنما الأعمال بالنيات',
   'هل حديث اطلبوا العلم ولو بالصين صحيح؟',
-  'أذكار قبل النوم',
   'ملخص غزوة بدر',
+  'أذكار قبل النوم',
 ];
 
 interface SunnahAssistantProps {
@@ -255,6 +256,9 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
     setInput('');
     setIsLoading(true);
 
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), 20000);
+
     try {
       const res = await fetch('/api/chat/', {
         method: 'POST',
@@ -268,6 +272,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
             content: m.content,
           })),
         }),
+        signal: abortController.signal,
       });
 
       if (!res.ok) {
@@ -287,22 +292,25 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
         role: 'assistant',
         content:
           cleanReply ||
-          'لم نجد نصاً مباشراً في هذا الموضوع ضمن قواعد بيانات المنصة الموثقة الحالية.',
+          'لم نجد نصاً مباشراً في هذا الموضوع ضمن قواعد بيانات الباحث في السنة المعتمدة حالياً.',
         sources: data.sources || [],
         dorarUrl: data.dorarUrl,
         isFakeWarning: data.sources?.some((s: AssistantSource) => s.type === 'fake-hadith'),
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
-    } catch {
+    } catch (err: any) {
+      const isTimeout = err?.name === 'AbortError' || abortController.signal.aborted;
       const errorMsg: AssistantMessage = {
         id: `err-${Date.now()}`,
         role: 'assistant',
-        content:
-          'تعذر استكمال الاتصال بالخدمة الذكية مؤقتاً. يرجى إعادة المحاولة أو التحقق من اتصالك بالإنترنت.',
+        content: isTimeout
+          ? 'تعذر استكمال الاتصال بالمساعد الذكي بسبب انتهاء المهلة المحددة (20 ثانية). يرجى المحاولة مرة أخرى أو التأكد من اتصالك بالإنترنت.'
+          : 'تعذر استكمال الاتصال بالخدمة الذكية مؤقتاً. يرجى إعادة المحاولة أو التحقق من اتصالك بالإنترنت.',
       };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
+      clearTimeout(timeoutId);
       setIsLoading(false);
     }
   };
@@ -351,7 +359,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
           </div>
           <div>
             <h3 className="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
-              <span>المساعد النبوي الذكي</span>
+              <span>الباحث الذكي في السنة</span>
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-brand/10 text-emerald-brand dark:text-emerald-brand-dark">
                 RAG موثّق
               </span>
@@ -396,10 +404,10 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
           <div className="text-center py-6 sm:py-8 space-y-4">
             <div className="space-y-1.5 max-w-lg mx-auto px-2">
               <h4 className="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white">
-                بماذا يمكنني أن أعينك في هدي النبوة اليوم؟
+                بماذا يمكنني أن أعينك في هدي وسنة النبي ﷺ اليوم؟
               </h4>
               <p className="text-xs sm:text-sm text-muted-light dark:text-muted-dark leading-relaxed font-text">
-                اسأل في الأحاديث الصحيحة، الأدعية والأذكار، مواقف السيرة النبوية، أو تحقق من صحة أي حديث منتشر.
+                اسأل في الأحاديث الصحيحة وشروحها، العقيدة النبوية، السيرة ومواقف النبي ﷺ، الأذكار المأثورة، أو تحقق من صحة أي حديث عبر قسم تثبّت.
               </p>
             </div>
 

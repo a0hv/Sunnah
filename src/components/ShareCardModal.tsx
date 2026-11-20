@@ -155,8 +155,8 @@ export function ShareCardModal({ isOpen = true, onClose, data }: ShareCardModalP
         });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
-            title: data.source || 'منصة السنة',
-            text: `${data.text}\n\n— منصة السنة (${data.source || ''})`,
+            title: data.source || 'الباحث في السنة',
+            text: `${data.text}\n\n— الباحث في السنة (${data.source || ''})`,
             files: [file],
           });
         } else {
@@ -175,7 +175,7 @@ export function ShareCardModal({ isOpen = true, onClose, data }: ShareCardModalP
       data.citation ||
       (data.narrator ? `الراوي: ${data.narrator}` : data.ruling ? `الحكم: ${data.ruling}` : '');
     const sourceLine = data.source ? `\n📚 المصدر: ${data.source}` : '';
-    const formatted = `${data.text}${citationLine ? `\n— ${citationLine}` : ''}${sourceLine}\n\n— منصة السنة`;
+    const formatted = `${data.text}${citationLine ? `\n— ${citationLine}` : ''}${sourceLine}\n\n— الباحث في السنة`;
 
     try {
       await navigator.clipboard.writeText(formatted);

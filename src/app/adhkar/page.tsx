@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { AdhkarClient } from '@/components/AdhkarClient';
 
 export const metadata: Metadata = {
-  title: 'الأذكار بالعدّاد الإلكتروني | منصة السنة',
+  title: 'الأذكار بالعدّاد الإلكتروني | الباحث في السنة',
   description:
     'أذكار نبوية مشكولة ومخرجة مرتبة في ١٣٣ باباً من كتاب حصن المسلم، مزودة بعدّاد تسبيح تفاعلي وحفظ يومي وبطاقات مشاركة رقمية.',
 };
@@ -14,7 +14,7 @@ export default function AdhkarPage() {
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-2">
         <span className="text-xs font-semibold text-emerald-brand dark:text-emerald-brand-dark uppercase tracking-wider block">
-          منصة السنة • حصن المسلم والأوراد النبوية
+          الباحث في السنة • حصن المسلم والأوراد النبوية
         </span>
         <h1 className="text-3xl sm:text-4xl font-bold font-sans text-slate-900 dark:text-white">
           الأذكار

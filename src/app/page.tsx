@@ -18,9 +18,9 @@ import { HadithOfTheDay } from '@/components/HadithOfTheDay';
 import { SunnahAssistant } from '@/components/SunnahAssistant';
 
 export const metadata: Metadata = {
-  title: 'منصة السنة | الأربعون النووية وحصن المسلم وتثبّت',
+  title: 'الباحث في السنة | المرجع الشامل للسنة النبوية',
   description:
-    'منصة السنة النبوية الشاملة: الأربعون النووية، حصن المسلم، قسم تثبّت للأحاديث المنتشرة التي لا تصح، السيرة النبوية، ومتتبع سنن اليوم والليلة.',
+    'الباحث في السنة — المرجع الرقمي العصري الشامل لهدي وكلام سيد المرسلين ﷺ: الأحاديث الصحيحة وشروحها، العقيدة النبوية، السيرة ومواقف النبي ﷺ، حصن المسلم، الأربعون النووية، وقسم تثبّت.',
 };
 
 const PILLARS = [
@@ -79,15 +79,15 @@ export default function HomePage() {
         <div className="space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-brand/10 dark:bg-emerald-brand-dark/15 text-emerald-brand dark:text-emerald-brand-dark border border-emerald-brand/20 dark:border-emerald-brand-dark/30 shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-emerald-brand dark:bg-emerald-brand-dark animate-pulse" />
-            <span>منصة السنة النبوية الشاملة • الحديث والأذكار والآداب</span>
+            <span>الباحث في السنة النبوية الشامل • الأحاديث والعقيدة والسيرة والآداب</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold font-display text-slate-900 dark:text-white tracking-tight leading-tight sm:leading-snug">
-            منصة السنة
+            الباحث في السنة
           </h1>
 
           <p className="text-sm sm:text-base md:text-lg text-muted-light dark:text-muted-dark max-w-2xl mx-auto leading-relaxed font-text">
-            المرجع الرقمي العصري لكلام سيد المرسلين ﷺ: كتاب «الأربعون النووية» بنظام التسميع الذاتي، وكتاب «حصن المسلم» بالعدّاد التفاعلي، والسيرة النبوية، وقسم تثبّت، ومتتبع سنن اليوم والليلة.
+            المرجع الرقمي العصري الشامل لهدي وكلام سيد المرسلين ﷺ: الأحاديث الصحيحة وشروحها، العقيدة النبوية، السيرة ومواقف النبي ﷺ، كتاب «حصن المسلم» بالعدّاد التفاعلي، «الأربعون النووية» بنظام التسميع، صيانة الحديث عبر قسم تثبّت، ومتتبع سنن اليوم والليلة.
           </p>
         </div>
 
@@ -95,7 +95,7 @@ export default function HomePage() {
         <SunnahAssistant />
       </section>
 
-      {/* 2. الأركان الأربعة لمنصة السنة */}
+      {/* 2. الأركان الأربعة للباحث في السنة */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-subtle-light dark:border-subtle-dark pb-4">
           <div>
@@ -103,7 +103,7 @@ export default function HomePage() {
               أقسام المنصة الأساسية
             </span>
             <h2 className="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white">
-              أركان منصة السنة
+              أركان الباحث في السنة
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-muted-light dark:text-muted-dark">

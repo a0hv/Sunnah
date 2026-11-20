@@ -14,7 +14,7 @@ export default function VerifyPage() {
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-2">
         <span className="text-xs font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-wider block">
-          منصة السنة • صيانة الحديث الشريف والتثبت العلمي
+          الباحث في السنة • صيانة الحديث الشريف والتثبت العلمي
         </span>
         <h1 className="text-3xl sm:text-4xl font-bold font-sans text-slate-900 dark:text-white">
           قسم «تثبّت»

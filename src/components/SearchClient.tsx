@@ -759,7 +759,7 @@ export function SearchClient() {
                       </a>
 
                       <button
-                        onClick={() => copyText(`fake-${f.id}`, `حديث لا يصح: «${f.hadithText}»\nالحكم: ${f.ruling}\n${f.explanation}\n— منصة السنة (تثبّت)`)}
+                        onClick={() => copyText(`fake-${f.id}`, `حديث لا يصح: «${f.hadithText}»\nالحكم: ${f.ruling}\n${f.explanation}\n— الباحث في السنة (تثبّت)`)}
                         className="p-1.5 rounded-lg text-muted-light hover:text-charcoal-light transition-colors"
                         title="نسخ التنبيه"
                       >

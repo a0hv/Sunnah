@@ -296,8 +296,8 @@ export async function renderShareCardToCanvas(
   ctx.fillStyle = theme.signature;
   ctx.textBaseline = 'middle';
   const signatureText = source
-    ? `منصة السنة • ${source}`
-    : 'منصة السنة النبوية الشريفة';
+    ? `الباحث في السنة • ${source}`
+    : 'الباحث في السنة — المرجع الشامل';
   ctx.fillText(signatureText, width / 2, footerY);
 
   ctx.restore();

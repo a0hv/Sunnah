@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { DailyTrackerClient } from '@/components/DailyTrackerClient';
 
 export const metadata: Metadata = {
-  title: 'متتبع سنن اليوم والليلة | منصة السنة',
+  title: 'متتبع سنن اليوم والليلة | الباحث في السنة',
   description:
     'متتبع يومي تفاعلي لسنن النبي ﷺ وآدابه في ١٢ محطة حياتية من الاستيقاظ حتى المنام، مربوط بأبواب حصن المسلم والبحث الموثق في السنة مع رصد الإنجاز وحفظ محلي.',
 };
@@ -14,7 +14,7 @@ export default function DailyTrackerPage() {
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-2">
         <span className="text-xs font-semibold text-emerald-brand dark:text-emerald-brand-dark uppercase tracking-wider block">
-          منصة السنة • التطبيق العملي لهدي النبوة
+          الباحث في السنة • التطبيق العملي لهدي النبوة
         </span>
         <h1 className="text-3xl sm:text-4xl font-bold font-sans text-slate-900 dark:text-white">
           متتبع سنن اليوم والليلة

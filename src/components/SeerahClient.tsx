@@ -125,7 +125,7 @@ export function SeerahClient() {
 
   const handleCopy = (m: SeerahMilestone) => {
     const lessonsText = m.lessons.map((l, i) => `${i + 1}. ${l}`).join('\n');
-    const textToCopy = `المحطة ${m.order}: «${m.title}»\nالتاريخ: ${m.hijriDate} (${m.gregorianYear})\nالمكان: ${m.location}\nالمرحلة: ${m.eraTitle}\n\nخلاصة الحدث:\n${m.summary}\n\nأبرز الدروس والعبر:\n${lessonsText}\n\n— السيرة النبوية من «الرحيق المختوم» للمباركفوري | منصة السنة`;
+    const textToCopy = `المحطة ${m.order}: «${m.title}»\nالتاريخ: ${m.hijriDate} (${m.gregorianYear})\nالمكان: ${m.location}\nالمرحلة: ${m.eraTitle}\n\nخلاصة الحدث:\n${m.summary}\n\nأبرز الدروس والعبر:\n${lessonsText}\n\n— السيرة النبوية من «الرحيق المختوم» للمباركفوري | الباحث في السنة`;
     navigator.clipboard.writeText(textToCopy);
     setCopiedId(m.id);
     showToast('تم نسخ خلاصة المحطة ودروسها إلى الحافظة');

@@ -7,7 +7,8 @@ import {
 } from '@/lib/rag';
 import { queryDorarApi } from '@/lib/dorar-api';
 
-// تعطيل الكاش نهائيًا لضمان استجابات محدثة دائماً وعدم تخزين نتائج التشخيص
+// ضبط أقصى مدة استجابة للمسار بـ 30 ثانية لتسريع الإجابة وتجنب التعليق
+export const maxDuration = 30;
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
@@ -29,13 +30,18 @@ interface ChatRequestBody {
   history?: ChatMessage[];
 }
 
+interface ModelConfig {
+  name: string;
+  thinkingLevel: 'minimal' | 'low';
+}
+
 const SYSTEM_INSTRUCTION = `
-أنت «المساعد النبوي الذكي» التابع لـ «منصة السنة» (Sunnah Platform).
-مهمتك خدمة المسلمين بالإرشاد النبوي المستمد حصريًا من نصوص السنة الصحيحة، والأذكار المأثورة، والسيرة النبوية المطهرة.
+أنت «المساعد النبوي الذكي» التابع لـ «الباحث في السنة» (Al-Bahith fi Al-Sunnah).
+مهمتك خدمة المسلمين بالإرشاد النبوي المستمد حصريًا من نصوص السنة الصحيحة، والعقيدة النبوية، والأذكار المأثورة، والسيرة النبوية المطهرة.
 
 قواعد المحادثة والأمانة الشرعية:
 1. التفاعل الطبيعي والتحية:
-   - بادل المستخدم التحية والترحيب بأسلوب راقٍ ومؤدب (مثل: «وعليكم السلام ورحمة الله وبركاته، أهلاً بك في منصة السنة...»).
+   - بادل المستخدم التحية والترحيب بأسلوب راقٍ ومؤدب (مثل: «وعليكم السلام ورحمة الله وبركاته، أهلاً بك في الباحث في السنة...»).
    - أجب عن الشكر والثناء بأدب ودعاء (مثل: «وجزاكم الله خيرًا وبارك فيكم»).
    - عرّف بنفسك وبدورك بوضوح عند السؤال عن هويتك أو كيفية المساعدة.
 2. الأمانة العلمية الصارمة (للأحاديث والأحكام الشرعية):
@@ -46,7 +52,7 @@ const SYSTEM_INSTRUCTION = `
 4. إذا احتوى السياق الموثّق على أحاديث أو أذكار أو مواقف سيرة ذات صلة:
    - قدّم الإجابة بأسلوب تربوي راقٍ وميسر باللغة العربية الفصيحة، واذكر النصوص بأمانة كما وردت مع عزوها لمصدرها المعتمد.
 5. إذا سُئلت عن مسألة شرعية أو حديث محدد ولم يحتوِ السياق الموثّق على نصوص تغطيها:
-   - أجب بأمانة: «لم يرد نص مباشر في هذا الموضوع ضمن قواعد البيانات الموثقة الحالية في المنصة (الأربعون النووية، حصن المسلم، السيرة النبوية، وقسم تثبّت)».
+   - أجب بأمانة: «لم يرد نص مباشر في هذا الموضوع ضمن قواعد البيانات الموثقة الحالية في الباحث في السنة (الأربعون النووية، حصن المسلم، السيرة النبوية، وقسم تثبّت)».
    - أرشد السائل إلى البحث والتحقق في الموسوعة الحديثية بمؤسسة «الدرر السنية».
 6. الأسلوب والوقار:
    - التزام الوقار التام والصلاة والسلام على رسول الله ﷺ كلما ورد ذكره.
@@ -119,7 +125,7 @@ export async function POST(req: Request) {
           {
             success: true,
             reply:
-              'أنا مساعد متخصص في مكتبة منصة السنة الموثّقة (الأربعون النووية، حصن المسلم، السيرة، وتثبّت) فقط، ولم أجد ما يطابق سؤالك في المكتبة حاليًا.',
+              'أنا مساعد متخصص في مكتبة الباحث في السنة الموثّقة (الأربعون النووية، حصن المسلم، السيرة، وتثبّت) فقط، ولم أجد ما يطابق سؤالك في المكتبة حاليًا.',
             sources: [],
             dorarUrl: '',
             isVerifiedOnly: true,
@@ -143,20 +149,20 @@ export async function POST(req: Request) {
         const norm = normalizeArabic(trimmedMessage);
         if (norm.includes('سلام') || norm.includes('مرحبا') || norm.includes('اهل')) {
           fallbackReply =
-            'وعليكم السلام ورحمة الله وبركاته! أهلاً وسهلاً بك في منصة السنة. كيف يمكنني مساعدتك اليوم في نصوص الأحاديث النبوية، الأذكار المأثورة، السيرة النبوية، أو التحقق من صحة الأحاديث؟';
+            'وعليكم السلام ورحمة الله وبركاته! أهلاً وسهلاً بك في «الباحث في السنة». كيف يمكنني مساعدتك اليوم في نصوص الأحاديث النبوية، الأذكار المأثورة، السيرة النبوية، أو التحقق من صحة الأحاديث؟';
         } else if (norm.includes('شكر') || norm.includes('جزاك')) {
           fallbackReply =
             'وجزاكم الله خيرًا وبارك فيكم وتقبل منا ومنكم صالح الأعمال. أنا في خدمتكم دائمًا في رحاب هدي النبوة.';
         } else {
           fallbackReply =
-            'أهلاً بك! أنا «المساعد النبوي الذكي» لمنصة السنة، مهمتي إعانتك في تصفح وبحث كتاب الأربعون النووية، أذكار حصن المسلم، محطات السيرة النبوية العطرة، والتحقق من صحة الأحاديث المنتشرة عبر قسم تثبّت.';
+            'أهلاً بك! أنا «المساعد النبوي الذكي» التابع لـ «الباحث في السنة»، مهمتي إعانتك في تصفح وبحث كتاب الأربعون النووية، أذكار حصن المسلم، محطات السيرة النبوية العطرة، والتحقق من صحة الأحاديث المنتشرة عبر قسم تثبّت.';
         }
       } else if (ragResult.isFakeWarning) {
         fallbackReply = `⚠️ **تنبيه علمي من قسم «تثبّت»:**\n\nوردت في سؤالك عبارة تطابق حديثاً مدرجاً في الأحاديث المنتشرة التي لا تصح حسب تحقيق مؤسسة «الدرر السنية».\n\nيمكنك مراجعة التفاصيل الكاملة والبدائل الصحيحة عبر [قسم تثبّت](/verify) أو البحث في [الموسوعة الحديثية](${ragResult.dorarSearchUrl}).`;
       } else if (ragResult.hasVerifiedContext) {
         fallbackReply = `تم العثور على نصوص موثقة مطابقة لسؤالك في مصادر المنصة المعتمدة:\n\n${ragResult.sources.map((s) => `• **[${s.category}]** [${s.title}](${s.url}) — ${s.source}`).join('\n')}\n\n*(ملاحظة: يمكنك ضبط مفتاح GEMINI_API_KEY لتفعيل التحليل والتفسير الذكي الموسع).*`;
       } else {
-        fallbackReply = `لم نجد نصاً مباشراً في هذا الموضوع ضمن قواعد بيانات منصة السنة المعتمدة حالياً (الأربعون النووية، حصن المسلم، السيرة النبوية، وتثبّت).\n\nيمكنك البحث والتحقق مباشرة في [الموسوعة الحديثية بمؤسسة «الدرر السنية»](${ragResult.dorarSearchUrl}).`;
+        fallbackReply = `لم نجد نصاً مباشراً في هذا الموضوع ضمن قواعد بيانات الباحث في السنة المعتمدة حالياً (الأربعون النووية، حصن المسلم، السيرة النبوية، وتثبّت).\n\nيمكنك البحث والتحقق مباشرة في [الموسوعة الحديثية بمؤسسة «الدرر السنية»](${ragResult.dorarSearchUrl}).`;
       }
 
       return NextResponse.json(
@@ -216,28 +222,48 @@ export async function POST(req: Request) {
       parts: [{ text: userPromptWithContext }],
     });
 
-    const payload = {
-      contents,
-      system_instruction: {
-        parts: [{ text: SYSTEM_INSTRUCTION }],
-      },
-      generationConfig: {
-        temperature: 0.3,
-        maxOutputTokens: 700,
-      },
-    };
+    // قائمة الموديلات المرتبة بحسب السرعة (الأسرع أولاً لمنع التعليق)
+    const primaryName = process.env.GEMINI_MODEL?.trim() || 'gemini-3.5-flash-lite';
+    const candidateConfigs: ModelConfig[] = [
+      { name: primaryName, thinkingLevel: 'minimal' },
+      { name: 'gemini-3.6-flash', thinkingLevel: 'minimal' },
+      { name: 'gemini-3.8-flash', thinkingLevel: 'low' },
+    ];
 
-    // تجربة قائمة الموديلات الافتراضية مع fallback تلقائي (gemini-3.8-flash ثم gemini-3.5-flash-lite ثم gemini-3.5-flash)
-    const primaryModel = process.env.GEMINI_MODEL?.trim() || 'gemini-3.8-flash';
-    const candidateModels = Array.from(
-      new Set([primaryModel, 'gemini-3.5-flash-lite', 'gemini-3.5-flash'])
-    );
+    // تصفية التكرارات مع الحفاظ على الترتيب
+    const seenNames = new Set<string>();
+    const candidateModels: ModelConfig[] = [];
+    for (const c of candidateConfigs) {
+      if (!seenNames.has(c.name)) {
+        seenNames.add(c.name);
+        candidateModels.push(c);
+      }
+    }
 
     let aiResponseText = '';
     let lastErrorCode = 'NETWORK';
     let lastDebugReason = '';
 
-    for (const model of candidateModels) {
+    for (const modelOpt of candidateModels) {
+      const model = modelOpt.name;
+      const modelPayload = {
+        contents,
+        system_instruction: {
+          parts: [{ text: SYSTEM_INSTRUCTION }],
+        },
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 700,
+          thinkingConfig: {
+            thinkingLevel: modelOpt.thinkingLevel,
+          },
+        },
+      };
+
+      // مهلة 12 ثانية لكل محاولة لمنع التعليق
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+
       try {
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
         const geminiRes = await fetch(endpoint, {
@@ -246,7 +272,8 @@ export async function POST(req: Request) {
             'Content-Type': 'application/json',
             'x-goog-api-key': apiKey,
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(modelPayload),
+          signal: controller.signal,
         });
 
         if (geminiRes.ok) {
@@ -272,13 +299,18 @@ export async function POST(req: Request) {
           );
         }
       } catch (err: any) {
-        lastErrorCode = 'NETWORK';
-        let netMsg = err?.message || String(err);
+        const isTimeout = err?.name === 'AbortError' || controller.signal.aborted;
+        lastErrorCode = isTimeout ? 'TIMEOUT_12S' : 'NETWORK';
+        let netMsg = isTimeout
+          ? 'تجاوزت مهلة الاتصال بالموديل 12 ثانية'
+          : err?.message || String(err);
         if (apiKey) {
           netMsg = netMsg.replaceAll(apiKey, '[REDACTED_KEY]');
         }
-        lastDebugReason = `${model} -> Network error: ${netMsg}`.slice(0, 250);
-        console.error(`Network error calling Gemini model "${model}":`, netMsg);
+        lastDebugReason = `${model} -> ${isTimeout ? 'Timeout (12s)' : 'Network error'}: ${netMsg}`.slice(0, 250);
+        console.error(`Gemini model "${model}" error:`, netMsg);
+      } finally {
+        clearTimeout(timeoutId);
       }
     }
 
@@ -286,7 +318,7 @@ export async function POST(req: Request) {
       const baseReply = ragResult.hasVerifiedContext
         ? `تعذر استكمال التحليل الذكي مؤقتاً، ولكن هذه هي النصوص الموثقة المطابقة لسؤالك في المنصة:\n\n${ragResult.sources.map((s) => `• **[${s.category}]** [${s.title}](${s.url})`).join('\n')}`
         : isGreetingOrChat
-        ? 'أهلاً بك في منصة السنة النبوية الشاملة! نسعد بخدمتكم في رحاب هدي المصطفى ﷺ.'
+        ? 'أهلاً بك في «الباحث في السنة»! نسعد بخدمتكم في رحاب هدي المصطفى ﷺ.'
         : `تعذر الاتصال بخدمة الذكاء الاصطناعي مؤقتاً. يمكنك التحقق مباشرة من الحديث في [الموسوعة الحديثية بالدرر السنية](${ragResult.dorarSearchUrl}).`;
 
       return NextResponse.json(
@@ -345,7 +377,7 @@ export async function GET(req: Request) {
     return NextResponse.json(
       {
         status: 'ok',
-        service: 'Sunnah Platform AI Assistant API (RAG Engine)',
+        service: 'Al-Bahith fi Al-Sunnah AI Assistant API (RAG Engine)',
         version: '1.0.0',
         ragEnabled: true,
         hasGeminiKey,
@@ -363,8 +395,13 @@ export async function GET(req: Request) {
     );
   }
 
-  // وضع الفحص التشخيصي الحقيقي (?diag=1)
-  const candidateModels = ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-3.5-flash'];
+  // وضع الفحص التشخيصي الحقيقي المحدث (?diag=1)
+  const candidateModels: ModelConfig[] = [
+    { name: 'gemini-3.5-flash-lite', thinkingLevel: 'minimal' },
+    { name: 'gemini-3.6-flash', thinkingLevel: 'minimal' },
+    { name: 'gemini-3.8-flash', thinkingLevel: 'low' },
+  ];
+
   const diagResults: Array<{
     model: string;
     httpStatus: number;
@@ -386,7 +423,11 @@ export async function GET(req: Request) {
     );
   }
 
-  for (const model of candidateModels) {
+  for (const modelOpt of candidateModels) {
+    const model = modelOpt.name;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+
     try {
       const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
       const res = await fetch(endpoint, {
@@ -397,8 +438,14 @@ export async function GET(req: Request) {
         },
         body: JSON.stringify({
           contents: [{ role: 'user', parts: [{ text: 'قل مرحبًا' }] }],
-          generationConfig: { maxOutputTokens: 20 },
+          generationConfig: {
+            maxOutputTokens: 20,
+            thinkingConfig: {
+              thinkingLevel: modelOpt.thinkingLevel,
+            },
+          },
         }),
+        signal: controller.signal,
       });
 
       if (res.ok) {
@@ -430,7 +477,10 @@ export async function GET(req: Request) {
         });
       }
     } catch (e: any) {
-      let netMsg = e?.message || 'Network connection failed';
+      const isTimeout = e?.name === 'AbortError' || controller.signal.aborted;
+      let netMsg = isTimeout
+        ? 'انتهت مهلة الاتصال التشخيصي (12 ثانية)'
+        : e?.message || 'Network connection failed';
       if (apiKey) {
         netMsg = netMsg.replaceAll(apiKey, '[REDACTED_KEY]');
       }
@@ -440,6 +490,8 @@ export async function GET(req: Request) {
         ok: false,
         googleError: netMsg,
       });
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 

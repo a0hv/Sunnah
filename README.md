@@ -1,4 +1,4 @@
-# منصة السنة النبوية الشريفة (Sunnah Platform)
+# «الباحث في السنة» (Al-Bahith fi Al-Sunnah) — المرجع الشامل للسنة النبوية
 
 منصة ويب تفاعلية حديثة، سريعة، ومجانية ١٠٠٪، مبنية بتقنية **Next.js 15 (Static HTML Export)** مع دعم كامل لاتجاه الكتابة العربي من اليمين إلى اليسار (**RTL-First**)، ومصممة بأحدث معايير تجربة المستخدم على الهواتف والأجهزة المكتبية.
 
@@ -82,7 +82,7 @@ npm run build
 ```bash
 git init
 git add .
-git commit -m "الإصدار الأول: إطلاق منصة السنة النبوية الشريفة"
+git commit -m "الإصدار الأول: إطلاق الباحث في السنة"
 git branch -M main
 git remote add origin https://github.com/USERNAME/sunnah-platform.git
 git push -u origin main

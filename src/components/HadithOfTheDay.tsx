@@ -64,7 +64,7 @@ export function HadithOfTheDay() {
   const handleCopy = async () => {
     if (!currentHadith) return;
     try {
-      const textToCopy = `«الحديث ${currentHadith.id}: ${currentHadith.title}»\n\n${currentHadith.text}\n\n[الراوي: ${currentHadith.narrator} • ${currentHadith.source}]\n\n— منصة السنة | الأربعون النووية للإمام النووي`;
+      const textToCopy = `«الحديث ${currentHadith.id}: ${currentHadith.title}»\n\n${currentHadith.text}\n\n[الراوي: ${currentHadith.narrator} • ${currentHadith.source}]\n\n— الباحث في السنة | الأربعون النووية للإمام النووي`;
       await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -81,7 +81,7 @@ export function HadithOfTheDay() {
       sectionTitle: 'الأربعون النووية',
       text: currentHadith.text,
       citation: `الراوي: ${currentHadith.narrator} • ${currentHadith.source}`,
-      source: 'منصة السنة — الأربعون النووية للإمام النووي',
+      source: 'الباحث في السنة — الأربعون النووية للإمام النووي',
     });
   };
 

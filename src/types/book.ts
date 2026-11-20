@@ -1,4 +1,4 @@
-// TypeScript definitions for «منصة السنة»
+// TypeScript definitions for «الباحث في السنة»
 
 export type FiqhRank = 'ركن' | 'واجب' | 'سنة مؤكدة' | 'مستحب' | 'مباح' | 'عادة جبلية';
 

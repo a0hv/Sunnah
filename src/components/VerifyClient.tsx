@@ -228,7 +228,7 @@ export function VerifyClient() {
 ${pair.authentic.text}
 ▪️ رواه: ${pair.authentic.narratorAndSource}
 
-📚 المصدر: منصة السنة — قسم التثبت الحديثي`;
+📚 المصدر: الباحث في السنة — قسم التثبت الحديثي`;
 
     try {
       await navigator.clipboard.writeText(formatted);

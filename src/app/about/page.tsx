@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { BookOpen, CheckCircle2, Heart, Sparkles, ShieldCheck, CalendarCheck, ExternalLink, ArrowLeft, Scroll, Compass } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'عن منصة السنة والمنهج العلمي | منصة السنة',
-  description: 'التعريف بمنصة السنة النبوية ومصادرها العلمية المعتمدة: الأربعون النووية، حصن المسلم، السيرة النبوية، قسم تثبّت، ومتتبع سنن اليوم والليلة.',
+  title: 'عن الباحث في السنة والمنهج العلمي | الباحث في السنة',
+  description: 'التعريف بمشروع «الباحث في السنة» ومصادره العلمية المعتمدة: الأحاديث الصحيحة وشروحها، العقيدة النبوية، السيرة، أذكار حصن المسلم، قسم تثبّت، ومتتبع سنن اليوم والليلة.',
 };
 
 export default function AboutPage() {
@@ -19,16 +19,16 @@ export default function AboutPage() {
         </div>
 
         <h1 className="text-3xl sm:text-5xl font-bold font-display text-slate-900 dark:text-white leading-tight">
-          عن «منصة السنة»
+          عن «الباحث في السنة»
         </h1>
 
         <p className="text-lg sm:text-xl text-muted-light dark:text-muted-dark leading-relaxed font-text max-w-3xl">
-          المرجع الرقمي العصري لكلام سيد المرسلين ﷺ: الجمع بين أصول الحديث النبوي والآداب، والعمل اليومي، والتثبت العلمي.
+          المرجع الرقمي العصري لكلام وهدي سيد المرسلين ﷺ: الجمع بين أصول الحديث النبوي وشروحه، العقيدة، السيرة، والعمل اليومي، والتثبت العلمي.
         </p>
 
         <div className="pt-2 flex flex-wrap items-center gap-3 text-xs sm:text-sm text-charcoal-light dark:text-charcoal-dark">
           <span className="px-3 py-1 rounded-lg bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark font-medium">
-            منصة رقمية موثوقة • وقف لوجه الله تعالى
+            مشروع رقمي موثوق • وقف لوجه الله تعالى
           </span>
           <span className="px-3 py-1 rounded-lg bg-emerald-brand/10 text-emerald-brand dark:text-emerald-brand-dark font-semibold">
             تخريج مباشر وتثبت معتمد
@@ -44,7 +44,7 @@ export default function AboutPage() {
         </h2>
         <div className="p-6 rounded-3xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark space-y-4 text-sm text-charcoal-light dark:text-charcoal-dark leading-[2] font-text">
           <p>
-            تأسست <strong>«منصة السنة»</strong> انطلاقاً من واجب خدمة حديث رسول الله صلى الله عليه وسلم وهديه الشريف، وتقريب علوم الحديث والآداب النبوية للمسلم المعاصر في قالب رقمي حديث وسهل التصفح على كافة الأجهزة الذكية.
+            تأسس مشروع <strong>«الباحث في السنة»</strong> انطلاقاً من واجب خدمة حديث رسول الله صلى الله عليه وسلم وهديه الشريف، وتقريب علوم الحديث والآداب النبوية للمسلم المعاصر في قالب رقمي حديث وسهل التصفح على كافة الأجهزة الذكية.
           </p>
           <p>
             حرصنا في بناء المنصة على الجمع بين <strong>الأمانة العلمية الصارمة</strong> في نقل النصوص وضبطها بالشكل، وبين <strong>التطبيق العملي</strong> الذي يعين المسلم على عمارة يومه وليلته بهدي نبيه ﷺ في كل موقف ولحظة.
