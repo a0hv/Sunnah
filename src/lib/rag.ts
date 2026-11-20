@@ -29,16 +29,77 @@ export function normalizeArabic(text: string): string {
 }
 
 /**
- * تجريد السوابق الشائعة (واو العطف، فاء العطف، باء الجر، أل التعريف) لاستخلاص جذر الكلمة المقارن
+ * تجريد السوابق الشائعة (والـ، فالـ، بالـ، كالـ، وللـ، فللـ، للـ، الـ، و، ف، ب، ك، ل)
+ * لاستخلاص جذر الكلمة المقارن بدقة عالية
  */
 export function cleanStem(word: string): string {
+  if (!word) return '';
   let w = word;
-  if (w.startsWith('و') && w.length >= 4) w = w.slice(1);
-  if (w.startsWith('ف') && w.length >= 4) w = w.slice(1);
-  if (w.startsWith('ب') && w.length >= 4) w = w.slice(1);
-  if (w.startsWith('ال') && w.length >= 4) w = w.slice(2);
+
+  // 1. السوابق المركبة ثلاثية الحروف (والـ، فالـ، بالـ، كالـ، وللـ، فللـ)
+  if (
+    (w.startsWith('وال') ||
+      w.startsWith('فال') ||
+      w.startsWith('بال') ||
+      w.startsWith('كال') ||
+      w.startsWith('ولل') ||
+      w.startsWith('فلل')) &&
+    w.length >= 5
+  ) {
+    w = w.slice(3);
+  }
+  // 2. السوابق الثنائية (للـ، الـ)
+  else if ((w.startsWith('لل') || w.startsWith('ال')) && w.length >= 4) {
+    w = w.slice(2);
+  }
+
+  // 3. السوابق الأحادية (و، ف، ب، ك، ل) إذا كان طول الكلمة المتبقية لا يقل عن 3 أحرف
+  if (
+    (w.startsWith('و') ||
+      w.startsWith('ف') ||
+      w.startsWith('ب') ||
+      w.startsWith('ك') ||
+      w.startsWith('ل')) &&
+    w.length >= 4
+  ) {
+    w = w.slice(1);
+  }
+
   return w;
 }
+
+/**
+ * قاموس التوسيع الدلالي للمرادفات والمفاهيم النبوية الشائعة
+ */
+export const SEMANTIC_EXPANSIONS: Record<string, string[]> = {
+  // الجنائز والموت والتعزية
+  جنازه: ['ميت', 'دفن', 'قبر', 'تعزيه', 'صلاه الجنازه', 'اموات', 'وفاه'],
+  جنائز: ['ميت', 'دفن', 'قبر', 'تعزيه', 'اموات', 'صلاه الجنازه'],
+  ميت: ['جنازه', 'قبر', 'دفن', 'تعزيه', 'موت', 'احتضار', 'تلقين', 'وفاه'],
+  موت: ['ميت', 'جنازه', 'احتضار', 'قبر', 'دفن', 'وفاه'],
+  وفاه: ['ميت', 'جنازه', 'عزاء', 'تعزيه', 'موت'],
+  تعزيه: ['ميت', 'مصيبه', 'صبر', 'جنازه', 'عزاء'],
+  قبر: ['ميت', 'زياره القبور', 'دفن', 'لحد', 'جنازه'],
+  دفن: ['ميت', 'قبر', 'جنازه', 'لحد'],
+  احتضار: ['موت', 'ميت', 'تلقين الشهاده'],
+
+  // أبواب الأذكار والسنن الشهيرة
+  استخاره: ['استخير', 'مشوره', 'تردد', 'حيره'],
+  سفر: ['مسافر', 'رحله', 'طريق', 'ركوب', 'وداع'],
+  نوم: ['منام', 'استيقاظ', 'ارق', 'فراش', 'احلام', 'رؤيا'],
+  استيقاظ: ['نوم', 'منام', 'صحو'],
+  مرض: ['مريض', 'شفاء', 'عياده', 'وجع', 'حمى', 'ر Banca', 'عافيه'],
+  هم: ['حزن', 'كرب', 'غم', 'فرج', 'ضيق', 'صدر'],
+  حزن: ['هم', 'كرب', 'غم', 'فرج', 'ضيق'],
+  كرب: ['هم', 'حزن', 'غم', 'فرج', 'شده'],
+  رزق: ['بركه', 'دين', 'قضاء الدين', 'فقر', 'غنى'],
+  مطر: ['غيث', 'رعد', 'برق', 'سحاب', 'ريح'],
+  وضوء: ['طهاره', 'سواك'],
+  صلاه: ['سجود', 'ركوع', 'تشهد', 'استفتاح', 'وتر'],
+  صيام: ['افطار', 'صائم', 'سحور', 'رمضان'],
+  صباح: ['مساء', 'اذكار الصباح'],
+  مساء: ['صباح', 'اذكار المساء'],
+};
 
 /**
  * قائمة كلمات التوقف العربية الشائعة وأدوات الاستفهام وكلمات السرد والرواية
@@ -101,19 +162,32 @@ export function isIslamicOrReligiousQuery(text: string): boolean {
 }
 
 /**
- * التحقق مما إذا كانت الرسالة تحية أو شكرًا أو سؤالًا تعريفيًا عامًا
+ * التحقق مما إذا كانت الرسالة تحية أو شكرًا أو سؤالًا تعريفيًا أو دردشة عادية
  */
 export function isConversationalOrGreeting(text: string): boolean {
   if (!text) return false;
   const norm = normalizeArabic(text);
-  const conversationalKeywords = [
-    'سلام', 'السلام عليكم', 'سلام عليكم', 'مرحبا', 'مرحبا بك', 'اهل', 'اهلا', 'اهلا بك', 'اهلين',
-    'صباح الخير', 'مساء الخير', 'حياك الله', 'يا هلا', 'هلا', 'سلامات',
+
+  // إذا كانت الرسالة كلمة أو كلمتين استيضاحيتين أو عاميتين
+  const shortQueries = new Set([
+    'ماذا', 'ماذا؟', 'ايش', 'وش', 'عامل ايه', 'عامل ايه؟', 'عامل ايه خوي',
+    'ازيك', 'شلونك', 'شخبارك', 'كيفك', 'كيف الحال', 'كيف حالك',
+    'تمام', 'الحمد لله', 'خير', 'مرحبا', 'هلا', 'يا هلا', 'اهلين',
+    'السلام عليكم', 'سلام عليكم', 'وعليكم السلام', 'سلام', 'سلامات',
+    'شكرا', 'مشكور', 'تسلم', 'يعطيك العافيه', 'جزاك الله خير', 'جزاك الله خيرا',
+    'احسنت', 'ممتاز', 'وضح', 'وضح لي', 'فهمت', 'ما فهمت', 'مين انت', 'من انت'
+  ]);
+  if (shortQueries.has(norm)) return true;
+
+  const conversationalPhrases = [
+    'سلام عليكم', 'السلام عليكم', 'مرحبا', 'مرحبا بك', 'اهلا بك', 'اهلين',
+    'صباح الخير', 'مساء الخير', 'حياك الله', 'يا هلا', 'سلامات',
+    'عامل ايه', 'شلونك', 'كيف حالك', 'كيفك', 'ازيك', 'اخبارك',
     'من انت', 'ما انت', 'عرف بنفسك', 'ماذا تفعل', 'كيف تساعدني', 'ما عملك', 'ما وظيفتك', 'ما فائدتك',
     'شكرا', 'شكرا لك', 'مشكور', 'جزاك الله خيرا', 'بارك الله فيك', 'يعطيك العافيه',
-    'تسلم', 'احسنت', 'تمام', 'ممتاز', 'شكرا جزيلا'
+    'تسلم', 'احسنت', 'شكرا جزيلا'
   ];
-  return conversationalKeywords.some((phrase) => norm.includes(normalizeArabic(phrase)));
+  return conversationalPhrases.some((phrase) => norm.includes(normalizeArabic(phrase)));
 }
 
 export interface RagSource {
@@ -133,7 +207,7 @@ export interface RagRetrievalResult {
 }
 
 /**
- * حساب درجة التطابق بين نص وسؤال مع حد أدنى صارم للمطابقة
+ * حساب درجة التطابق بين نص وسؤال مع دعم المرادفات الدلالية وتطابق عناوين الأبواب
  */
 export function calculateMatchScore(
   text: string,
@@ -164,9 +238,21 @@ export function calculateMatchScore(
   for (let i = 0; i < coreTokens.length; i++) {
     const token = coreTokens[i];
     const stem = cleanStem(token);
+    const expansions = SEMANTIC_EXPANSIONS[stem] || SEMANTIC_EXPANSIONS[token] || [];
 
-    const inTitle = normTitle.includes(token) || (stem.length >= 3 && normTitle.includes(stem));
-    const inText = normText.includes(token) || (stem.length >= 3 && normText.includes(stem));
+    // فحص التطابق المباشر والتوسيع الدلالي في العنوان
+    const inTitleDirect = normTitle.includes(token) || (stem.length >= 3 && normTitle.includes(stem));
+    const inTitleExpansion = expansions.some(
+      (exp) => normTitle.includes(exp) || (cleanStem(exp).length >= 3 && normTitle.includes(cleanStem(exp)))
+    );
+    const inTitle = inTitleDirect || inTitleExpansion;
+
+    // فحص التطابق المباشر والتوسيع الدلالي في المتن
+    const inTextDirect = normText.includes(token) || (stem.length >= 3 && normText.includes(stem));
+    const inTextExpansion = expansions.some(
+      (exp) => normText.includes(exp) || (cleanStem(exp).length >= 3 && normText.includes(cleanStem(exp)))
+    );
+    const inText = inTextDirect || inTextExpansion;
 
     if (inTitle) {
       titleMatches++;
@@ -178,22 +264,31 @@ export function calculateMatchScore(
     }
   }
 
-  // حد التطابق الأدنى الصارم:
-  // - كلمة واحدة: يجب أن تتطابق
-  // - كلمتان: يجب أن تتطابق الكلمتان معًا (مجموع التطابقين = 2) لمنع التداخل العشوائي
-  // - 3 كلمات فأكثر: يلزم تطابق 60% على الأقل من الكلمات
-  const requiredHits =
-    coreTokens.length <= 1
-      ? 1
-      : coreTokens.length === 2
-      ? 2
-      : Math.min(3, Math.ceil(coreTokens.length * 0.6));
+  // إذا تطابق عنوان الباب مع كلمة جوهرية قوية (مثل: الميت، الاستخارة، الكسوف، بدر)
+  const hasStrongTitleMatch =
+    titleMatches >= 1 &&
+    Array.from(matchedTokenIndices).some((idx) => {
+      const t = coreTokens[idx];
+      const s = cleanStem(t);
+      return s.length >= 3 && !['دعاء', 'ذكر', 'سنه', 'عمل', 'قول'].includes(s);
+    });
+
+  // حد التطابق الأدنى:
+  // - عند وجود تطابق قوي في عنوان الباب: يكتفى بـ 2 كلمة (أو كلمة واحدة إذا كان السؤال كلمتين)
+  // - عدا ذلك: يلزم تطابق كلمتين أو 60% من الكلمات لمنع التداخل العشوائي
+  const requiredHits = hasStrongTitleMatch
+    ? Math.min(2, coreTokens.length)
+    : coreTokens.length <= 1
+    ? 1
+    : coreTokens.length === 2
+    ? 2
+    : Math.min(3, Math.ceil(coreTokens.length * 0.6));
 
   if (matchedTokenIndices.size < requiredHits) {
     return 0; // استبعاد فوري
   }
 
-  score += titleMatches * 60 + textMatches * 20;
+  score += titleMatches * 80 + textMatches * 20;
 
   // عقوبة النصوص الضخمة (تجنب تصدر القصص الطويلة التي تحتوي صدفة على كلمات شائعة)
   if (normText.length > 1000) {
@@ -206,6 +301,42 @@ export function calculateMatchScore(
 export function retrieveVerifiedContext(query: string): RagRetrievalResult {
   const normQuery = normalizeArabic(query);
   const dorarSearchUrl = getDorarSearchUrl(query);
+
+  if (!normQuery || normQuery.length < 2) {
+    return {
+      hasVerifiedContext: false,
+      contextText: '',
+      sources: [],
+      isFakeWarning: false,
+      dorarSearchUrl,
+    };
+  }
+
+  // إذا كانت الرسالة مجرد تحية أو دردشة أو سؤال خفيف دون طلب نص شرعي محدد، لا نرفق أي مصادر لتجنب ظهور بطاقات غير ملائمة
+  const hasExplicitTopic =
+    normQuery.includes('حديث') ||
+    normQuery.includes('دعاء') ||
+    normQuery.includes('ذكر') ||
+    normQuery.includes('سوره') ||
+    normQuery.includes('ايه') ||
+    normQuery.includes('صلاه') ||
+    normQuery.includes('صيام') ||
+    normQuery.includes('حكم') ||
+    normQuery.includes('غزوه') ||
+    normQuery.includes('ميت') ||
+    normQuery.includes('جناز') ||
+    normQuery.includes('استخار') ||
+    normQuery.includes('سفر');
+
+  if (isConversationalOrGreeting(normQuery) && !hasExplicitTopic) {
+    return {
+      hasVerifiedContext: false,
+      contextText: '',
+      sources: [],
+      isFakeWarning: false,
+      dorarSearchUrl: '',
+    };
+  }
 
   if (!normQuery || normQuery.length < 2) {
     return {
@@ -397,7 +528,7 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
     authenticTopScore,
     scoredFakes[0]?.score || 0
   );
-  const minRelevanceScore = Math.max(40, overallTopScore * 0.3);
+  const minRelevanceScore = Math.max(60, overallTopScore * 0.55);
 
   // اتخاذ قرار التحذير من الحديث المكذوب:
   // يتم تفعيل التحذير فقط إذا:
@@ -508,7 +639,7 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
   return {
     hasVerifiedContext,
     contextText,
-    sources,
+    sources: sources.slice(0, 3),
     isFakeWarning,
     dorarSearchUrl,
   };
