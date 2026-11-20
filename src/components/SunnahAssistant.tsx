@@ -488,7 +488,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
     setIsLoading(true);
 
     const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), 25000); // مهلة 25 ثانية لاستيعاب رد السيرفر بأمان
+    const timeoutId = setTimeout(() => abortController.abort(), 30000); // مهلة 30 ثانية لاستيعاب رد السيرفر بأمان مع الاحتياطي المزدوج
 
     try {
       const res = await fetch('/api/chat/', {
