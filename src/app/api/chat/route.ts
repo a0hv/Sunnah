@@ -4,8 +4,9 @@ import {
   isIslamicOrReligiousQuery,
   isConversationalOrGreeting,
   normalizeArabic,
+  AssistantSearchMode,
 } from '@/lib/rag';
-import { queryDorarApi } from '@/lib/dorar-api';
+import { queryDorarApi, extractDistinctiveHadithKeywords } from '@/lib/dorar-api';
 
 // ضبط أقصى مدة استجابة للمسار بـ 30 ثانية لتسريع الإجابة وتجنب التعليق
 export const maxDuration = 30;
@@ -27,6 +28,7 @@ interface ChatMessage {
 
 interface ChatRequestBody {
   message: string;
+  mode?: AssistantSearchMode;
   history?: ChatMessage[];
 }
 
@@ -35,27 +37,31 @@ interface ModelConfig {
   thinkingLevel: 'minimal' | 'low';
 }
 
-const SYSTEM_INSTRUCTION = `
-أنت «المساعد النبوي الذكي» في منصة «الباحث في السنة» (Al-Bahith fi Al-Sunnah).
+export interface ExternalSourceLink {
+  name: string;
+  badge: string;
+  url: string;
+}
 
-شخصيتك وأسلوبك:
-- أنت طالب علم مؤدب، لطيف، ودود، محب للخير، وقريب من السائل كأنه أخ أو صديق ناصح.
-- تفهم اللهجات العامية (الخليجية، المصرية، الشامية، المغربية وغيرها) واللغة الفصحى بذكاء وسلاسة، وتتفاعل بعفوية وبشاشة مع التحيات والسلام والأسئلة الخفيفة أو التوضيحية (مثل: «السلام عليكم»، «عامل إيه؟»، «شلونك؟»، «ماذا؟»، «وضح لي أكثر»).
-- أسلوبك طبيعي وسلس ومريح، بعيد عن القوالب الجافة أو الردود الآلية المكررة.
+const SYSTEM_INSTRUCTION = `
+أنت «الباحث في السنة» (Al-Bahith fi Al-Sunnah) — مرجع وباحث إلكتروني رصين وموثوق في السنة النبوية الشريفة وهدي النبي ﷺ.
+
+النبرة والأسلوب:
+- التحدث باللغة العربية الفصحى الحديثة، الرصينة، الهادئة، والمختصرة المباشرة دون تطويل أو تكلف.
+- يُمنع تمامًا التملق أو استخدام العبارات العامية المبتذلة (مثل: «يا غالي»، «من عيوني»، «أنا أخوك الصغير وتحت أمرك»، «يا هلا بالزين»).
+- تجنب المقدمات الإنشائية المطولة أو الخواتيم المتصنعة؛ ادخل في صلب الجواب مباشرة بوقار واتزان علمي.
+- الصلاة والسلام على رسول الله ﷺ كلما ذُكر اسمه الشريف.
 
 القاعدة العلمية الصارمة والأمانة في النقل:
-1. يُمنع منعًا باتًا تأليف، أو توليد، أو استحضار أي نص حديث نبوي، أو ذكر، أو آية، أو فتوى من الذاكرة دون أن يكون مذكورًا في «السياق الموثّق» المرفق.
+1. يُمنع منعًا باتًا تأليف، أو توليد، أو استحضار أي نص حديث نبوي، أو ذكر، أو آية، أو فتوى من الذاكرة المجردة؛ الاستشهاد والتأصيل يعتمد حصرًا على «السياق الموثّق» المرفق.
 2. إذا كان «السياق الموثّق» يحتوي على [تنبيه علمي فوري من قسم تثبّت]:
-   - نبّه السائل بلطف وأدب على الفور بأن هذا الحديث لا يصح أو موضوع/مكذوب بناءً على تحقيق الدرر السنية، واذكر علّته وحكمه والبديل الصحيح المذكور في السياق إن وجد.
+   - بيّن باقتضاب ووضوح أن هذا الحديث لا يصح أو موضوع/مكذوب بناءً على تحقيق الدرر السنية، واذكر علّته وحكمه والبديل الصحيح المذكور في السياق.
 3. إذا احتوى «السياق الموثّق» على أحاديث أو أذكار أو محطات سيرة:
-   - اشرحها وقدمها بأسلوب تربوي لطيف وميسر، مع ذكر النص النبوي بدقة وعزوه لمصدره.
-4. إذا سأل المستخدم عن نص حديث معين، أو دعاء محدد، أو حكم فقهي ولم تجده في «السياق الموثّق» المرفق:
-   - لا تخترع نصًا ولا تتكلف إجابة من عندك؛ اعتذر له بلطف وبأسلوبك الودود الطبيعي موضحًا أن هذا النص غير متوفر حاليًا في قواعد البيانات الموثقة بالمنصة (الأربعون النووية، حصن المسلم، السيرة النبوية، وقسم تثبّت)، واقترح عليه البحث والتحقق في الموسوعة الحديثية بمؤسسة «الدرر السنية».
-5. إذا كانت رسالة المستخدم دردشة عادية، سلامًا، شكرًا، أو سؤالًا عامًا استيضاحيًا:
-   - رد عليه بعفوية ولطف وود كطالب علم نبيل، دون ذكر قوالب الاعتذار أو روابط المصادر.
-6. الأسلوب والتنسيق:
-   - الصلاة والسلام على رسول الله ﷺ كلما ورد ذكره.
-   - تنسيق مريح بالقوائم والخط العريض عند الحاجة، ووضع الأحاديث بين قوسين «...» والآيات بين ﴿...﴾.
+   - اذكر النص بأمانة ودقة واشرحه بإيجاز، وضع نصوص الأحاديث بين علامات التنصيص «...» والآيات بين ﴿...﴾.
+4. إذا لم يحتوِ «السياق الموثّق» على نص يغطي مسألة السائل:
+   - أجب بوقار واقتضاب: «لم يرد نص مباشر في هذا الموضوع ضمن قواعد البيانات الموثقة الحالية في المنصة (الأربعون النووية، حصن المسلم، السيرة النبوية، وقسم تثبّت). ويمكن التحقق من ثبوته في الموسوعة الحديثية بمؤسسة الدرر السنية.»
+5. عند رد السلام أو التحية:
+   - رُد التحية بأدب ووقار واقتضاب (مثل: «وعليكم السلام ورحمة الله وبركاته. أهلاً بك في الباحث في السنة، كيف يمكنني إعانتك؟»).
 `;
 
 export async function POST(req: Request) {
@@ -90,11 +96,12 @@ export async function POST(req: Request) {
       );
     }
 
+    const mode = (typeof body.mode === 'string' ? body.mode : 'all') as AssistantSearchMode;
     const trimmedMessage = message.trim().slice(0, 500);
     const isGreetingOrChat = isConversationalOrGreeting(trimmedMessage);
 
-    // 1. الاسترجاع المعزز الموثّق (RAG) من قواعد بيانات المنصة المحلية
-    const ragResult = retrieveVerifiedContext(trimmedMessage);
+    // 1. الاسترجاع المعزز الموثّق (RAG) من قواعد بيانات المنصة المحلية حسب النطاق المختار
+    const ragResult = retrieveVerifiedContext(trimmedMessage, mode);
 
     // 2. التحقق من جاهزية API الدرر السنية (في حال تم تفعيل المفتاح)
     const dorarResults = await queryDorarApi(trimmedMessage);
@@ -117,6 +124,38 @@ export async function POST(req: Request) {
 
     // إخفاء المصادر غير الملائمة إذا كانت الرسالة مجرد تحية أو دردشة عادية
     const returnedSources = isGreetingOrChat ? [] : ragResult.sources;
+
+    // استخراج الكلمات المميزة من متن الحديث نفسه أو السؤال لبناء روابط المصادر الخارجية
+    const hadithKeywords = extractDistinctiveHadithKeywords(
+      ragResult.matchedHadithText || '',
+      trimmedMessage
+    );
+
+    // بناء مصفوفة الروابط الخارجية الأربعة للمسائل العلمية والدينية
+    const externalSources: ExternalSourceLink[] = isGreetingOrChat
+      ? []
+      : [
+          {
+            name: 'الدرر السنية',
+            badge: 'الموسوعة الحديثية',
+            url: ragResult.dorarSearchUrl,
+          },
+          {
+            name: 'الإسلام سؤال وجواب',
+            badge: 'فتاوى وتأصيل',
+            url: `https://islamqa.info/ar/search?q=${encodeURIComponent(trimmedMessage)}`,
+          },
+          {
+            name: 'إسلام ويب',
+            badge: 'استشارات وأحكام',
+            url: `https://www.google.com/search?q=${encodeURIComponent('site:islamweb.net/ar ' + trimmedMessage)}`,
+          },
+          {
+            name: 'موسوعة الحديث',
+            badge: 'HadeethEnc',
+            url: `https://www.google.com/search?q=${encodeURIComponent('site:hadeethenc.com/ar ' + (hadithKeywords || trimmedMessage))}`,
+          },
+        ];
 
     // 3. التحقق من وجود مفتاح GEMINI_API_KEY في البيئة
     const apiKey = process.env.GEMINI_API_KEY?.trim();
@@ -150,6 +189,7 @@ export async function POST(req: Request) {
           success: true,
           reply: fallbackReply,
           sources: returnedSources,
+          externalSources,
           dorarUrl: isGreetingOrChat ? '' : ragResult.dorarSearchUrl,
           isVerifiedOnly: true,
           hasGeminiKey: false,
@@ -306,6 +346,7 @@ export async function POST(req: Request) {
           success: true,
           reply: baseReply,
           sources: returnedSources,
+          externalSources,
           dorarUrl: isGreetingOrChat ? '' : ragResult.dorarSearchUrl,
           isVerifiedOnly: true,
           hasGeminiKey: true,
@@ -323,6 +364,7 @@ export async function POST(req: Request) {
         success: true,
         reply: aiResponseText,
         sources: returnedSources,
+        externalSources,
         dorarUrl: isGreetingOrChat ? '' : ragResult.dorarSearchUrl,
         isVerifiedOnly: true,
         hasGeminiKey: true,

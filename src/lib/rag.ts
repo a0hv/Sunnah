@@ -198,12 +198,15 @@ export interface RagSource {
   type: 'nawawi' | 'hisn' | 'seerah' | 'fake-hadith' | 'daily-tracker';
 }
 
+export type AssistantSearchMode = 'all' | 'adhkar' | 'seerah' | 'hadith' | 'general';
+
 export interface RagRetrievalResult {
   hasVerifiedContext: boolean;
   contextText: string;
   sources: RagSource[];
   isFakeWarning: boolean;
   dorarSearchUrl: string;
+  matchedHadithText?: string;
 }
 
 /**
@@ -298,9 +301,11 @@ export function calculateMatchScore(
   return Math.max(0, score);
 }
 
-export function retrieveVerifiedContext(query: string): RagRetrievalResult {
+export function retrieveVerifiedContext(
+  query: string,
+  mode: AssistantSearchMode = 'all'
+): RagRetrievalResult {
   const normQuery = normalizeArabic(query);
-  const dorarSearchUrl = getDorarSearchUrl(query);
 
   if (!normQuery || normQuery.length < 2) {
     return {
@@ -308,7 +313,7 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
       contextText: '',
       sources: [],
       isFakeWarning: false,
-      dorarSearchUrl,
+      dorarSearchUrl: getDorarSearchUrl(query),
     };
   }
 
@@ -326,7 +331,9 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
     normQuery.includes('ميت') ||
     normQuery.includes('جناز') ||
     normQuery.includes('استخار') ||
-    normQuery.includes('سفر');
+    normQuery.includes('سفر') ||
+    normQuery.includes('ثوب') ||
+    normQuery.includes('لبس');
 
   if (isConversationalOrGreeting(normQuery) && !hasExplicitTopic) {
     return {
@@ -338,20 +345,17 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
     };
   }
 
-  if (!normQuery || normQuery.length < 2) {
-    return {
-      hasVerifiedContext: false,
-      contextText: '',
-      sources: [],
-      isFakeWarning: false,
-      dorarSearchUrl,
-    };
-  }
-
   const coreTokens = extractCoreTokens(query);
   const sources: RagSource[] = [];
   const contextParts: string[] = [];
   let isFakeWarning = false;
+  let primaryMatchedText = '';
+
+  const shouldSearchFakes = mode === 'all' || mode === 'general' || mode === 'hadith';
+  const shouldSearchNawawi = mode === 'all' || mode === 'general' || mode === 'hadith';
+  const shouldSearchHisn = mode === 'all' || mode === 'general' || mode === 'adhkar';
+  const shouldSearchDaily = mode === 'all' || mode === 'general' || mode === 'adhkar';
+  const shouldSearchSeerah = mode === 'all' || mode === 'general' || mode === 'seerah';
 
   // فحص ما إذا كان المستخدم يسأل صراحة عن صحة أو ثبوت حديث
   const isExplicitAuthenticityQuery =
@@ -365,154 +369,156 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
     normQuery.includes('درجه') ||
     normQuery.includes('صحه');
 
-  // 1. فحص قسم «تثبّت» أولاً لكشف الأحاديث المكذوبة والضعيفة
-  const fakeData = fakeDataRaw as any;
-  const fakeList = Array.isArray(fakeData?.hadiths)
-    ? fakeData.hadiths
-    : Array.isArray(fakeData?.fakeHadiths)
-    ? fakeData.fakeHadiths
-    : [];
-
   interface ScoredItem<T = any> {
     item: T;
     score: number;
     extra?: any;
   }
 
+  // 1. فحص قسم «تثبّت» أولاً لكشف الأحاديث المكذوبة والضعيفة
   const scoredFakes: ScoredItem[] = [];
+  if (shouldSearchFakes) {
+    const fakeData = fakeDataRaw as any;
+    const fakeList = Array.isArray(fakeData?.hadiths)
+      ? fakeData.hadiths
+      : Array.isArray(fakeData?.fakeHadiths)
+      ? fakeData.fakeHadiths
+      : [];
 
-  for (const item of fakeList) {
-    const hadithText = item.hadithText || '';
-    // العنوان المختصر لمتن الحديث
-    const shortTitle = hadithText.slice(0, 140);
-    const score = calculateMatchScore(hadithText, shortTitle, coreTokens, normQuery);
+    for (const item of fakeList) {
+      const hadithText = item.hadithText || '';
+      const shortTitle = hadithText.slice(0, 140);
+      const score = calculateMatchScore(hadithText, shortTitle, coreTokens, normQuery);
 
-    // اشتراط حد أدنى مرتفع للأحاديث المكذوبة (100) وتطابق كلمتين جوهريتين على الأقل
-    if (score >= 100) {
-      const normShort = normalizeArabic(shortTitle);
-      const normFull = normalizeArabic(hadithText);
-      const isExactPhrase =
-        (normQuery.length >= 6 && normShort.includes(normQuery)) ||
-        (normQuery.length >= 8 && normFull.includes(normQuery));
+      if (score >= 100) {
+        const normShort = normalizeArabic(shortTitle);
+        const normFull = normalizeArabic(hadithText);
+        const isExactPhrase =
+          (normQuery.length >= 6 && normShort.includes(normQuery)) ||
+          (normQuery.length >= 8 && normFull.includes(normQuery));
 
-      let matchedTokensCount = 0;
-      for (const t of coreTokens) {
-        const stem = cleanStem(t);
-        if (
-          normShort.includes(t) ||
-          (stem.length >= 3 && normShort.includes(stem)) ||
-          normFull.includes(t) ||
-          (stem.length >= 3 && normFull.includes(stem))
-        ) {
-          matchedTokensCount++;
-        }
-      }
-
-      // تطبيق شرط التشديد العلمي:
-      // 1. إذا تطابقت العبارة الدقيقة بالكامل -> يُقبل فورًا
-      // 2. إذا كانت الكلمات الجوهرية 2 فأكثر -> يلزم تطابق كلمتين على الأقل
-      // 3. إذا كانت كلمة واحدة -> تشترط أن تكون كلمة نادرة ومميزة (طولها 5 أحرف أو أكثر) وتظهر في مطلع الحديث
-      if (!isExactPhrase) {
-        if (coreTokens.length >= 2 && matchedTokensCount < 2) {
-          continue;
-        }
-        if (coreTokens.length === 1) {
-          const singleToken = coreTokens[0];
-          if (singleToken.length < 5 || !normShort.includes(singleToken)) {
-            continue;
+        let matchedTokensCount = 0;
+        for (const t of coreTokens) {
+          const stem = cleanStem(t);
+          if (
+            normShort.includes(t) ||
+            (stem.length >= 3 && normShort.includes(stem)) ||
+            normFull.includes(t) ||
+            (stem.length >= 3 && normFull.includes(stem))
+          ) {
+            matchedTokensCount++;
           }
         }
+
+        if (!isExactPhrase) {
+          if (coreTokens.length >= 2 && matchedTokensCount < 2) {
+            continue;
+          }
+          if (coreTokens.length === 1) {
+            const singleToken = coreTokens[0];
+            if (singleToken.length < 5 || !normShort.includes(singleToken)) {
+              continue;
+            }
+          }
+        }
+
+        scoredFakes.push({ item, score });
       }
-
-      scoredFakes.push({ item, score });
     }
+    scoredFakes.sort((a, b) => b.score - a.score);
   }
-
-  scoredFakes.sort((a, b) => b.score - a.score);
 
   // 2. البحث في الأربعين النووية (نصوص كاملة وأرقام)
-  const nawawiData = nawawiDataRaw as any;
   const scoredNawawi: ScoredItem[] = [];
-  if (Array.isArray(nawawiData?.hadiths)) {
-    for (const item of nawawiData.hadiths) {
-      const score = calculateMatchScore(
-        item.text || '',
-        item.title || '',
-        coreTokens,
-        normQuery
-      );
-
-      if (score > 0) {
-        scoredNawawi.push({ item, score });
-      }
-    }
-    scoredNawawi.sort((a, b) => b.score - a.score);
-  }
-
-  // 3. البحث في حصن المسلم (أذكار وأدعية موثقة)
-  const hisnData = hisnDataRaw as any;
-  const scoredHisn: ScoredItem[] = [];
-  if (Array.isArray(hisnData?.categories)) {
-    for (const cat of hisnData.categories) {
-      const catItems = cat.items || cat.adhkar || [];
-      for (const dhikr of catItems) {
+  if (shouldSearchNawawi) {
+    const nawawiData = nawawiDataRaw as any;
+    if (Array.isArray(nawawiData?.hadiths)) {
+      for (const item of nawawiData.hadiths) {
         const score = calculateMatchScore(
-          dhikr.text || '',
-          cat.title || '',
+          item.text || '',
+          item.title || '',
           coreTokens,
           normQuery
         );
 
         if (score > 0) {
-          scoredHisn.push({ item: dhikr, score, extra: cat });
+          scoredNawawi.push({ item, score });
         }
       }
+      scoredNawawi.sort((a, b) => b.score - a.score);
     }
-    scoredHisn.sort((a, b) => b.score - a.score);
+  }
+
+  // 3. البحث في حصن المسلم (أذكار وأدعية موثقة)
+  const scoredHisn: ScoredItem[] = [];
+  if (shouldSearchHisn) {
+    const hisnData = hisnDataRaw as any;
+    if (Array.isArray(hisnData?.categories)) {
+      for (const cat of hisnData.categories) {
+        const catItems = cat.items || cat.adhkar || [];
+        for (const dhikr of catItems) {
+          const score = calculateMatchScore(
+            dhikr.text || '',
+            cat.title || '',
+            coreTokens,
+            normQuery
+          );
+
+          if (score > 0) {
+            scoredHisn.push({ item: dhikr, score, extra: cat });
+          }
+        }
+      }
+      scoredHisn.sort((a, b) => b.score - a.score);
+    }
   }
 
   // 4. البحث في السيرة النبوية (محطات ودروس الرحيق المختوم)
-  const seerahData = seerahDataRaw as any;
   const scoredSeerah: ScoredItem[] = [];
-  const seerahMilestones = Array.isArray(seerahData?.milestones)
-    ? seerahData.milestones
-    : Array.isArray(seerahData?.stations)
-    ? seerahData.stations
-    : [];
+  if (shouldSearchSeerah) {
+    const seerahData = seerahDataRaw as any;
+    const seerahMilestones = Array.isArray(seerahData?.milestones)
+      ? seerahData.milestones
+      : Array.isArray(seerahData?.stations)
+      ? seerahData.stations
+      : [];
 
-  for (const m of seerahMilestones) {
-    const fullText = `${m.summary || ''} ${(m.details || []).join(' ')} ${(m.lessons || []).join(' ')}`;
-    const score = calculateMatchScore(
-      fullText,
-      m.title || '',
-      coreTokens,
-      normQuery
-    );
-
-    if (score > 0) {
-      scoredSeerah.push({ item: m, score });
-    }
-  }
-  scoredSeerah.sort((a, b) => b.score - a.score);
-
-  // 5. البحث في متتبع سنن اليوم والليلة
-  const dailyData = dailyDataRaw as any;
-  const scoredDaily: ScoredItem[] = [];
-  if (Array.isArray(dailyData?.stations)) {
-    for (const d of dailyData.stations) {
-      const fullText = `${d.description || ''} ${d.hadithQuote || ''} ${(d.sunnahActions || []).join(' ')}`;
+    for (const m of seerahMilestones) {
+      const fullText = `${m.summary || ''} ${(m.details || []).join(' ')} ${(m.lessons || []).join(' ')}`;
       const score = calculateMatchScore(
         fullText,
-        d.title || '',
+        m.title || '',
         coreTokens,
         normQuery
       );
 
       if (score > 0) {
-        scoredDaily.push({ item: d, score });
+        scoredSeerah.push({ item: m, score });
       }
     }
-    scoredDaily.sort((a, b) => b.score - a.score);
+    scoredSeerah.sort((a, b) => b.score - a.score);
+  }
+
+  // 5. البحث في متتبع سنن اليوم والليلة
+  const scoredDaily: ScoredItem[] = [];
+  if (shouldSearchDaily) {
+    const dailyData = dailyDataRaw as any;
+    if (Array.isArray(dailyData?.stations)) {
+      for (const d of dailyData.stations) {
+        const fullText = `${d.description || ''} ${d.hadithQuote || ''} ${(d.sunnahActions || []).join(' ')}`;
+        const score = calculateMatchScore(
+          fullText,
+          d.title || '',
+          coreTokens,
+          normQuery
+        );
+
+        if (score > 0) {
+          scoredDaily.push({ item: d, score });
+        }
+      }
+      scoredDaily.sort((a, b) => b.score - a.score);
+    }
   }
 
   // حساب أعلى درجة في المصادر المعتمدة الصحيحة
@@ -523,7 +529,6 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
     scoredDaily[0]?.score || 0
   );
 
-  // حساب أعلى درجة بين جميع المصادر لتحديد عتبة الصلة النسبية
   const overallTopScore = Math.max(
     authenticTopScore,
     scoredFakes[0]?.score || 0
@@ -531,15 +536,13 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
   const minRelevanceScore = Math.max(60, overallTopScore * 0.55);
 
   // اتخاذ قرار التحذير من الحديث المكذوب:
-  // يتم تفعيل التحذير فقط إذا:
-  // 1. درجة تطابق الحديث المكذوب عالية (>= 80)
-  // 2. إما أن السؤال صريح عن صحة الحديث، أو أن درجة الحديث المكذوب تفوق أي مصدر معتمد
   if (
     scoredFakes.length > 0 &&
     (isExplicitAuthenticityQuery || scoredFakes[0].score >= authenticTopScore)
   ) {
     const topFake = scoredFakes[0].item;
     isFakeWarning = true;
+    primaryMatchedText = topFake.hadithText || '';
     contextParts.push(
       `[تنبيه علمي فوري من قسم تثبّت]\n` +
       `الحديث المذكور: «${topFake.hadithText}»\n` +
@@ -557,6 +560,9 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
 
   // إضافة الأربعين النووية إن وُجدت
   for (const { item } of scoredNawawi.filter((s) => s.score >= minRelevanceScore).slice(0, 2)) {
+    if (!primaryMatchedText) {
+      primaryMatchedText = item.text || '';
+    }
     contextParts.push(
       `[حديث نبوي شريف — الأربعون النووية]\n` +
       `الحديث رقم (${item.id}): ${item.title}\n` +
@@ -574,11 +580,14 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
   }
 
   // إضافة حصن المسلم إن وُجدت
-  // تجميع الأذكار حسب الباب لتجنب التكرار
   const addedCatIds = new Set<number>();
   for (const { item: dhikr, extra: cat } of scoredHisn.filter((s) => s.score >= minRelevanceScore)) {
     if (addedCatIds.has(cat.id)) continue;
     addedCatIds.add(cat.id);
+
+    if (!primaryMatchedText) {
+      primaryMatchedText = dhikr.text || '';
+    }
 
     contextParts.push(
       `[ذكر مأثور — حصن المسلم]\n` +
@@ -600,6 +609,9 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
 
   // إضافة السيرة النبوية إن وُجدت
   for (const { item: m } of scoredSeerah.filter((s) => s.score >= minRelevanceScore).slice(0, 2)) {
+    if (!primaryMatchedText) {
+      primaryMatchedText = m.summary || '';
+    }
     contextParts.push(
       `[موقف من السيرة النبوية — الرحيق المختوم]\n` +
       `المحطة: ${m.title} (${m.eraTitle || ''})\n` +
@@ -618,6 +630,9 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
 
   // إضافة سنن اليوم والليلة إن وُجدت
   for (const { item: d } of scoredDaily.filter((s) => s.score >= minRelevanceScore).slice(0, 1)) {
+    if (!primaryMatchedText) {
+      primaryMatchedText = d.hadithQuote || '';
+    }
     contextParts.push(
       `[سنة يومية عملية — متتبع سنن اليوم والليلة]\n` +
       `المحطة: ${d.title} (${d.timeOfDay || ''})\n` +
@@ -635,6 +650,7 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
 
   const hasVerifiedContext = contextParts.length > 0;
   const contextText = contextParts.join('\n\n---\n\n');
+  const dorarSearchUrl = getDorarSearchUrl(query, primaryMatchedText);
 
   return {
     hasVerifiedContext,
@@ -642,5 +658,6 @@ export function retrieveVerifiedContext(query: string): RagRetrievalResult {
     sources: sources.slice(0, 3),
     isFakeWarning,
     dorarSearchUrl,
+    matchedHadithText: primaryMatchedText,
   };
 }
