@@ -3,14 +3,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Scroll, Sparkles, ShieldAlert, Search } from 'lucide-react';
+import { Home, Scroll, Sparkles, Compass, CalendarCheck } from 'lucide-react';
 
 const BOTTOM_ITEMS = [
-  { href: '/', label: 'الرئيسية', icon: Home },
+  { href: '/', label: 'الباحث', icon: Home },
+  { href: '/adhkar', label: 'حصن المسلم', icon: Sparkles },
+  { href: '/seerah', label: 'السيرة', icon: Compass },
   { href: '/nawawi40', label: 'الأربعون', icon: Scroll },
-  { href: '/adhkar', label: 'الأذكار', icon: Sparkles },
-  { href: '/verify', label: 'تثبّت', icon: ShieldAlert },
-  { href: '/search', label: 'البحث', icon: Search },
+  { href: '/daily-tracker', label: 'يومك وليلتك', icon: CalendarCheck },
 ];
 
 export function MobileBottomNav() {

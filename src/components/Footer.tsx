@@ -68,28 +68,12 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Column 3: Search & Tools */}
+          {/* Column 3: Services & About */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-charcoal-light dark:text-charcoal-dark">
               الأدوات والخدمات
             </h4>
             <ul className="space-y-2 text-xs text-muted-light dark:text-muted-dark">
-              <li>
-                <Link
-                  href="/verify"
-                  className="hover:text-emerald-brand dark:hover:text-emerald-brand-dark transition-colors"
-                >
-                  قسم تثبّت (أحاديث منتشرة لا تصح)
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/search"
-                  className="hover:text-emerald-brand dark:hover:text-emerald-brand-dark transition-colors"
-                >
-                  محرك البحث الفوري
-                </Link>
-              </li>
               <li>
                 <Link
                   href="/nawawi40"
@@ -100,10 +84,26 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href="/daily-tracker"
+                  className="hover:text-emerald-brand dark:hover:text-emerald-brand-dark transition-colors"
+                >
+                  متتبع سنن اليوم والليلة
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/seerah"
+                  className="hover:text-emerald-brand dark:hover:text-emerald-brand-dark transition-colors"
+                >
+                  السيرة النبوية (الرحيق المختوم)
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/about"
                   className="hover:text-emerald-brand dark:hover:text-emerald-brand-dark transition-colors"
                 >
-                  عن الباحث في السنة والمراجع العلمية
+                  عن الباحث في السنة والمنهج العلمي
                 </Link>
               </li>
             </ul>
@@ -115,19 +115,12 @@ export function Footer() {
           <div>
             جميع الحقوق محفوظة © {new Date().getFullYear()} • الباحث في السنة
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <Link
               href="/"
               className="hover:text-emerald-brand dark:hover:text-emerald-brand-dark transition-colors"
             >
-              الرئيسية
-            </Link>
-            <span>•</span>
-            <Link
-              href="/nawawi40"
-              className="hover:text-emerald-brand dark:hover:text-emerald-brand-dark transition-colors"
-            >
-              الأربعون النووية
+              الباحث الذكي
             </Link>
             <span>•</span>
             <Link
@@ -138,10 +131,24 @@ export function Footer() {
             </Link>
             <span>•</span>
             <Link
-              href="/verify"
+              href="/seerah"
               className="hover:text-emerald-brand dark:hover:text-emerald-brand-dark transition-colors"
             >
-              تثبّت
+              السيرة النبوية
+            </Link>
+            <span>•</span>
+            <Link
+              href="/nawawi40"
+              className="hover:text-emerald-brand dark:hover:text-emerald-brand-dark transition-colors"
+            >
+              الأربعون النووية
+            </Link>
+            <span>•</span>
+            <Link
+              href="/daily-tracker"
+              className="hover:text-emerald-brand dark:hover:text-emerald-brand-dark transition-colors"
+            >
+              يومك وليلتك
             </Link>
           </div>
         </div>

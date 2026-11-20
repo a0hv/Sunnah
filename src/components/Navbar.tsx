@@ -3,18 +3,16 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { BrandLogo } from './BrandLogo';
 
 const NAV_LINKS = [
-  { href: '/', label: 'الرئيسية' },
-  { href: '/nawawi40', label: 'الأربعون النووية' },
+  { href: '/', label: 'الباحث الذكي' },
   { href: '/adhkar', label: 'حصن المسلم' },
-  { href: '/daily-tracker', label: 'يومك وليلتك' },
-  { href: '/verify', label: 'تثبّت' },
   { href: '/seerah', label: 'السيرة النبوية' },
-  { href: '/search', label: 'البحث' },
+  { href: '/nawawi40', label: 'الأربعون النووية' },
+  { href: '/daily-tracker', label: 'يومك وليلتك' },
 ];
 
 export function Navbar() {
@@ -47,16 +45,8 @@ export function Navbar() {
           })}
         </nav>
 
-        {/* Actions (Search, Theme Toggle, Mobile Menu Trigger) */}
+        {/* Actions (Theme Toggle, Mobile Menu Trigger) */}
         <div className="flex items-center gap-2">
-          <Link
-            href="/search"
-            aria-label="البحث السريع في المنصة"
-            className="p-2 rounded-xl border border-subtle-light dark:border-subtle-dark bg-surface-light dark:bg-surface-dark text-muted-light dark:text-muted-dark hover:text-emerald-brand dark:hover:text-emerald-brand-dark hover:border-emerald-brand/40 dark:hover:border-emerald-brand-dark/40 transition-colors shadow-2xs"
-          >
-            <Search className="w-5 h-5" />
-          </Link>
-
           <ThemeToggle />
 
           {/* Mobile menu button */}

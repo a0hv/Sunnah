@@ -126,10 +126,27 @@
   font-display: swap;
 }
 
+/* 5. خط لوتس النسخي للأحاديث النبوية الشريفة */
+@font-face {
+  font-family: 'Lotus Naskh';
+  src: url('/fonts/lotus-naskh.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lotus Naskh';
+  src: url('/fonts/lotus-naskh.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --font-display: 'Thmanyah Display', serif;
   --font-text: 'Thmanyah Text', serif;
   --font-sans: 'Thmanyah Sans', sans-serif;
+  --font-hadith: 'Lotus Naskh', var(--font-amiri), 'Amiri', serif;
   --font-quran: 'UthmanicHafs', serif;
   
   --bg-paper: #FAF9F5;
@@ -180,7 +197,7 @@
   }
 
   .font-hadith {
-    font-family: var(--font-hadith), 'Amiri', serif;
+    font-family: 'Lotus Naskh', var(--font-hadith), var(--font-amiri), 'Amiri', serif !important;
     line-height: 2.85 !important;
   }
 

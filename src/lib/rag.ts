@@ -550,10 +550,10 @@ export function retrieveVerifiedContext(
       `المصدر: الموسوعة الحديثية بمؤسسة «الدرر السنية»`
     );
     sources.push({
-      title: `حديث لا يصح: «${topFake.hadithText.slice(0, 45)}...»`,
-      category: 'قسم تثبّت — الدرر السنية',
+      title: `تنبيه حديثي: «${topFake.hadithText.slice(0, 45)}...» لا يصح`,
+      category: 'تثبّت — الدرر السنية',
       source: topFake.ruling,
-      url: '/verify',
+      url: topFake.dorarUrl || getDorarSearchUrl(query, topFake.hadithText),
       type: 'fake-hadith',
     });
   }

@@ -669,11 +669,11 @@ export function SeerahClient() {
 
         <div className="flex flex-wrap items-center gap-3 pt-2">
           <Link
-            href="/search"
+            href="/"
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark hover:border-emerald-brand text-xs font-semibold text-charcoal-light dark:text-charcoal-dark transition-colors"
           >
-            <Search className="w-3.5 h-3.5 text-emerald-brand" />
-            <span>البحث الفوري في السنة</span>
+            <Sparkles className="w-3.5 h-3.5 text-emerald-brand" />
+            <span>الباحث النبوي الذكي</span>
           </Link>
           <Link
             href="/nawawi40"

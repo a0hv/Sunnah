@@ -420,15 +420,17 @@ export function DailyTrackerClient() {
                     </Link>
                   )}
 
-                  {/* Link to Search */}
+                  {/* Link to Dorar Hadith Search */}
                   {station.searchQuery && (
-                    <Link
-                      href={`/search?q=${encodeURIComponent(station.searchQuery)}`}
+                    <a
+                      href={`https://dorar.net/hadith/search?q=${encodeURIComponent(station.searchQuery)}&st=w`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark hover:border-emerald-brand/50 text-charcoal-light dark:text-charcoal-dark text-xs font-medium transition-colors"
                     >
                       <BookOpen className="w-3.5 h-3.5 text-muted-light dark:text-muted-dark" />
-                      <span>البحث في السنن: {station.searchTopic || station.searchQuery}</span>
-                    </Link>
+                      <span>تخريج الحديث: {station.searchTopic || station.searchQuery}</span>
+                    </a>
                   )}
                 </div>
 

@@ -14,7 +14,7 @@ const config: Config = {
         display: ['"Thmanyah Display"', 'serif'],
         text: ['"Thmanyah Text"', 'serif'],
         sans: ['"Thmanyah Sans"', 'sans-serif'],
-        hadith: ['var(--font-hadith)', 'serif'],
+        hadith: ['"Lotus Naskh"', 'var(--font-hadith)', 'var(--font-amiri)', 'serif'],
         quran: ['"UthmanicHafs"', 'serif'],
       },
       colors: {

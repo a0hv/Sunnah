@@ -95,22 +95,24 @@ export default function AboutPage() {
             </Link>
           </div>
 
-          {/* قسم تثبت */}
+          {/* تثبت والتحقيق الحديثي */}
           <div className="p-6 rounded-3xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark space-y-3">
             <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400 font-bold text-sm">
               <ShieldCheck className="w-5 h-5" />
-              <span>قسم «تثبّت» والتحقيق الحديثي</span>
+              <span>صيانة الحديث النبوي والتحقيق العلمي</span>
             </div>
             <p className="text-xs text-muted-light dark:text-muted-dark leading-relaxed">
-              بيان الأحاديث المنتشرة التي لا تصح والبدائل الصحيحة الثابتة عنها، نقلاً موثقاً من الموسوعة الحديثية في مؤسسة «الدرر السنية» مع أدوات نسخ التنبيه للواتساب وبطاقات المشاركة.
+              فحص استباقي مدمج في المساعد الذكي للتنبيه الفوري من الأحاديث المنتشرة التي لا تصح والبدائل الصحيحة الثابتة عنها، نقلاً موثقاً من الموسوعة الحديثية بمؤسسة «الدرر السنية».
             </p>
-            <Link
-              href="/verify"
+            <a
+              href="https://dorar.net/fake-hadith"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline pt-2"
             >
-              <span>زيارة قسم تثبّت</span>
-              <ArrowLeft className="w-3.5 h-3.5" />
-            </Link>
+              <span>موسوعة الأحاديث المنتشرة (الدرر السنية)</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
           </div>
 
           {/* متتبع سنن اليوم والليلة */}
