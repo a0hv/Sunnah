@@ -720,15 +720,9 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
             <BrandLogoIcon className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
-              <span>الباحث الذكي في السنة</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-brand/10 text-emerald-brand dark:text-emerald-brand-dark border border-emerald-brand/20">
-                RAG موثّق
-              </span>
+            <h3 className="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+              الباحث الذكي في السنة
             </h3>
-            <p className="text-[11px] text-muted-light dark:text-muted-dark">
-              مكتبة موثّقة • فصحى رصينة • ٤ مصادر معتمدة
-            </p>
           </div>
         </div>
 
@@ -799,13 +793,10 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
               <BrandLogoIcon className="w-7 h-7" />
             </div>
 
-            <div className="space-y-2 max-w-md mx-auto px-3">
+            <div className="max-w-md mx-auto px-3">
               <h4 className="font-display font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
                 أهلاً بك في الباحث الذكي
               </h4>
-              <p className="text-xs sm:text-sm text-muted-light dark:text-muted-dark leading-relaxed font-text">
-                اسأل بنبرة فصحى رصينة في الأحاديث الصحيحة وشروحها، أذكار اليوم والليلة، السيرة العطرة، أو تحقق من صحة أي حديث منتشر.
-              </p>
             </div>
           </div>
         ) : (
@@ -1034,11 +1025,6 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
             ))}
           </div>
         )}
-
-        {/* Disclaimer Footer */}
-        <p className="text-center text-[10px] text-muted-light/80 dark:text-muted-dark/80 font-text pt-0.5">
-          إجابات مستندة إلى نصوص السنة والأذكار والسيرة الموثقة • للتحقق الموسع: الدرر السنية
-        </p>
       </div>
     </div>
   );

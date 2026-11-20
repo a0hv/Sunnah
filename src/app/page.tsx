@@ -67,12 +67,7 @@ export default function HomePage() {
     <div className="space-y-12 sm:space-y-16 md:space-y-24 py-6 sm:py-8 md:py-14 text-start overflow-x-hidden w-full max-w-full">
       {/* 1. Hero Section & AI Assistant */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 sm:space-y-8">
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-brand/10 dark:bg-emerald-brand-dark/15 text-emerald-brand dark:text-emerald-brand-dark border border-emerald-brand/20 dark:border-emerald-brand-dark/30 shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-brand dark:bg-emerald-brand-dark animate-pulse" />
-            <span>الباحث في السنة النبوية الشامل • الأحاديث والعقيدة والسيرة والآداب</span>
-          </div>
-
+        <div className="space-y-3 sm:space-y-4">
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold font-display text-slate-900 dark:text-white tracking-tight leading-tight sm:leading-snug">
             الباحث في السنة
           </h1>
@@ -82,7 +77,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* 1.1 واجهة المساعد الشخصي الذكي (RAG موثّق) */}
+        {/* واجهة المساعد الذكي */}
         <SunnahAssistant />
       </section>
 
