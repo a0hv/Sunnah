@@ -54,6 +54,8 @@ const SYSTEM_INSTRUCTION = `
 `.trim();
 
 export async function POST(req: Request) {
+  const requestStart = Date.now();
+
   try {
     let body: any;
     try {
@@ -146,7 +148,7 @@ export async function POST(req: Request) {
           },
         ];
 
-    // إعداد المفاتيح المتاحة
+    // إعداد مفاتيح البيئة
     const groqKey = process.env.GROQ_API_KEY?.trim();
     const hasGroqKey = Boolean(groqKey && groqKey !== '' && groqKey !== 'your_groq_api_key_here');
 
@@ -157,32 +159,39 @@ export async function POST(req: Request) {
       ? trimmedMessage
       : `السياق الموثّق المتاح:\n${fullContext ? fullContext : 'لا يوجد نص مباشر مطابق في قواعد البيانات الحالية لهذه المسألة.'}\n\nسؤال المستخدم:\n«${trimmedMessage}»`;
 
-    // تنقية سجل المحادثة للأدوار القياسية
+    // تنقية سجل المحادثة للأدوار القياسية (user و assistant)
     const cleanedHistory: Array<{ role: 'user' | 'assistant'; text: string }> = [];
     for (const h of (history || []).slice(-6)) {
       const text = typeof h.content === 'string' ? h.content.trim() : '';
       if (!text) continue;
-      const role: 'user' | 'assistant' = h.role === 'assistant' || (h.role as string) === 'model' ? 'assistant' : 'user';
+      const role: 'user' | 'assistant' =
+        h.role === 'assistant' || (h.role as string) === 'model'
+          ? 'assistant'
+          : 'user';
       cleanedHistory.push({ role, text });
     }
 
     let aiResponseText = '';
-    let activeEngine: 'groq' | 'gemini' | 'fallback' = 'fallback';
+    let engineUsed: 'groq' | 'gemini' | 'fallback' = 'fallback';
     let lastError = '';
 
     // =========================================================================
-    // المحرك الأساسي الأول: Groq API (فائق السرعة — Llama 3.3 70B)
+    // المحاولة 1: Groq API (فائق السرعة — مهلة 6 ثوانٍ فقط)
     // =========================================================================
     if (hasGroqKey) {
       const groqModel = process.env.GROQ_MODEL?.trim() || 'llama-3.3-70b-versatile';
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // مهلة 8 ثوانٍ لـ Groq
+      const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 ثوانٍ كحد أقصى لـ Groq
 
       try {
+        // Groq يستخدم حصرياً الأدوار 'system' و 'user' و 'assistant' (ممنوع إرسال 'model')
         const groqMessages = [
-          { role: 'system', content: SYSTEM_INSTRUCTION },
-          ...cleanedHistory.map((h) => ({ role: h.role, content: h.text })),
-          { role: 'user', content: userPromptWithContext },
+          { role: 'system' as const, content: SYSTEM_INSTRUCTION },
+          ...cleanedHistory.map((h) => ({
+            role: h.role,
+            content: h.text,
+          })),
+          { role: 'user' as const, content: userPromptWithContext },
         ];
 
         const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -204,96 +213,96 @@ export async function POST(req: Request) {
           const groqData = await groqRes.json();
           aiResponseText = groqData?.choices?.[0]?.message?.content?.trim() || '';
           if (aiResponseText) {
-            activeEngine = 'groq';
+            engineUsed = 'groq';
           }
         } else {
-          const errText = await groqRes.text().catch(() => '');
-          lastError = `Groq HTTP ${groqRes.status}: ${errText.slice(0, 150)}`;
-          console.warn('Groq API error, falling back to Gemini:', lastError);
+          let errText = await groqRes.text().catch(() => '');
+          if (groqKey) errText = errText.replaceAll(groqKey, '[REDACTED_KEY]');
+          lastError = `Groq HTTP ${groqRes.status}: ${errText.slice(0, 120)}`;
+          console.warn('Groq failed, switching to Gemini:', lastError);
         }
       } catch (err: any) {
         const isTimeout = err?.name === 'AbortError' || controller.signal.aborted;
-        lastError = isTimeout ? 'Groq timeout (8s)' : err?.message || String(err);
-        console.warn('Groq API call failed, falling back to Gemini:', lastError);
+        lastError = isTimeout ? 'Groq timeout (6s)' : (err?.message || String(err)).slice(0, 100);
+        console.warn('Groq call exception, switching to Gemini:', lastError);
       } finally {
         clearTimeout(timeoutId);
       }
     }
 
     // =========================================================================
-    // المحرك الاحتياطي التلقائي: Google Gemini API (gemini-3.5-flash-lite)
+    // المحاولة 2: Google Gemini API (محاولة واحدة سريعة بمهلة 7 ثوانٍ فقط)
     // =========================================================================
     if (!aiResponseText && hasGeminiKey) {
-      const geminiCandidateModels = [
-        process.env.GEMINI_MODEL?.trim() || 'gemini-3.5-flash-lite',
-        'gemini-3.6-flash',
-      ];
+      const geminiModel = process.env.GEMINI_MODEL?.trim() || 'gemini-3.5-flash-lite';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 7000); // 7 ثوانٍ كحد أقصى لـ Gemini
 
-      // بناء مصفوفة contents لـ Gemini (user و model بالتناوب الصارم والبدء بـ user)
-      const geminiContents: Array<{ role: 'user' | 'model'; parts: [{ text: string }] }> = [];
-      let nextExpected: 'user' | 'model' = 'user';
-      for (const item of cleanedHistory) {
-        const role = item.role === 'assistant' ? 'model' : 'user';
-        if (role === nextExpected) {
-          geminiContents.push({ role, parts: [{ text: item.text }] });
-          nextExpected = nextExpected === 'user' ? 'model' : 'user';
-        }
-      }
-      if (geminiContents.length > 0 && geminiContents[geminiContents.length - 1].role === 'user') {
-        geminiContents.pop();
-      }
-      geminiContents.push({
-        role: 'user',
-        parts: [{ text: userPromptWithContext }],
-      });
-
-      for (const model of geminiCandidateModels) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // مهلة 10 ثوانٍ لـ Gemini
-
-        try {
-          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-          const geminiRes = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-goog-api-key': geminiKey!,
-            },
-            body: JSON.stringify({
-              contents: geminiContents,
-              system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
-              generationConfig: {
-                temperature: 0.25,
-                maxOutputTokens: 800,
-                thinkingConfig: { thinkingLevel: 'minimal' },
-              },
-            }),
-            signal: controller.signal,
-          });
-
-          if (geminiRes.ok) {
-            const geminiData = await geminiRes.json();
-            aiResponseText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
-            if (aiResponseText) {
-              activeEngine = 'gemini';
-              break;
-            }
-          } else {
-            const errData = await geminiRes.text().catch(() => '');
-            console.warn(`Gemini model ${model} failed:`, errData.slice(0, 150));
+      try {
+        // Gemini يستخدم حصرياً الأدوار 'user' و 'model' بالتناوب الصارم والبدء بـ 'user'
+        const geminiContents: Array<{ role: 'user' | 'model'; parts: [{ text: string }] }> = [];
+        let nextExpected: 'user' | 'model' = 'user';
+        for (const item of cleanedHistory) {
+          const role: 'user' | 'model' = item.role === 'assistant' ? 'model' : 'user';
+          if (role === nextExpected) {
+            geminiContents.push({ role, parts: [{ text: item.text }] });
+            nextExpected = nextExpected === 'user' ? 'model' : 'user';
           }
-        } catch (err: any) {
-          console.warn(`Gemini model ${model} error:`, err?.message || String(err));
-        } finally {
-          clearTimeout(timeoutId);
         }
+        if (geminiContents.length > 0 && geminiContents[geminiContents.length - 1].role === 'user') {
+          geminiContents.pop();
+        }
+        geminiContents.push({
+          role: 'user',
+          parts: [{ text: userPromptWithContext }],
+        });
+
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent`;
+        const geminiRes = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': geminiKey!,
+          },
+          body: JSON.stringify({
+            contents: geminiContents,
+            system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+            generationConfig: {
+              temperature: 0.25,
+              maxOutputTokens: 800,
+              thinkingConfig: { thinkingLevel: 'minimal' },
+            },
+          }),
+          signal: controller.signal,
+        });
+
+        if (geminiRes.ok) {
+          const geminiData = await geminiRes.json();
+          aiResponseText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+          if (aiResponseText) {
+            engineUsed = 'gemini';
+          }
+        } else {
+          let errData = await geminiRes.text().catch(() => '');
+          if (geminiKey) errData = errData.replaceAll(geminiKey, '[REDACTED_KEY]');
+          lastError = `Gemini HTTP ${geminiRes.status}: ${errData.slice(0, 120)}`;
+          console.warn('Gemini failed:', lastError);
+        }
+      } catch (err: any) {
+        const isTimeout = err?.name === 'AbortError' || controller.signal.aborted;
+        lastError = isTimeout ? 'Gemini timeout (7s)' : (err?.message || String(err)).slice(0, 100);
+        console.warn('Gemini call exception:', lastError);
+      } finally {
+        clearTimeout(timeoutId);
       }
     }
 
     // =========================================================================
-    // الرد الاحتياطي الموثق محلياً عند عدم توفر المفاتيح أو انقطاع الاتصال
+    // الرد الاحتياطي الموثق محلياً (يصل فوراً قبل الثانية 14 في جميع الأحوال)
     // =========================================================================
     if (!aiResponseText) {
+      engineUsed = 'fallback';
+
       if (isGreetingOrChat) {
         const norm = normalizeArabic(trimmedMessage);
         if (norm.includes('سلام') || norm.includes('مرحبا') || norm.includes('اهل')) {
@@ -315,11 +324,15 @@ export async function POST(req: Request) {
       }
     }
 
+    const latencyMs = Date.now() - requestStart;
+
     return NextResponse.json(
       {
         success: true,
         reply: aiResponseText,
-        engine: activeEngine,
+        engineUsed,
+        latencyMs,
+        fallbackReason: engineUsed === 'fallback' ? (lastError || 'BOTH_ENGINES_UNAVAILABLE') : undefined,
         sources: returnedSources,
         externalSources,
         dorarUrl: isGreetingOrChat ? '' : ragResult.dorarSearchUrl,
@@ -355,7 +368,7 @@ export async function GET(req: Request) {
       {
         status: 'ok',
         service: 'Al-Bahith fi Al-Sunnah AI Assistant API (Dual-Engine RAG: Groq + Gemini)',
-        version: '2.0.0',
+        version: '2.1.0',
         primaryEngine: hasGroqKey ? 'groq (llama-3.3-70b-versatile)' : hasGeminiKey ? 'gemini (gemini-3.5-flash-lite)' : 'local-context',
         hasGroqKey,
         hasGeminiKey,
@@ -372,21 +385,23 @@ export async function GET(req: Request) {
     );
   }
 
-  // وضع الفحص التشخيصي الحقيقي المحدث (?diag=1)
+  // وضع الفحص التشخيصي الحي مع قياس زمن الاستجابة بدقة (?diag=1)
   const diagResults: Array<{
     engine: 'groq' | 'gemini';
     model: string;
     httpStatus: number;
     ok: boolean;
+    latencyMs: number;
     replyPreview?: string;
     error?: string;
   }> = [];
 
-  // فحص Groq إن توفر المفتاح
+  // فحص Groq الحي
   if (hasGroqKey) {
     const groqModel = process.env.GROQ_MODEL?.trim() || 'llama-3.3-70b-versatile';
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const t0 = Date.now();
 
     try {
       const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -403,6 +418,8 @@ export async function GET(req: Request) {
         signal: controller.signal,
       });
 
+      const latencyMs = Date.now() - t0;
+
       if (res.ok) {
         const data = await res.json();
         const text = data?.choices?.[0]?.message?.content?.trim() || 'OK';
@@ -411,16 +428,18 @@ export async function GET(req: Request) {
           model: groqModel,
           httpStatus: res.status,
           ok: true,
+          latencyMs,
           replyPreview: text.slice(0, 80),
         });
       } else {
-        let errText = (await res.text().catch(() => '')).slice(0, 150);
+        let errText = (await res.text().catch(() => '')).slice(0, 120);
         if (groqKey) errText = errText.replaceAll(groqKey, '[REDACTED_KEY]');
         diagResults.push({
           engine: 'groq',
           model: groqModel,
           httpStatus: res.status,
           ok: false,
+          latencyMs,
           error: errText,
         });
       }
@@ -430,18 +449,20 @@ export async function GET(req: Request) {
         model: groqModel,
         httpStatus: 0,
         ok: false,
-        error: e?.message || 'Network/timeout error',
+        latencyMs: Date.now() - t0,
+        error: e?.message || 'Network/timeout error (6s)',
       });
     } finally {
       clearTimeout(timeoutId);
     }
   }
 
-  // فحص Gemini إن توفر المفتاح
+  // فحص Gemini الحي
   if (hasGeminiKey) {
     const geminiModel = process.env.GEMINI_MODEL?.trim() || 'gemini-3.5-flash-lite';
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => controller.abort(), 7000);
+    const t0 = Date.now();
 
     try {
       const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent`;
@@ -458,6 +479,8 @@ export async function GET(req: Request) {
         signal: controller.signal,
       });
 
+      const latencyMs = Date.now() - t0;
+
       if (res.ok) {
         const data = await res.json();
         const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || 'OK';
@@ -466,16 +489,18 @@ export async function GET(req: Request) {
           model: geminiModel,
           httpStatus: res.status,
           ok: true,
+          latencyMs,
           replyPreview: replyText.slice(0, 80),
         });
       } else {
-        let errData = (await res.text().catch(() => '')).slice(0, 150);
+        let errData = (await res.text().catch(() => '')).slice(0, 120);
         if (geminiKey) errData = errData.replaceAll(geminiKey, '[REDACTED_KEY]');
         diagResults.push({
           engine: 'gemini',
           model: geminiModel,
           httpStatus: res.status,
           ok: false,
+          latencyMs,
           error: errData,
         });
       }
@@ -485,7 +510,8 @@ export async function GET(req: Request) {
         model: geminiModel,
         httpStatus: 0,
         ok: false,
-        error: e?.message || 'Network/timeout error',
+        latencyMs: Date.now() - t0,
+        error: e?.message || 'Network/timeout error (7s)',
       });
     } finally {
       clearTimeout(timeoutId);

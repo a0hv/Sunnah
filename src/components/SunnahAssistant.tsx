@@ -488,7 +488,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
     setIsLoading(true);
 
     const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), 20000);
+    const timeoutId = setTimeout(() => abortController.abort(), 25000); // مهلة 25 ثانية لاستيعاب رد السيرفر بأمان
 
     try {
       const res = await fetch('/api/chat/', {
@@ -539,7 +539,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
         id: `err-${Date.now()}`,
         role: 'assistant',
         content: isTimeout
-          ? 'تعذر استكمال الاتصال بالمساعد الذكي بسبب انتهاء المهلة المحددة (20 ثانية). يرجى المحاولة مرة أخرى أو التأكد من اتصالك بالإنترنت.'
+          ? 'تعذر استكمال الاتصال بالمساعد الذكي بسبب بطء شبكة الاتصال. يرجى إعادة المحاولة أو التحقق من اتصالك بالإنترنت.'
           : 'تعذر استكمال الاتصال بالخدمة الذكية مؤقتاً. يرجى إعادة المحاولة أو التحقق من اتصالك بالإنترنت.',
       };
       const finalMessages = [...nextMessages, errorMsg];
