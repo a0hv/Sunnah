@@ -849,7 +849,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
                           </div>
                         )}
 
-                        {/* شريط المصادر الخارجية الأربعة المعتمدة */}
+                        {/* شريط المصادر الخارجية المعتمدة المخصّصة */}
                         {m.externalSources && m.externalSources.length > 0 && (
                           <div className="pt-2.5 border-t border-subtle-light/40 dark:border-subtle-dark/40 space-y-1.5">
                             <span className="text-[11px] font-bold text-muted-light dark:text-muted-dark block">

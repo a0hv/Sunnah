@@ -6,6 +6,7 @@ import {
   AssistantSearchMode,
 } from '@/lib/rag';
 import { queryDorarApi, extractDistinctiveHadithKeywords } from '@/lib/dorar-api';
+import { sanitizeQuranQuotes } from '@/lib/quran-guard';
 
 // أقصى مدة استجابة للمسار 30 ثانية لتسريع الإجابة وتجنب التعليق على Vercel
 export const maxDuration = 30;
@@ -34,24 +35,117 @@ interface ExternalSourceLink {
 const SYSTEM_INSTRUCTION = `
 أنت «الباحث في السنة» (Al-Bahith fi Al-Sunnah) — باحث ومرجع إلكتروني ذكي، رصين، موثوق وهادئ في السنة النبوية الشريفة، وسيرة النبي ﷺ، والعقيدة، والآداب الإسلامية.
 
-النبرة والأسلوب:
-- تحدث باللغة العربية الفصحى الحديثة، الرصينة، الطبيعية، الهادئة، والمختصرة المباشرة دون تملق أو ألفاظ عامية مبتذلة (مثل: «يا غالي»، «من عيوني»، «أنا أخوك الصغير وتحت أمرك»، «يا هلا بالزين»).
-- أسلوبك إنساني، ذكي، ومفيد؛ ادخل في صلب الجواب مباشرة دون مقدمات أو خواتيم متكلفة.
-- صلِّ وسلم على رسول الله ﷺ كلما ذكر اسمه الشريف.
-
-المعرفة والحرية العلمية المسؤولة:
-- أجب بأريحية وذكاء وبصيرة في مجالات: السيرة النبوية الشريفة، العقيدة الإسلامية، الشروح التربوية، المعاني، الفوائد الإيمانية، والمعلومات العامة النافعة، ولا تكرر عبارات التحجير الجافة (مثل «لم يرد نص في المكتبة») إلا إذا سُئلت عن حديث بعينه لم يثبت.
-
-الضابط العلمي الصارم للأحاديث النبوية والأذكار:
-1. عند الاستشهاد بحديث أو ذكر وارد في «السياق الموثّق» المرفق: انقله بنصه وأمانته حرفيًا وضعه بين علامتي «...»، والآيات بين ﴿...﴾.
-2. إذا كان «السياق الموثّق» يحتوي على [تنبيه علمي فوري من قسم تثبّت]:
-   - بيّن باقتضاب أن هذا الحديث لا يصح أو موضوع/مكذوب وفق تحقيق مؤسسة الدرر السنية، واذكر علته وحكمه والبديل الصحيح.
-3. إذا سألك المستخدم عن حديث أو ذكر ولم يكن موجودًا في «السياق الموثّق»:
-   - لا تختلق لفظ حديث أو سندًا أو حكمًا من الذاكرة المجردة إطلاقًا (صيانةً للجناب النبوي).
-   - اشرح المعنى العام للمسألة بأمانة ووضوح واقتضاب، وبيّن للسائل بأدب أنه يمكنه مراجعة النص والتحقق من صحته عبر روابط المصادر الموثقة المرفقة أسفل الجواب (الدرر السنية، الإسلام سؤال وجواب، إسلام ويب، موسوعة الحديث).
-4. عند رد السلام أو التحية:
-   - رُد السلام بأدب ووقار واقتضاب (مثل: «وعليكم السلام ورحمة الله وبركاته. أهلاً بك في الباحث في السنة، كيف يمكنني إعانتك؟»).
+الضوابط الصارمة للهوية والسلوك:
+1. الهوية الرسمية:
+   - أنت «الباحث في السنة» فقط؛ يُمنع تماماً وقطعياً قول «أنا ChatGPT» أو «GPT-4» أو ذكر «OpenAI» أو أي نموذج خارجي. إذا سُئلت «من أنت» أو «أي نموذج أنت»: أجب باعتزاز وأدب واقتضاب أنك «الباحث في السنة»، مرجع رقمي موثق في السنة النبوية المطهرة.
+2. منع تأليف القرآن والحديث الشريف:
+   - يُمنع منعاً باتاً كتابة أو اختلاق أي آية قرآنية ﴿...﴾ أو حديث نبوي شريف من ذاكرتك؛ لا تنقل آية أو حديثاً إلا إذا ورد نصّه حرفياً في «السياق الموثّق» المرفق.
+   - لا تضع الأقواس القرآنية ﴿...﴾ إلا لآيات قرآنية ورد نصها الحرفي في السياق الموثق.
+   - عند الاستشهاد بحديث أو ذكر وارد في «السياق الموثّق»: انقله بنصه وأمانته حرفياً وضعه بين علامتي «...».
+3. ضوابط التحية والسلام:
+   - لا تبدأ ردك بـ «وعليكم السلام» أبدًا إلا إذا ألقى المستخدم السلام صراحةً ولَفْظاً («السلام عليكم» أو «سلام»).
+   - في باقي الاستفسارات والأسئلة والكلام العابر، ادخل في صلب الجواب مباشرة دون «وعليكم السلام».
+4. التعامل مع الإساءة والألفاظ النابية:
+   - إذا احتوت رسالة المستخدم على سبّ أو لفظ بذيء، لا تكرر اللفظ أبدًا، ورد بجملة واحدة مهذبة وحازمة: «أرجو الالتزام بأدب الحديث، هذه المنصة مخصصة لخدمة السنة النبوية والعلوم الشرعية.»
+5. الكلام غير المفهوم أو العشوائي (مثل «واوووو»، «ههههه»، «أها»، «تمام»):
+   - رد بجملة قصيرة طبيعية بدون «وعليكم السلام» تسأله كيف يمكنك مساعدته في رحاب السنة النبوية.
+6. النبرة والأسلوب:
+   - فصحى حديثة، رصينة، هادئة، طبيعية، ومختصرة ومباشرة، خالية من التملق والعبارات العامية المبتذلة (مثل «يا غالي»، «من عيوني»، «أنا أخوك الصغير»).
+   - صلِّ وسلم على رسول الله ﷺ كلما ذكر اسمه الشريف.
 `.trim();
+
+// قائمة الألفاظ البذيئة والشتائم لحماية المنصة بشكل حتمي
+const ABUSIVE_WORDS = new Set([
+  'كلب', 'حمار', 'غبي', 'احمق', 'سفيه', 'لعنك', 'يلعن', 'قذر', 'وسخ', 'تافه', 'حقير', 'حيوان', 'زفت',
+  'شرموط', 'شرموطه', 'عاهر', 'عاهره', 'قحبه', 'عرص', 'طيز', 'كس', 'زب', 'منيوك', 'منيك'
+]);
+
+function isAbusiveMessage(text: string): boolean {
+  if (!text) return false;
+  const norm = text
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+    .replace(/[إأآٱ]/g, 'ا')
+    .replace(/ة/g, 'ه')
+    .replace(/ى/g, 'ي')
+    .toLowerCase();
+
+  if (
+    norm.includes('ابن الكلب') ||
+    norm.includes('ابن كلب') ||
+    norm.includes('يا حمار') ||
+    norm.includes('يا كلب') ||
+    norm.includes('يا غبي') ||
+    norm.includes('يا وسخ') ||
+    norm.includes('يا تافه') ||
+    norm.includes('يا حيوان') ||
+    norm.includes('يا زفت') ||
+    norm.includes('يلعن دينك') ||
+    norm.includes('يلعنك')
+  ) {
+    return true;
+  }
+
+  const tokens = norm.replace(/[^\p{L}\p{N}]+/gu, ' ').trim().split(/\s+/);
+  return tokens.some((t) => ABUSIVE_WORDS.has(t));
+}
+
+function isIdentityQuestion(text: string): boolean {
+  const norm = normalizeArabic(text);
+  const patterns = [
+    /^(من انت|مين انت|انت مين|اي نموذج انت|ما هو نموذجك|ما اسمك|شو اسمك|ما انت|اي موديل انت)/,
+    /^(هل انت (روبوت|ذكاء اصطناعي|انسان|شات|بوت))/,
+    /\b(انت chatgpt|انت gpt|انت شات جي بي تي|اي نموذج انت|ما هو نموذجك|من برمجك|من صنعك|ما هذا الموقع|ما هذه المنصه)\b/,
+  ];
+  return (
+    patterns.some((p) => p.test(norm)) ||
+    norm.includes('اي نموذج انت') ||
+    norm.includes('ما هو نموذجك') ||
+    norm.includes('اي موديل انت') ||
+    norm.includes('من انت') ||
+    norm.includes('مين انت') ||
+    norm.includes('شات جي بي تي') ||
+    norm.includes('chatgpt')
+  );
+}
+
+function isGibberishOrReaction(text: string): boolean {
+  const norm = normalizeArabic(text);
+  if (/^و+ا+و+$/.test(norm)) return true;
+  if (/^ه+([اإأ]ه+|ه+)+$/.test(norm)) return true;
+  if (/^([اإأ]ه+|اها|اوك|اوكي|تمام|ماشي|حسنا|طيب|ممتاز|جميل|حلو)$/.test(norm)) return true;
+  if (/^(.)\1{3,}$/.test(norm.replace(/\s+/g, ''))) return true;
+  return false;
+}
+
+function stripUnsolicitedSalam(reply: string, userMessage: string): string {
+  if (!reply) return reply;
+  const normUser = normalizeArabic(userMessage);
+  const userSaidSalam = normUser.includes('سلام') || normUser.includes('السلام');
+  if (userSaidSalam) return reply;
+
+  return reply
+    .replace(
+      /^\s*(?:وعليكم\s+السلام(?:\s+ورحمة\s+الله(?:\s+وبركاته)?)?|اهلا\s+وسهلا\s+بك\s+وعليكم\s+السلام)[!.,،؛:\s]*/i,
+      ''
+    )
+    .trim();
+}
+
+function sanitizeFinalReply(reply: string, userMessage: string): string {
+  if (!reply) return reply;
+  // 1. فلتر حماية القرآن الإجباري (حذف الآيات المختلقة والإحالة وعبارة قال تعالى)
+  let cleaned = sanitizeQuranQuotes(reply);
+
+  // 2. إزالة وعليكم السلام إذا لم يلق المستخدم السلام صراحة
+  cleaned = stripUnsolicitedSalam(cleaned, userMessage);
+
+  // 3. حظر ذكر ChatGPT / OpenAI / GPT-4 وتأكيد هوية الباحث في السنة
+  cleaned = cleaned
+    .replace(/\b(ChatGPT|GPT-4o?|GPT-3\.5|OpenAI)\b/gi, 'الباحث في السنة')
+    .replace(/شات\s*جي\s*بي\s*تي/g, 'الباحث في السنة');
+
+  return cleaned.trim();
+}
 
 export async function POST(req: Request) {
   const requestStart = Date.now();
@@ -89,7 +183,30 @@ export async function POST(req: Request) {
 
     const mode = (typeof body.mode === 'string' ? body.mode : 'all') as AssistantSearchMode;
     const trimmedMessage = message.trim().slice(0, 500);
-    const isGreetingOrChat = isConversationalOrGreeting(trimmedMessage);
+
+    // التحقق الحتمي المباشر من الألفاظ النابية والإساءة
+    if (isAbusiveMessage(trimmedMessage)) {
+      return NextResponse.json(
+        {
+          success: true,
+          reply: 'أرجو الالتزام بأدب الحديث، هذه المنصة مخصصة لخدمة السنة النبوية والعلوم الشرعية.',
+          engineUsed: 'fallback',
+          latencyMs: Date.now() - requestStart,
+          sources: [],
+          externalSources: [],
+          dorarUrl: '',
+          hasGroqKey: Boolean(process.env.GROQ_API_KEY?.trim()),
+          hasGeminiKey: Boolean(process.env.GEMINI_API_KEY?.trim()),
+          isFakeWarning: false,
+        },
+        { headers: NO_CACHE_HEADERS }
+      );
+    }
+
+    const isIdentity = isIdentityQuestion(trimmedMessage);
+    const isGibberish = isGibberishOrReaction(trimmedMessage);
+    const isGreetingOrChat = isConversationalOrGreeting(trimmedMessage) || isIdentity || isGibberish;
+    const isNonKnowledge = isGreetingOrChat || isIdentity || isGibberish;
 
     // 1. الاسترجاع المعزز الموثّق (RAG) من قواعد بيانات المنصة المحلية حسب النطاق المختار
     const ragResult = retrieveVerifiedContext(trimmedMessage, mode);
@@ -113,40 +230,62 @@ export async function POST(req: Request) {
       fullContext = fullContext ? `${fullContext}\n\n---\n\n${dorarBlock}` : dorarBlock;
     }
 
-    // إخفاء المصادر غير الملائمة إذا كانت الرسالة مجرد تحية أو دردشة عادية
-    const returnedSources = isGreetingOrChat ? [] : ragResult.sources;
+    // إخفاء المصادر غير الملائمة إذا كانت الرسالة مجرد تحية أو دردشة عادية أو سؤال هوية
+    const returnedSources = isNonKnowledge ? [] : ragResult.sources;
 
-    // استخراج الكلمات المميزة من متن الحديث نفسه لبناء روابط المصادر الخارجية بدقة
-    const hadithKeywords = extractDistinctiveHadithKeywords(
-      ragResult.matchedHadithText || '',
-      trimmedMessage
-    );
+    // هل السؤال يخص الحديث الشريف أو التثبّت أو الأذكار أو الأدعية؟
+    const normMsg = normalizeArabic(trimmedMessage);
+    const isHadithOrAdhkar =
+      mode === 'hadith' ||
+      mode === 'adhkar' ||
+      ragResult.isFakeWarning ||
+      Boolean(ragResult.matchedHadithText) ||
+      ragResult.sources.some(
+        (s) => s.type === 'hisn' || s.type === 'nawawi' || s.type === 'fake-hadith'
+      ) ||
+      /(حديث|احاديث|صحه حديث|صحيح|ضعيف|موضوع|مكذوب|رواه|سند|اسناد|تخريج|البخاري|مسلم|الترمذي|الالباني|ابن باز|ابن عثيمين|ذكر|اذكار|دعاء|ادعيه|حصن المسلم|استغفار|تسبيح|سنه|سنن|قال رسول الله|النبي قال|تثبت)/.test(
+        normMsg
+      );
 
-    // بناء مصفوفة الروابط الخارجية الأربعة للمسائل العلمية والدينية
-    const externalSources: ExternalSourceLink[] = isGreetingOrChat
-      ? []
-      : [
-          {
-            name: 'الدرر السنية',
-            badge: 'الموسوعة الحديثية',
-            url: ragResult.dorarSearchUrl,
-          },
-          {
-            name: 'الإسلام سؤال وجواب',
-            badge: 'فتاوى وتأصيل',
-            url: `https://islamqa.info/ar/search?q=${encodeURIComponent(trimmedMessage)}`,
-          },
-          {
-            name: 'إسلام ويب',
-            badge: 'استشارات وأحكام',
-            url: `https://www.google.com/search?q=${encodeURIComponent('site:islamweb.net/ar ' + trimmedMessage)}`,
-          },
-          {
-            name: 'موسوعة الحديث',
-            badge: 'HadeethEnc',
-            url: `https://www.google.com/search?q=${encodeURIComponent('site:hadeethenc.com/ar ' + (hadithKeywords || trimmedMessage))}`,
-          },
-        ];
+    // بناء مصفوفة الروابط الخارجية بذكاء مخصّص:
+    // 1. صفر تبويبات: في التحيات، أسئلة الهوية، الكلام العشوائي، وغير الشرعي/المعرفي
+    // 2. تبويبان فقط للحديث والتثبّت والأذكار: الدرر السنية + موسوعة الحديث
+    // 3. تبويبان فقط للأسئلة العامة والفقه والعقيدة والسيرة: الإسلام سؤال وجواب + إسلام ويب
+    let externalSources: ExternalSourceLink[] = [];
+    if (isNonKnowledge) {
+      externalSources = [];
+    } else if (isHadithOrAdhkar && mode !== 'seerah' && mode !== 'general') {
+      const hadithKeywords = extractDistinctiveHadithKeywords(
+        ragResult.matchedHadithText || '',
+        trimmedMessage
+      );
+      const searchTerm = hadithKeywords || trimmedMessage;
+      externalSources = [
+        {
+          name: 'الدرر السنية',
+          badge: 'الموسوعة الحديثية',
+          url: ragResult.dorarSearchUrl,
+        },
+        {
+          name: 'موسوعة الحديث',
+          badge: 'HadeethEnc',
+          url: `https://www.google.com/search?q=${encodeURIComponent('site:hadeethenc.com/ar ' + searchTerm)}`,
+        },
+      ];
+    } else {
+      externalSources = [
+        {
+          name: 'الإسلام سؤال وجواب',
+          badge: 'فتاوى وتأصيل',
+          url: `https://islamqa.info/ar/search?q=${encodeURIComponent(trimmedMessage)}`,
+        },
+        {
+          name: 'إسلام ويب',
+          badge: 'استشارات وأحكام',
+          url: `https://www.google.com/search?q=${encodeURIComponent('site:islamweb.net/ar ' + trimmedMessage)}`,
+        },
+      ];
+    }
 
     // إعداد مفاتيح البيئة
     const groqKey = process.env.GROQ_API_KEY?.trim();
@@ -308,11 +447,21 @@ export async function POST(req: Request) {
     if (!aiResponseText) {
       engineUsed = 'fallback';
 
-      if (isGreetingOrChat) {
+      if (isIdentity) {
+        aiResponseText =
+          'أهلاً بك! أنا «الباحث في السنة»، مرجعك الرقمي الموثق في نصوص الأحاديث النبوية، كتاب حصن المسلم، الأربعين النووية، والسيرة العطرة.';
+      } else if (isGibberish) {
+        aiResponseText =
+          'أهلاً بك! كيف يمكنني إعانتك اليوم في رحاب السنة النبوية الشريفة وأحاديثها وأذكارها؟';
+      } else if (isGreetingOrChat) {
         const norm = normalizeArabic(trimmedMessage);
-        if (norm.includes('سلام') || norm.includes('مرحبا') || norm.includes('اهل')) {
+        const hasSalam = norm.includes('سلام') || norm.includes('السلام');
+        if (hasSalam) {
           aiResponseText =
             'وعليكم السلام ورحمة الله وبركاته! أهلاً بك في «الباحث في السنة». كيف يمكنني إعانتك اليوم في هدي النبي ﷺ، أحاديثه الصحيحة، أو أذكار حصن المسلم؟';
+        } else if (norm.includes('مرحبا') || norm.includes('اهل') || norm.includes('صباح') || norm.includes('مساء')) {
+          aiResponseText =
+            'أهلاً وسهلاً بك في «الباحث في السنة»! كيف يمكنني إعانتك اليوم في هدي النبي ﷺ، أحاديثه الصحيحة، أو أذكار حصن المسلم؟';
         } else if (norm.includes('شكر') || norm.includes('جزاك')) {
           aiResponseText =
             'وجزاكم الله خيرًا وبارك فيكم. أنا في خدمتكم دائمًا في رحاب هدي النبوة الشريفة.';
@@ -329,6 +478,12 @@ export async function POST(req: Request) {
       }
     }
 
+    // تطبيق فلتر حماية القرآن الإجباري وتصفية التحية وحظر ذكر النماذج الخارجية
+    aiResponseText = sanitizeFinalReply(aiResponseText, trimmedMessage);
+    if (!aiResponseText) {
+      aiResponseText = 'لم نجد نصاً مباشراً في هذا الموضوع ضمن قواعد بيانات الباحث في السنة المعتمدة حالياً.';
+    }
+
     const latencyMs = Date.now() - requestStart;
 
     return NextResponse.json(
@@ -340,7 +495,7 @@ export async function POST(req: Request) {
         fallbackReason: engineUsed === 'fallback' ? (lastError || 'BOTH_ENGINES_UNAVAILABLE') : undefined,
         sources: returnedSources,
         externalSources,
-        dorarUrl: isGreetingOrChat ? '' : ragResult.dorarSearchUrl,
+        dorarUrl: isNonKnowledge ? '' : ragResult.dorarSearchUrl,
         hasGroqKey,
         hasGeminiKey,
         isFakeWarning: ragResult.isFakeWarning,
