@@ -144,27 +144,36 @@ export async function POST(req: Request) {
     // 5. بناء طلب Gemini API مع السياق الموثق الصارم
     const userPromptWithContext = `السياق الموثّق المتاح:\n${fullContext ? fullContext : 'لا يوجد سياق موثّق متاح في قواعد البيانات الحالية لهذه المسألة.'}\n\nسؤال المستخدم:\n«${trimmedMessage}»`;
 
-    // تكوين سجل المحادثة مع ضمان التناوب الصارم: user -> model -> user
-    const contents: any[] = [];
-    const validHistory = (history || []).slice(-4);
-    let expectedRole: 'user' | 'model' = 'user';
+    // تكوين سجل المحادثة مع ضمان استخدام 'user' و 'model' فقط والبدء بـ 'user' والتناوب التام
+    const contents: Array<{ role: 'user' | 'model'; parts: [{ text: string }] }> = [];
+    
+    // تنقية السجل: تحويل 'assistant' إلى 'model'، وحذف أي رسائل فارغة
+    const cleanedHistory: Array<{ role: 'user' | 'model'; text: string }> = [];
+    for (const h of (history || []).slice(-6)) {
+      const text = typeof h.content === 'string' ? h.content.trim() : '';
+      if (!text) continue;
+      const role: 'user' | 'model' = h.role === 'assistant' || (h.role as string) === 'model' ? 'model' : 'user';
+      cleanedHistory.push({ role, text });
+    }
 
-    for (const h of validHistory) {
-      const role = h.role === 'assistant' ? 'model' : 'user';
-      if (role === expectedRole && h.content?.trim()) {
+    // بناء تسلسل متناوب يبدأ بـ user
+    let nextExpected: 'user' | 'model' = 'user';
+    for (const item of cleanedHistory) {
+      if (item.role === nextExpected) {
         contents.push({
-          role,
-          parts: [{ text: h.content.trim() }],
+          role: item.role,
+          parts: [{ text: item.text }],
         });
-        expectedRole = expectedRole === 'user' ? 'model' : 'user';
+        nextExpected = nextExpected === 'user' ? 'model' : 'user';
       }
     }
 
-    // إذا كانت آخر رسالة هي user، نحذفها لضمان إلحاق السؤال الحالي كسياق user نهائي
+    // إذا كانت آخر رسالة مضافة هي user، نحذفها لضمان إلحاق رسالة المستخدم الحالية كسياق user نهائي
     if (contents.length > 0 && contents[contents.length - 1].role === 'user') {
       contents.pop();
     }
 
+    // إضافة السؤال الحالي مع السياق الموثق كـ user في نهاية المصفوفة
     contents.push({
       role: 'user',
       parts: [{ text: userPromptWithContext }],
@@ -181,7 +190,7 @@ export async function POST(req: Request) {
       },
     };
 
-    // تجربة قائمة الموديلات الاحتياطية المتسلسلة
+    // تجربة قائمة الموديلات الافتراضية مع fallback تلقائي (gemini-2.5-flash ثم gemini-2.5-flash-lite)
     const primaryModel = process.env.GEMINI_MODEL?.trim() || 'gemini-2.5-flash';
     const candidateModels = Array.from(
       new Set([primaryModel, 'gemini-2.5-flash-lite', 'gemini-2.0-flash'])
@@ -217,6 +226,9 @@ export async function POST(req: Request) {
           } catch {
             errorMsg = (await geminiRes.text().catch(() => `HTTP_${geminiRes.status}`)).slice(0, 150);
           }
+          if (apiKey) {
+            errorMsg = errorMsg.replaceAll(apiKey, '[REDACTED_KEY]');
+          }
           lastDebugReason = `${model} -> HTTP ${geminiRes.status}: ${errorMsg}`.slice(0, 250);
           console.error(
             `Gemini model "${model}" failed with status ${geminiRes.status}: ${errorMsg}`
@@ -224,8 +236,12 @@ export async function POST(req: Request) {
         }
       } catch (err: any) {
         lastErrorCode = 'NETWORK';
-        lastDebugReason = `${model} -> Network error: ${err?.message || String(err)}`.slice(0, 250);
-        console.error(`Network error calling Gemini model "${model}":`, err?.message || String(err));
+        let netMsg = err?.message || String(err);
+        if (apiKey) {
+          netMsg = netMsg.replaceAll(apiKey, '[REDACTED_KEY]');
+        }
+        lastDebugReason = `${model} -> Network error: ${netMsg}`.slice(0, 250);
+        console.error(`Network error calling Gemini model "${model}":`, netMsg);
       }
     }
 
@@ -268,7 +284,7 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const isDiag = searchParams.get('diag') === '1' || searchParams.get('diag') === 'true';
+  const isDiag = searchParams.get('diag') === '1';
 
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   const hasGeminiKey = Boolean(
@@ -298,13 +314,14 @@ export async function GET(req: Request) {
     });
   }
 
-  // وضع الفحص التشخيصي الآمن (?diag=1)
-  const candidateModels = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
-  const results: Array<{
+  // وضع الفحص التشخيصي الحقيقي (?diag=1)
+  const candidateModels = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+  const diagResults: Array<{
     model: string;
-    status: number;
+    httpStatus: number;
     ok: boolean;
-    message: string;
+    replyPreview?: string;
+    googleError?: string;
   }> = [];
 
   if (!hasGeminiKey) {
@@ -313,7 +330,7 @@ export async function GET(req: Request) {
       hasGeminiKey: false,
       keyLength: 0,
       note: 'مفتاح GEMINI_API_KEY غير مهيأ في متغيرات البيئة.',
-      results: [],
+      diagResults: [],
     });
   }
 
@@ -327,39 +344,49 @@ export async function GET(req: Request) {
           'x-goog-api-key': apiKey!,
         },
         body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: 'ping' }] }],
-          generationConfig: { maxOutputTokens: 5 },
+          contents: [{ role: 'user', parts: [{ text: 'قل مرحبًا' }] }],
+          generationConfig: { maxOutputTokens: 20 },
         }),
       });
 
       if (res.ok) {
-        results.push({
+        const data = await res.json();
+        const replyText =
+          data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || 'OK';
+        diagResults.push({
           model,
-          status: res.status,
+          httpStatus: res.status,
           ok: true,
-          message: 'OK (استجابة ناجحة من الموديل)',
+          replyPreview: replyText.slice(0, 100),
         });
       } else {
-        let msg = '';
+        let errorMsg = '';
         try {
           const errData = await res.json();
-          msg = errData?.error?.message || errData?.error?.status || `HTTP_${res.status}`;
+          errorMsg = errData?.error?.message || errData?.error?.status || `HTTP_${res.status}`;
         } catch {
-          msg = (await res.text().catch(() => `HTTP_${res.status}`)).slice(0, 160);
+          errorMsg = (await res.text().catch(() => `HTTP_${res.status}`)).slice(0, 150);
         }
-        results.push({
+        if (apiKey) {
+          errorMsg = errorMsg.replaceAll(apiKey, '[REDACTED_KEY]');
+        }
+        diagResults.push({
           model,
-          status: res.status,
+          httpStatus: res.status,
           ok: false,
-          message: msg.slice(0, 200),
+          googleError: errorMsg.slice(0, 250),
         });
       }
     } catch (e: any) {
-      results.push({
+      let netMsg = e?.message || 'Network connection failed';
+      if (apiKey) {
+        netMsg = netMsg.replaceAll(apiKey, '[REDACTED_KEY]');
+      }
+      diagResults.push({
         model,
-        status: 0,
+        httpStatus: 0,
         ok: false,
-        message: e?.message || 'Network connection failed',
+        googleError: netMsg,
       });
     }
   }
@@ -368,6 +395,6 @@ export async function GET(req: Request) {
     status: 'diagnostic_complete',
     hasGeminiKey: true,
     keyLength,
-    results,
+    diagResults,
   });
 }
