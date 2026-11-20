@@ -100,6 +100,22 @@ export function isIslamicOrReligiousQuery(text: string): boolean {
   return keywords.some((kw) => norm.includes(kw));
 }
 
+/**
+ * التحقق مما إذا كانت الرسالة تحية أو شكرًا أو سؤالًا تعريفيًا عامًا
+ */
+export function isConversationalOrGreeting(text: string): boolean {
+  if (!text) return false;
+  const norm = normalizeArabic(text);
+  const conversationalKeywords = [
+    'سلام', 'السلام عليكم', 'سلام عليكم', 'مرحبا', 'مرحبا بك', 'اهل', 'اهلا', 'اهلا بك', 'اهلين',
+    'صباح الخير', 'مساء الخير', 'حياك الله', 'يا هلا', 'هلا', 'سلامات',
+    'من انت', 'ما انت', 'عرف بنفسك', 'ماذا تفعل', 'كيف تساعدني', 'ما عملك', 'ما وظيفتك', 'ما فائدتك',
+    'شكرا', 'شكرا لك', 'مشكور', 'جزاك الله خيرا', 'بارك الله فيك', 'يعطيك العافيه',
+    'تسلم', 'احسنت', 'تمام', 'ممتاز', 'شكرا جزيلا'
+  ];
+  return conversationalKeywords.some((phrase) => norm.includes(normalizeArabic(phrase)));
+}
+
 export interface RagSource {
   title: string;
   category: string;
