@@ -174,7 +174,7 @@ export function ShareCardModal({ isOpen = true, onClose, data }: ShareCardModalP
     const citationLine =
       data.citation ||
       (data.narrator ? `الراوي: ${data.narrator}` : data.ruling ? `الحكم: ${data.ruling}` : '');
-    const sourceLine = data.source ? `\n📚 المصدر: ${data.source}` : '';
+    const sourceLine = data.source ? `\nالمصدر: ${data.source}` : '';
     const formatted = `${data.text}${citationLine ? `\n— ${citationLine}` : ''}${sourceLine}\n\n— الباحث في السنة`;
 
     try {

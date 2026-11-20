@@ -11,6 +11,7 @@ import {
   ChevronRight,
   ChevronLeft,
   BookOpen,
+  ExternalLink,
 } from 'lucide-react';
 import hisnDataRaw from '@/data/hisn-al-muslim.json';
 import { normalizeArabic } from '@/lib/arabic-search';
@@ -126,7 +127,7 @@ export function AdhkarClient() {
     }
 
     if (next === target) {
-      showToast(`تمّ بحمد الله إتمام الذكر ✓`);
+      showToast('تمّ بحمد الله إتمام الذكر');
     }
 
     try {
@@ -423,7 +424,7 @@ export function AdhkarClient() {
                               }`}
                             >
                               {isCompleted
-                                ? 'تمّ بحمد الله ✓'
+                                ? 'تمّ بحمد الله'
                                 : `انقر للتسبيح (${currentCount} / ${targetCount})`}
                             </span>
                             <div
@@ -686,7 +687,8 @@ export function AdhkarClient() {
                           className="font-bold text-emerald-brand hover:underline inline-flex items-center gap-1 text-[11px]"
                           title="تخريج الحديث في موسوعة الدرر السنية"
                         >
-                          <span>تخريج في الدرر السنية ↗</span>
+                          <span>تخريج في الدرر السنية</span>
+                          <ExternalLink className="w-3 h-3" strokeWidth={1.6} />
                         </a>
                       </div>
                     )}
@@ -704,7 +706,7 @@ export function AdhkarClient() {
                           {isCompleted ? (
                             <>
                               <Check className="w-4 h-4 stroke-[3]" />
-                              <span>تمّ بحمد الله ✓</span>
+                              <span>تمّ بحمد الله</span>
                             </>
                           ) : (
                             <>

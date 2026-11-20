@@ -1003,7 +1003,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-brand text-white flex items-center justify-center shrink-0 hover:bg-emerald-brand/90 transition-all disabled:opacity-30 disabled:pointer-events-none shadow-xs active:scale-95"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-brand text-white flex items-center justify-center shrink-0 hover:bg-emerald-brand/90 transition-colors disabled:opacity-30 disabled:pointer-events-none shadow-xs"
             title="إرسال (Enter)"
           >
             <ArrowUp className="w-5 h-5" />
@@ -1018,7 +1018,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
                 key={prompt}
                 onClick={() => handleSend(prompt)}
                 disabled={isLoading}
-                className="px-3 py-1.5 rounded-full bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark hover:border-emerald-brand/40 text-[11px] sm:text-xs text-muted-light hover:text-charcoal-light dark:text-muted-dark dark:hover:text-white font-medium transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 text-start shadow-2xs"
+                className="px-3 py-1.5 rounded-full bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark hover:border-emerald-brand/50 text-[11px] sm:text-xs text-muted-light hover:text-charcoal-light dark:text-muted-dark dark:hover:text-white font-medium transition-colors disabled:opacity-50 text-start shadow-2xs"
               >
                 «{prompt}»
               </button>

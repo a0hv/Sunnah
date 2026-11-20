@@ -442,7 +442,7 @@ export function DailyTrackerClient() {
                       : 'text-muted-light dark:text-muted-dark hover:text-charcoal-light'
                   }`}
                 >
-                  {isDone ? '✓ تم إنجازها اليوم' : 'تعليم كمكتملة'}
+                  {isDone ? 'تم إنجازها اليوم' : 'تعليم كمكتملة'}
                 </button>
               </div>
             </div>

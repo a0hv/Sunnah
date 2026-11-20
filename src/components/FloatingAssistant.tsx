@@ -33,22 +33,19 @@ export function FloatingAssistant() {
       <div className="fixed end-5 bottom-20 md:bottom-6 z-40">
         <button
           onClick={() => setIsOpen((prev) => !prev)}
-          className={`flex items-center gap-2 px-4 py-3 rounded-full bg-emerald-brand text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all border border-white/20 group ${
+          className={`flex items-center gap-2 px-4 py-3 rounded-full bg-emerald-brand text-white shadow-md hover:bg-emerald-brand/90 transition-colors duration-200 border border-white/20 ${
             isOpen ? 'ring-2 ring-emerald-brand/40 ring-offset-2' : ''
           }`}
-          aria-label="فتح المساعد النبوي الذكي"
+          aria-label="فتح المساعد الذكي"
         >
           {isOpen ? (
-            <X className="w-5 h-5 text-white" />
+            <X className="w-5 h-5 text-white" strokeWidth={1.6} />
           ) : (
-            <Sparkles className="w-5 h-5 text-gold-accent group-hover:rotate-12 transition-transform" />
+            <Sparkles className="w-5 h-5 text-gold-accent" strokeWidth={1.6} />
           )}
-          <span className="font-display font-bold text-xs sm:text-sm hidden sm:inline">
-            {isOpen ? 'إغلاق المساعد' : 'المساعد النبوي'}
+          <span className="font-display font-medium text-xs sm:text-sm hidden sm:inline">
+            {isOpen ? 'إغلاق المساعد' : 'الباحث في السنة'}
           </span>
-          {!isOpen && (
-            <span className="w-2 h-2 rounded-full bg-gold-accent animate-ping hidden sm:block" />
-          )}
         </button>
       </div>
 
@@ -58,12 +55,12 @@ export function FloatingAssistant() {
           {/* Mobile Backdrop */}
           <div
             onClick={() => setIsOpen(false)}
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 md:hidden animate-in fade-in"
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 md:hidden animate-in fade-in duration-200"
           />
 
           {/* Modal Container */}
-          <div className="fixed inset-x-3 bottom-20 md:bottom-22 md:start-auto md:end-6 z-50 md:w-[460px] max-w-[95vw] animate-in fade-in slide-in-from-bottom-4 duration-200">
-            <div className="shadow-2xl rounded-3xl overflow-hidden border border-subtle-light/80 dark:border-subtle-dark/80">
+          <div className="fixed inset-x-3 bottom-20 md:bottom-22 md:start-auto md:end-6 z-50 md:w-[460px] max-w-[95vw] animate-in fade-in slide-in-from-bottom-3 duration-200">
+            <div className="shadow-xl rounded-2xl overflow-hidden border border-subtle-light/80 dark:border-subtle-dark/80">
               <SunnahAssistant compact onClose={() => setIsOpen(false)} />
             </div>
           </div>

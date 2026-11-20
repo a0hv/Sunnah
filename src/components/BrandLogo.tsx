@@ -74,7 +74,7 @@ export function BrandLogo({
 
   const content = (
     <div className={`flex items-center gap-2.5 ${className}`}>
-      <div className={`${iconSizeClass} rounded-2xl shadow-xs overflow-hidden shrink-0 group-hover:scale-105 transition-transform`}>
+      <div className={`${iconSizeClass} rounded-2xl shadow-xs overflow-hidden shrink-0`}>
         <BrandLogoIcon className="w-full h-full" />
       </div>
       <div className="flex flex-col text-start">

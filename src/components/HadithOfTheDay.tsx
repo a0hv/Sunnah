@@ -3,15 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  Sparkles,
   Shuffle,
   Copy,
   Check,
   Scroll,
-  ArrowRight,
-  Quote,
+  ArrowLeft,
   ExternalLink,
-  CheckCircle2,
+  Share2,
 } from 'lucide-react';
 import nawawiRaw from '@/data/nawawi40.json';
 import { getDorarHadithUrl } from '@/lib/external-refs';
@@ -32,15 +30,11 @@ export function HadithOfTheDay() {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [copied, setCopied] = useState<boolean>(false);
   const [shareCardData, setShareCardData] = useState<ShareCardData | null>(null);
-  const [, setIsMounted] = useState<boolean>(false);
 
-  // Compute deterministic daily hadith based on calendar date
+  // حساب الحديث اليومي الحتمي بناء على تاريخ اليوم
   useEffect(() => {
-    setIsMounted(true);
     if (HADITHS.length === 0) return;
-
     const d = new Date();
-    // Deterministic daily seed: YYYYMMDD
     const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
     const dailyIndex = seed % HADITHS.length;
     setCurrentIndex(dailyIndex);
@@ -88,55 +82,38 @@ export function HadithOfTheDay() {
   if (!currentHadith) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-paper-light via-surface-light to-emerald-brand/5 dark:from-paper-dark dark:via-surface-dark dark:to-emerald-brand-dark/10 border border-subtle-light dark:border-subtle-dark p-6 sm:p-8 shadow-xs space-y-6 text-start">
-      {/* Decorative Quote Mark */}
-      <div className="absolute top-4 end-6 text-emerald-brand/10 dark:text-emerald-brand-dark/10 select-none pointer-events-none">
-        <Quote className="w-20 h-20 -rotate-12" />
-      </div>
-
-      {/* Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-subtle-light/70 dark:border-subtle-dark/70 pb-4 relative z-10">
-        <div className="flex items-center gap-2.5">
-          <span className="w-8 h-8 rounded-xl bg-gold-accent/15 text-gold-accent dark:text-gold-accent-dark flex items-center justify-center">
-            <Sparkles className="w-4 h-4" />
+    <div className="rounded-2xl bg-surface-light dark:bg-surface-dark border border-subtle-light/70 dark:border-subtle-dark/70 border-s-2 border-s-emerald-brand dark:border-s-emerald-brand-dark p-6 sm:p-8 space-y-5 text-start shadow-2xs">
+      {/* الرأس التحريري والأزرار */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-subtle-light/50 dark:border-subtle-dark/50 pb-3.5">
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-brand dark:bg-emerald-brand-dark shrink-0" />
+          <span className="text-xs font-semibold text-emerald-brand dark:text-emerald-brand-dark font-display">
+            حديث اليوم
           </span>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-gold-accent dark:text-gold-accent-dark">
-                حديث اليوم
-              </span>
-              <span className="text-[11px] text-muted-light dark:text-muted-dark font-sans">
-                • الأربعون النووية (الحديث رقم {currentHadith.id})
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs font-medium text-muted-light dark:text-muted-dark font-sans">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-brand dark:text-emerald-brand-dark shrink-0" />
-              <span>الراوي: {currentHadith.narrator}</span>
-              <span className="opacity-60">•</span>
-              <span>{currentHadith.source}</span>
-            </div>
-          </div>
+          <span className="text-xs text-muted-light dark:text-muted-dark">
+            • الأربعون النووية (الحديث {currentHadith.id})
+          </span>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2">
+        {/* أزرار الإجراءات */}
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={handleShuffle}
-            title="اختيار حديث آخر عشوائيًا"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-subtle-light dark:border-subtle-dark bg-paper-light dark:bg-paper-dark text-xs font-bold text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark hover:border-emerald-brand/40 transition-colors shadow-2xs"
+            title="حديث آخر عشوائيًا"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-subtle-light dark:border-subtle-dark bg-paper-light dark:bg-paper-dark text-xs text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark hover:border-emerald-brand/40 transition-colors duration-200"
           >
-            <Shuffle className="w-3.5 h-3.5 text-emerald-brand" />
-            <span>حديث آخر</span>
+            <Shuffle className="w-3.5 h-3.5 text-emerald-brand" strokeWidth={1.6} />
+            <span className="hidden sm:inline">حديث آخر</span>
           </button>
 
           <button
             type="button"
             onClick={handleOpenShare}
-            title="توليد بطاقة مشاركة للصورة"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-subtle-light dark:border-subtle-dark bg-paper-light dark:bg-paper-dark text-xs font-bold text-gold-accent dark:text-gold-accent-dark hover:bg-gold-accent/10 transition-colors shadow-2xs"
+            title="مشاركة الحديث كبطاقة"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-subtle-light dark:border-subtle-dark bg-paper-light dark:bg-paper-dark text-xs text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark hover:border-emerald-brand/40 transition-colors duration-200"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Share2 className="w-3.5 h-3.5 text-emerald-brand" strokeWidth={1.6} />
             <span className="hidden sm:inline">بطاقة مشاركة</span>
           </button>
 
@@ -144,55 +121,60 @@ export function HadithOfTheDay() {
             type="button"
             onClick={handleCopy}
             title="نسخ نص الحديث"
-            className="p-2 rounded-xl border border-subtle-light dark:border-subtle-dark bg-paper-light dark:bg-paper-dark text-xs text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark transition-colors shadow-2xs"
+            className="p-1.5 rounded-lg border border-subtle-light dark:border-subtle-dark bg-paper-light dark:bg-paper-dark text-xs text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark hover:border-emerald-brand/40 transition-colors duration-200"
           >
             {copied ? (
-              <Check className="w-3.5 h-3.5 text-emerald-500" />
+              <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={1.6} />
             ) : (
-              <Copy className="w-3.5 h-3.5" />
+              <Copy className="w-3.5 h-3.5" strokeWidth={1.6} />
             )}
           </button>
         </div>
       </div>
 
-      {/* Main Hadith Title & Arabic Text */}
-      <div className="relative z-10 space-y-3 py-1">
-        <h3 className="font-display font-bold text-base sm:text-lg text-emerald-brand dark:text-emerald-brand-dark">
-          الحديث {currentHadith.id}: {currentHadith.title}
+      {/* عنوان الحديث ومتنه بخط لوتس التحريري */}
+      <div className="space-y-3">
+        <h3 className="font-display font-semibold text-base sm:text-lg text-slate-900 dark:text-white">
+          {currentHadith.title}
         </h3>
-        <HadithText
-          text={currentHadith.text}
-          className="text-lg sm:text-xl md:text-2xl"
-        />
+        <div className="py-1">
+          <HadithText
+            text={currentHadith.text}
+            className="text-lg sm:text-xl md:text-2xl leading-loose"
+          />
+        </div>
       </div>
 
-      {/* Footer Info & Link to Nawawi Section */}
-      <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-subtle-light/70 dark:border-subtle-dark/70 text-xs text-muted-light dark:text-muted-dark relative z-10">
-        <div className="flex items-center gap-3">
-          <span>المصدر: الأربعون النووية — الإمام النووي</span>
+      {/* معلومات الإسناد والتخريج وروابط القسم */}
+      <div className="pt-3 border-t border-subtle-light/50 dark:border-subtle-dark/50 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-light dark:text-muted-dark">
+        <div className="flex flex-wrap items-center gap-2">
+          <span>الراوي: {currentHadith.narrator}</span>
+          <span className="opacity-40">•</span>
+          <span>المصدر: {currentHadith.source}</span>
+          <span className="opacity-40">•</span>
           <a
             href={getDorarHadithUrl(currentHadith.text)}
             target="_blank"
             rel="noopener noreferrer"
-            title="تخريج وتحقيق الحديث في الموسوعة الحديثية — الدرر السنية"
-            className="inline-flex items-center gap-1 font-bold text-emerald-brand dark:text-emerald-brand-dark hover:underline"
+            title="تخريج الحديث في موسوعة الدرر السنية"
+            className="inline-flex items-center gap-1 text-emerald-brand dark:text-emerald-brand-dark hover:underline font-medium"
           >
-            <span>التحقق في الدرر السنية</span>
-            <ExternalLink className="w-3 h-3" />
+            <span>الدرر السنية</span>
+            <ExternalLink className="w-3 h-3" strokeWidth={1.6} />
           </a>
         </div>
 
         <Link
           href={`/nawawi40#hadith-${currentHadith.id}`}
-          className="inline-flex items-center gap-1.5 font-bold text-emerald-brand dark:text-emerald-brand-dark hover:underline"
+          className="inline-flex items-center gap-1.5 font-medium text-emerald-brand dark:text-emerald-brand-dark hover:underline group"
         >
-          <Scroll className="w-3.5 h-3.5 text-emerald-brand" />
-          <span>تصفح الحديث في الأربعين النووية</span>
-          <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
+          <Scroll className="w-3.5 h-3.5 text-emerald-brand" strokeWidth={1.6} />
+          <span>تصفح في الأربعين النووية</span>
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" strokeWidth={1.6} />
         </Link>
       </div>
 
-      {/* Share Card Modal */}
+      {/* نافذة بطاقة المشاركة */}
       <ShareCardModal
         isOpen={Boolean(shareCardData)}
         onClose={() => setShareCardData(null)}

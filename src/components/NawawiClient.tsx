@@ -270,7 +270,7 @@ export function NawawiClient() {
                   key={`quick-${h.id}`}
                   href={`#hadith-${h.id}`}
                   title={`الحديث ${h.id}: ${h.title}`}
-                  className={`h-7 rounded-lg text-xs flex items-center justify-center transition-all hover:scale-105 font-mono ${colorClass}`}
+                  className={`h-7 rounded-lg text-xs flex items-center justify-center transition-colors font-mono ${colorClass}`}
                 >
                   {h.id}
                 </a>

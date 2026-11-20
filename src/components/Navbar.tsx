@@ -8,10 +8,10 @@ import { ThemeToggle } from './ThemeToggle';
 import { BrandLogo } from './BrandLogo';
 
 const NAV_LINKS = [
-  { href: '/', label: 'الباحث الذكي' },
+  { href: '/', label: 'الرئيسية' },
+  { href: '/nawawi40', label: 'الأربعون النووية' },
   { href: '/adhkar', label: 'حصن المسلم' },
   { href: '/seerah', label: 'السيرة النبوية' },
-  { href: '/nawawi40', label: 'الأربعون النووية' },
   { href: '/daily-tracker', label: 'يومك وليلتك' },
 ];
 
@@ -20,23 +20,30 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-paper-light/90 dark:bg-paper-dark/90 border-b border-subtle-light dark:border-subtle-dark transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand / Logo */}
-        <BrandLogo size="md" />
+    <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-paper-light/90 dark:bg-paper-dark/90 border-b border-subtle-light/60 dark:border-subtle-dark/60 transition-colors">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        {/* البداية: الشعار */}
+        <div className="flex items-center shrink-0">
+          <BrandLogo size="md" href="/" />
+        </div>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1 lg:gap-1.5" aria-label="شريط التنقل الرئيسي">
+        {/* الوسط: الروابط الخمسة بخط أنيق ومسافات متساوية */}
+        <nav
+          className="hidden md:flex items-center gap-1 lg:gap-2"
+          aria-label="شريط التنقل الرئيسي"
+        >
           {NAV_LINKS.map((link) => {
-            const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+            const isActive =
+              pathname === link.href ||
+              (link.href !== '/' && pathname.startsWith(link.href));
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-3 py-1.5 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
+                className={`relative px-3 py-1.5 text-xs lg:text-sm font-medium transition-colors duration-200 ${
                   isActive
-                    ? 'bg-emerald-brand/10 dark:bg-emerald-brand-dark/15 text-emerald-brand dark:text-emerald-brand-dark font-semibold'
-                    : 'text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark hover:bg-black/5 dark:hover:bg-white/5'
+                    ? 'text-emerald-brand dark:text-emerald-brand-dark font-semibold after:absolute after:bottom-[-20px] after:inset-x-2 after:h-0.5 after:bg-emerald-brand dark:after:bg-emerald-brand-dark after:rounded-full'
+                    : 'text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark'
                 }`}
               >
                 {link.label}
@@ -45,37 +52,43 @@ export function Navbar() {
           })}
         </nav>
 
-        {/* Actions (Theme Toggle, Mobile Menu Trigger) */}
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
+        {/* النهاية: زر تبديل المظهر وقائمة الجوال */}
+        <div className="flex items-center gap-2 shrink-0">
+          <ThemeToggle className="rounded-full" />
 
-          {/* Mobile menu button */}
+          {/* زر قائمة الجوال */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="القائمة الجانبية"
             aria-expanded={mobileMenuOpen}
-            className="md:hidden p-2 rounded-xl border border-subtle-light dark:border-subtle-dark bg-surface-light dark:bg-surface-dark text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark transition-colors"
+            className="md:hidden p-2 rounded-full border border-subtle-light dark:border-subtle-dark bg-surface-light dark:bg-surface-dark text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark transition-colors duration-200"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? (
+              <X className="w-5 h-5" strokeWidth={1.6} />
+            ) : (
+              <Menu className="w-5 h-5" strokeWidth={1.6} />
+            )}
           </button>
         </div>
       </div>
 
-      {/* Mobile Dropdown Menu */}
+      {/* قائمة الجوال المنسدلة */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-subtle-light dark:border-subtle-dark bg-paper-light dark:bg-paper-dark px-4 py-4 space-y-1.5 shadow-lg animate-in slide-in-from-top-2">
+        <div className="md:hidden border-t border-subtle-light/60 dark:border-subtle-dark/60 bg-paper-light dark:bg-paper-dark px-4 py-3 space-y-1 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
           {NAV_LINKS.map((link) => {
-            const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+            const isActive =
+              pathname === link.href ||
+              (link.href !== '/' && pathname.startsWith(link.href));
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`block px-3 py-2 rounded-xl text-sm font-medium transition-colors duration-200 ${
                   isActive
                     ? 'bg-emerald-brand/10 dark:bg-emerald-brand-dark/15 text-emerald-brand dark:text-emerald-brand-dark font-semibold'
-                    : 'text-muted-light dark:text-muted-dark hover:bg-black/5 dark:hover:bg-white/5'
+                    : 'text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark hover:bg-black/5 dark:hover:bg-white/5'
                 }`}
               >
                 {link.label}
