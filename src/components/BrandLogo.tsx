@@ -16,15 +16,15 @@ export function BrandLogoIcon({ className = 'w-9 h-9' }: { className?: string })
       className={`shrink-0 ${className}`}
       aria-hidden="true"
     >
-      {/* Rounded emerald container */}
-      <rect width="64" height="64" rx="14" fill="#0F5C4A" />
+      {/* Rounded inky navy container */}
+      <rect width="64" height="64" rx="14" fill="#121B28" />
 
-      {/* Golden focal diamond above the arch apex */}
-      <polygon points="32,7.5 35.8,11.3 32,15.1 28.2,11.3" fill="#D4A853" />
+      {/* Copper focal diamond above the arch apex */}
+      <polygon points="32,7.5 35.8,11.3 32,15.1 28.2,11.3" fill="#D4A359" />
 
-      {/* Pointed Islamic Mihrab Arch (Unified Solid Ring) */}
+      {/* Pointed Islamic Mihrab Arch (Unified Solid Ring) in Ivory */}
       <path
-        fill="#FAF8F4"
+        fill="#F7F4EE"
         fillRule="evenodd"
         d="M 32,16.5
            C 27.2,19.2 22,24.8 17.5,30.5
@@ -42,9 +42,9 @@ export function BrandLogoIcon({ className = 'w-9 h-9' }: { className?: string })
            C 24.5,27.8 28.5,23.8 32,21.5 Z"
       />
 
-      {/* Open Book Base */}
+      {/* Open Book Base in Ivory */}
       <path
-        fill="#FAF8F4"
+        fill="#F7F4EE"
         d="M 32,48
            C 24,44 16,43 9,43.5
            L 12,48

@@ -149,23 +149,23 @@
   --font-hadith: 'Lotus Naskh', var(--font-amiri), 'Amiri', serif;
   --font-quran: 'UthmanicHafs', serif;
   
-  --bg-paper: #FAF9F5;
-  --bg-surface: #FFFFFF;
-  --text-charcoal: #1A1F1C;
-  --text-muted: #526058;
-  --color-emerald: #0F5C4A;
-  --color-gold: #A67C2E;
-  --border-subtle: #E6E2D8;
+  --bg-paper: #F7F4EE;
+  --bg-surface: #FDFBF7;
+  --text-charcoal: #121B28;
+  --text-muted: #5B6470;
+  --color-emerald: #9E6B2B;
+  --color-gold: #9E6B2B;
+  --border-subtle: #E3DDD1;
 }
 
 .dark {
-  --bg-paper: #0E1412;
-  --bg-surface: #151E1B;
-  --text-charcoal: #EAECE9;
-  --text-muted: #94A39D;
-  --color-emerald: #34A88B;
-  --color-gold: #D4AF63;
-  --border-subtle: #23302B;
+  --bg-paper: #0F141B;
+  --bg-surface: #161D27;
+  --text-charcoal: #EAE6DF;
+  --text-muted: #9AA3B0;
+  --color-emerald: #D4A359;
+  --color-gold: #D4A359;
+  --border-subtle: #242E3C;
 }
 
 @layer base {
@@ -233,18 +233,18 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(82, 96, 88, 0.25);
+  background: rgba(91, 100, 112, 0.25);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(82, 96, 88, 0.45);
+  background: rgba(91, 100, 112, 0.45);
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 157, 0.25);
+  background: rgba(154, 163, 176, 0.25);
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 157, 0.45);
+  background: rgba(154, 163, 176, 0.45);
 }

@@ -100,7 +100,7 @@ export function HadithText({
               target="_blank"
               rel="noopener noreferrer"
               title="اقرأ الآية وتفسيرها في Quran.com"
-              className="font-quran font-bold text-gold-accent dark:text-amber-300 text-[1.12em] leading-[2.1] px-1 select-text hover:underline decoration-gold-accent/50 dark:decoration-amber-300/50 underline-offset-4 transition-colors"
+              className="font-quran font-bold text-[#9E6B2B] dark:text-[#D4A359] text-[1.12em] leading-[2.1] px-1 select-text hover:underline decoration-[#9E6B2B]/50 dark:decoration-[#D4A359]/50 underline-offset-4 transition-colors"
             >
               {seg.text}
             </a>
@@ -111,7 +111,7 @@ export function HadithText({
           return (
             <sup
               key={idx}
-              className="font-sans text-[11px] font-semibold text-emerald-brand dark:text-emerald-brand-dark bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 px-1 py-0.5 rounded mx-0.5 align-super cursor-default select-none"
+              className="font-sans text-[11px] font-semibold text-[#9E6B2B] dark:text-[#D4A359] bg-[#9E6B2B]/10 dark:bg-[#D4A359]/15 border border-[#9E6B2B]/20 dark:border-[#D4A359]/30 px-1 py-0.5 rounded mx-0.5 align-super cursor-default select-none"
             >
               {seg.text}
             </sup>
@@ -122,7 +122,7 @@ export function HadithText({
           return (
             <span
               key={idx}
-              className="text-[#0B4F3F] dark:text-[#F87171] font-bold transition-colors"
+              className="text-[#8A5A1E] dark:text-[#DFB46B] font-bold transition-colors"
             >
               {seg.text}
             </span>
@@ -133,7 +133,7 @@ export function HadithText({
         return (
           <span
             key={idx}
-            className="text-[#2C2A26] dark:text-slate-100 transition-colors"
+            className="text-charcoal-light dark:text-charcoal-dark transition-colors"
           >
             {seg.text}
           </span>

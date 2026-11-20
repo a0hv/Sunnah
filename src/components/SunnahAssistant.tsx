@@ -623,8 +623,8 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
   const containerClasses = isFullscreen
     ? 'fixed inset-0 z-50 bg-paper-light dark:bg-paper-dark p-4 sm:p-6 md:p-8 flex flex-col justify-between w-full h-screen overflow-hidden'
     : compact
-    ? 'relative h-full max-h-[85vh] p-4 sm:p-5 rounded-3xl border border-subtle-light dark:border-subtle-dark bg-surface-light dark:bg-surface-dark shadow-xs flex flex-col justify-between overflow-hidden transition-all text-start w-full max-w-full'
-    : 'relative p-4 sm:p-8 max-w-3xl mx-auto rounded-3xl border border-subtle-light dark:border-subtle-dark bg-surface-light dark:bg-surface-dark shadow-xs flex flex-col justify-between overflow-hidden transition-all text-start w-full max-w-full';
+    ? 'relative h-full max-h-[85vh] p-4 sm:p-5 rounded-2xl border border-subtle-light/80 dark:border-subtle-dark/80 bg-surface-light dark:bg-surface-dark shadow-none flex flex-col justify-between overflow-hidden transition-all text-start w-full max-w-full'
+    : 'relative p-4 sm:p-6 max-w-3xl mx-auto rounded-2xl border border-subtle-light/80 dark:border-subtle-dark/80 bg-surface-light dark:bg-surface-dark shadow-none flex flex-col justify-between overflow-hidden transition-all text-start w-full max-w-full';
 
   return (
     <div className={containerClasses}>
@@ -720,7 +720,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
             <BrandLogoIcon className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-display font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+            <h3 className="font-display font-bold text-sm sm:text-base text-charcoal-light dark:text-charcoal-dark">
               الباحث الذكي في السنة
             </h3>
           </div>
@@ -794,7 +794,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
             </div>
 
             <div className="max-w-md mx-auto px-3">
-              <h4 className="font-display font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
+              <h4 className="font-display font-bold text-lg sm:text-xl text-charcoal-light dark:text-charcoal-dark">
                 أهلاً بك في الباحث الذكي
               </h4>
             </div>
@@ -808,7 +808,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
                   {isUser ? (
                     // فقاعة رسالة المستخدم (Soft Bubble)
                     <div className="flex justify-end">
-                      <div className="bg-emerald-brand text-white dark:bg-emerald-brand-dark dark:text-slate-950 px-4 py-2.5 rounded-2xl rounded-be-xs text-sm sm:text-base font-text max-w-[85%] sm:max-w-[75%] shadow-2xs break-words leading-relaxed">
+                      <div className="bg-[#121B28] text-[#F7F4EE] dark:bg-[#D4A359] dark:text-[#0F141B] px-4 py-2.5 rounded-2xl rounded-be-xs text-sm sm:text-base font-text max-w-[85%] sm:max-w-[75%] shadow-none break-words leading-relaxed">
                         {m.content}
                       </div>
                     </div>
@@ -834,10 +834,10 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
                                 <Link
                                   key={sIdx}
                                   href={s.url}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark hover:border-emerald-brand/50 text-xs transition-colors group text-start shadow-2xs"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark hover:border-emerald-brand/50 text-xs transition-colors group text-start shadow-none"
                                 >
                                   <span className="shrink-0">{getSourceIcon(s.type)}</span>
-                                  <span className="font-semibold text-slate-900 dark:text-white group-hover:text-emerald-brand transition-colors">
+                                  <span className="font-semibold text-charcoal-light dark:text-charcoal-dark group-hover:text-emerald-brand transition-colors">
                                     {s.title}
                                   </span>
                                   <span className="text-[10px] text-muted-light dark:text-muted-dark">
@@ -862,7 +862,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
                                   href={ext.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark hover:border-emerald-brand/50 text-[11px] text-slate-800 dark:text-slate-200 transition-colors shadow-2xs group"
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark hover:border-emerald-brand/50 text-[11px] text-charcoal-light dark:text-charcoal-dark transition-colors shadow-none group"
                                 >
                                   <span className="font-semibold group-hover:text-emerald-brand transition-colors">
                                     {ext.name}
@@ -944,7 +944,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
               onClick={() => setSelectedMode(mode.id)}
               className={`px-3 py-1 rounded-full text-xs transition-all shrink-0 font-sans ${
                 selectedMode === mode.id
-                  ? 'bg-emerald-brand text-white shadow-2xs font-semibold'
+                  ? 'bg-[#121B28] dark:bg-[#D4A359] text-[#F7F4EE] dark:text-[#0F141B] shadow-none font-semibold'
                   : 'bg-paper-light dark:bg-paper-dark text-muted-light dark:text-muted-dark hover:text-charcoal-light border border-subtle-light dark:border-subtle-dark'
               }`}
             >
@@ -953,13 +953,13 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
           ))}
         </div>
 
-        {/* حقل الإدخال الكبسولي */}
+        {/* حقل الإدخال الكبسولي المسطح */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSend();
           }}
-          className="relative flex items-end gap-2 p-1.5 sm:p-2 rounded-3xl bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark focus-within:ring-2 focus-within:ring-emerald-brand/30 shadow-xs transition-all w-full"
+          className="relative flex items-center gap-2 p-1.5 sm:p-2 rounded-full bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark focus-within:border-[#9E6B2B] dark:focus-within:border-[#D4A359] focus-within:ring-1 focus-within:ring-[#9E6B2B]/20 dark:focus-within:ring-[#D4A359]/20 shadow-none transition-all w-full"
         >
           <textarea
             ref={textareaRef}
@@ -976,7 +976,7 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
                 : 'اسأل في الأحاديث، الأذكار، السيرة، أو صحة حديث...'
             }
             disabled={isLoading}
-            className="flex-1 py-2 ps-3.5 pe-2 bg-transparent text-xs sm:text-sm md:text-base text-slate-900 dark:text-white placeholder:text-muted-light/60 dark:placeholder:text-muted-dark/60 focus:outline-hidden font-sans resize-none max-h-36 leading-relaxed"
+            className="flex-1 py-2 ps-3.5 pe-2 bg-transparent text-xs sm:text-sm md:text-base text-charcoal-light dark:text-charcoal-dark placeholder:text-muted-light/60 dark:placeholder:text-muted-dark/60 focus:outline-hidden font-sans resize-none max-h-36 leading-relaxed"
           />
 
           {/* زر الميكروفون الصوتي باللغة العربية */}
@@ -999,11 +999,11 @@ export function SunnahAssistant({ compact = false, onClose }: SunnahAssistantPro
             </button>
           )}
 
-          {/* زر الإرسال */}
+          {/* زر الإرسال الدائري الكحلي/النحاسي */}
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-brand text-white flex items-center justify-center shrink-0 hover:bg-emerald-brand/90 transition-colors disabled:opacity-30 disabled:pointer-events-none shadow-xs"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#121B28] dark:bg-[#D4A359] text-[#F7F4EE] dark:text-[#0F141B] flex items-center justify-center shrink-0 hover:opacity-90 transition-opacity disabled:opacity-30 disabled:pointer-events-none shadow-none"
             title="إرسال (Enter)"
           >
             <ArrowUp className="w-5 h-5" />

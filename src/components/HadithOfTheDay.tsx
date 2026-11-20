@@ -82,12 +82,12 @@ export function HadithOfTheDay() {
   if (!currentHadith) return null;
 
   return (
-    <div className="rounded-2xl bg-surface-light dark:bg-surface-dark border border-subtle-light/70 dark:border-subtle-dark/70 border-s-2 border-s-emerald-brand dark:border-s-emerald-brand-dark p-6 sm:p-8 space-y-5 text-start shadow-2xs">
+    <div className="rounded-xl bg-surface-light dark:bg-surface-dark border border-subtle-light/80 dark:border-subtle-dark/80 border-s-2 border-s-[#9E6B2B] dark:border-s-[#D4A359] p-6 sm:p-7 space-y-5 text-start shadow-none">
       {/* الرأس التحريري والأزرار */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-subtle-light/50 dark:border-subtle-dark/50 pb-3.5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-subtle-light/60 dark:border-subtle-dark/60 pb-3.5">
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-brand dark:bg-emerald-brand-dark shrink-0" />
-          <span className="text-xs font-semibold text-emerald-brand dark:text-emerald-brand-dark font-display">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#9E6B2B] dark:bg-[#D4A359] shrink-0" />
+          <span className="text-xs font-semibold text-[#9E6B2B] dark:text-[#D4A359] font-display">
             حديث اليوم
           </span>
           <span className="text-xs text-muted-light dark:text-muted-dark">
@@ -101,9 +101,9 @@ export function HadithOfTheDay() {
             type="button"
             onClick={handleShuffle}
             title="حديث آخر عشوائيًا"
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-subtle-light dark:border-subtle-dark bg-paper-light dark:bg-paper-dark text-xs text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark hover:border-emerald-brand/40 transition-colors duration-200"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-subtle-light dark:border-subtle-dark bg-paper-light dark:bg-paper-dark text-xs text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark hover:border-[#9E6B2B]/40 transition-colors duration-200"
           >
-            <Shuffle className="w-3.5 h-3.5 text-emerald-brand" strokeWidth={1.6} />
+            <Shuffle className="w-3.5 h-3.5 text-[#9E6B2B] dark:text-[#D4A359]" strokeWidth={1.6} />
             <span className="hidden sm:inline">حديث آخر</span>
           </button>
 
@@ -111,9 +111,9 @@ export function HadithOfTheDay() {
             type="button"
             onClick={handleOpenShare}
             title="مشاركة الحديث كبطاقة"
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-subtle-light dark:border-subtle-dark bg-paper-light dark:bg-paper-dark text-xs text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark hover:border-emerald-brand/40 transition-colors duration-200"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-subtle-light dark:border-subtle-dark bg-paper-light dark:bg-paper-dark text-xs text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark hover:border-[#9E6B2B]/40 transition-colors duration-200"
           >
-            <Share2 className="w-3.5 h-3.5 text-emerald-brand" strokeWidth={1.6} />
+            <Share2 className="w-3.5 h-3.5 text-[#9E6B2B] dark:text-[#D4A359]" strokeWidth={1.6} />
             <span className="hidden sm:inline">بطاقة مشاركة</span>
           </button>
 
@@ -121,7 +121,7 @@ export function HadithOfTheDay() {
             type="button"
             onClick={handleCopy}
             title="نسخ نص الحديث"
-            className="p-1.5 rounded-lg border border-subtle-light dark:border-subtle-dark bg-paper-light dark:bg-paper-dark text-xs text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark hover:border-emerald-brand/40 transition-colors duration-200"
+            className="p-1.5 rounded-lg border border-subtle-light dark:border-subtle-dark bg-paper-light dark:bg-paper-dark text-xs text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark hover:border-[#9E6B2B]/40 transition-colors duration-200"
           >
             {copied ? (
               <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={1.6} />
@@ -134,7 +134,7 @@ export function HadithOfTheDay() {
 
       {/* عنوان الحديث ومتنه بخط لوتس التحريري */}
       <div className="space-y-3">
-        <h3 className="font-display font-semibold text-base sm:text-lg text-slate-900 dark:text-white">
+        <h3 className="font-display font-semibold text-base sm:text-lg text-charcoal-light dark:text-charcoal-dark">
           {currentHadith.title}
         </h3>
         <div className="py-1">
