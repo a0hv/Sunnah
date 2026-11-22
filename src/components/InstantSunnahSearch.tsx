@@ -282,13 +282,13 @@ export function InstantSunnahSearch() {
 
         {/* اقتراحات البحث السريعة (تظهر فقط عندما تكون الخانة فارغة) */}
         {!query.trim() && (
-          <div className="flex flex-wrap items-center justify-center gap-1.5 pt-3">
+          <div className="flex items-center gap-1.5 pt-3 flex-nowrap overflow-x-auto pb-1 sm:pb-0 sm:flex-wrap sm:justify-center no-scrollbar">
             {QUICK_SUGGESTIONS.map((suggestion) => (
               <button
                 key={suggestion}
                 type="button"
                 onClick={() => handleSelectSuggestion(suggestion)}
-                className="px-3 py-1 rounded-full bg-surface-light dark:bg-surface-dark border border-subtle-light/70 dark:border-subtle-dark/70 hover:border-[#9E6B2B]/40 dark:hover:border-[#D4A359]/40 text-xs text-muted-light hover:text-charcoal-light dark:text-muted-dark dark:hover:text-charcoal-dark transition-colors font-sans"
+                className="shrink-0 px-3 py-1 rounded-full bg-surface-light dark:bg-surface-dark border border-subtle-light/70 dark:border-subtle-dark/70 hover:border-[#9E6B2B]/40 dark:hover:border-[#D4A359]/40 text-xs text-muted-light hover:text-charcoal-light dark:text-muted-dark dark:hover:text-charcoal-dark transition-colors font-sans whitespace-nowrap"
               >
                 «{suggestion}»
               </button>

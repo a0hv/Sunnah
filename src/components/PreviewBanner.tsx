@@ -40,13 +40,23 @@ export function PreviewBanner() {
             className="w-1.5 h-1.5 rounded-full bg-[#9E6B2B] dark:bg-[#D4A359] shrink-0"
             aria-hidden="true"
           />
-          <p className="truncate sm:whitespace-normal leading-normal">
-            <strong className="font-semibold text-charcoal-light dark:text-charcoal-dark">
-              نسخة معاينة قيد التطوير
-            </strong>{' '}
-            <span className="text-muted-light dark:text-muted-dark font-normal">
-              — يعمل البحث حاليًا بالمكتبة المحلية الموثّقة، ويجري استكمال الإطلاق الكامل فور تفعيل الربط الرسمي مع{' '}
-              <strong className="font-semibold text-charcoal-light dark:text-charcoal-dark">مؤسسة الدرر السنية</strong>.
+          <p className="leading-snug sm:leading-normal">
+            <span className="sm:hidden text-xs">
+              <strong className="font-semibold text-charcoal-light dark:text-charcoal-dark">
+                نسخة معاينة
+              </strong>{' '}
+              <span className="text-muted-light dark:text-muted-dark font-normal">
+                — بانتظار ربط الدرر السنية
+              </span>
+            </span>
+            <span className="hidden sm:inline">
+              <strong className="font-semibold text-charcoal-light dark:text-charcoal-dark">
+                نسخة معاينة قيد التطوير
+              </strong>{' '}
+              <span className="text-muted-light dark:text-muted-dark font-normal">
+                — يعمل البحث حاليًا بالمكتبة المحلية الموثّقة، ويجري استكمال الإطلاق الكامل فور تفعيل الربط الرسمي مع{' '}
+                <strong className="font-semibold text-charcoal-light dark:text-charcoal-dark">مؤسسة الدرر السنية</strong>.
+              </span>
             </span>
           </p>
         </div>

@@ -206,6 +206,15 @@
     line-height: 2.6 !important;
   }
 
+  /* Hide scrollbar for clean horizontal mobile swipe */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   mark {
     background-color: rgba(158, 107, 43, 0.2) !important;
     color: #121B28 !important;

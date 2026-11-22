@@ -13,6 +13,7 @@ const NAV_LINKS = [
   { href: '/adhkar', label: 'حصن المسلم' },
   { href: '/seerah', label: 'السيرة النبوية' },
   { href: '/daily-tracker', label: 'يومك وليلتك' },
+  { href: '/about', label: 'عن المنصة' },
 ];
 
 export function Navbar() {
@@ -75,7 +76,7 @@ export function Navbar() {
 
       {/* قائمة الجوال المنسدلة */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-subtle-light/60 dark:border-subtle-dark/60 bg-paper-light dark:bg-paper-dark px-4 py-3 space-y-1 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="md:hidden border-t border-subtle-light/70 dark:border-subtle-dark/70 bg-paper-light/98 dark:bg-paper-dark/98 backdrop-blur-md px-4 py-3 space-y-1 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
           {NAV_LINKS.map((link) => {
             const isActive =
               pathname === link.href ||
@@ -85,13 +86,16 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2 rounded-xl text-sm font-medium transition-colors duration-200 ${
+                className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-200 ${
                   isActive
-                    ? 'bg-emerald-brand/10 dark:bg-emerald-brand-dark/15 text-emerald-brand dark:text-emerald-brand-dark font-semibold'
-                    : 'text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark hover:bg-black/5 dark:hover:bg-white/5'
+                    ? 'bg-[#9E6B2B]/10 dark:bg-[#D4A359]/15 text-[#9E6B2B] dark:text-[#D4A359] font-bold'
+                    : 'text-charcoal-light dark:text-charcoal-dark hover:bg-black/5 dark:hover:bg-white/5'
                 }`}
               >
-                {link.label}
+                <span>{link.label}</span>
+                {isActive && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#9E6B2B] dark:bg-[#D4A359]" />
+                )}
               </Link>
             );
           })}

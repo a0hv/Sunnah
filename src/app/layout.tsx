@@ -5,7 +5,6 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { PreviewBanner } from '@/components/PreviewBanner';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
-import { MobileBottomNav } from '@/components/MobileBottomNav';
 
 const amiri = Amiri({
   subsets: ['arabic'],
@@ -61,11 +60,10 @@ export default function RootLayout({
           <div className="flex flex-col min-h-screen overflow-x-hidden w-full max-w-full">
             <PreviewBanner />
             <Navbar />
-            <div className="flex-1 pb-24 md:pb-12 overflow-x-hidden w-full max-w-full">
+            <div className="flex-1 pb-8 sm:pb-12 md:pb-14 overflow-x-hidden w-full max-w-full">
               {children}
             </div>
             <Footer />
-            <MobileBottomNav />
           </div>
         </ThemeProvider>
       </body>
