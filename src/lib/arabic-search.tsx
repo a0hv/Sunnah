@@ -554,64 +554,218 @@ export interface HighlightArabicTextProps {
   text: string;
   query: string;
   className?: string;
+  as?: React.ElementType;
+}
+
+const DIACRITICS_REGEX = /[\u064B-\u065F\u0670\u0640\u06D6-\u06ED\u200C\u200D]/;
+
+function normalizeCharForMapping(ch: string): string | null {
+  if (DIACRITICS_REGEX.test(ch)) {
+    return null;
+  }
+  if (ch === 'إ' || ch === 'أ' || ch === 'آ' || ch === 'ٱ') {
+    return 'ا';
+  }
+  if (ch === 'ة') {
+    return 'ه';
+  }
+  if (ch === 'ى') {
+    return 'ي';
+  }
+  if (/[:،؛.؟!«»"”'’[\](){}<>–—/\\+\-_]/.test(ch)) {
+    return ' ';
+  }
+  if (/\s/.test(ch)) {
+    return ' ';
+  }
+  return ch.toLowerCase();
+}
+
+interface MatchInterval {
+  origStart: number;
+  origEnd: number;
 }
 
 export function HighlightArabicText({
   text,
   query,
   className = '',
+  as: Component = 'span',
 }: HighlightArabicTextProps) {
   if (!text) return null;
-  const cleanQ = query.replace(/[:،؛.؟!«»"”'’[\](){}<>–—/\\+\-_]/g, ' ').trim();
-  if (!cleanQ) return <span className={className}>{text}</span>;
 
-  // Split tokens (>= 2 chars)
-  const normTokens = cleanQ
-    .split(/\s+/)
-    .map((t) => normalizeArabic(t))
-    .filter((t) => t.length >= 2);
-
-  if (normTokens.length === 0) {
-    return <span className={className}>{text}</span>;
+  if (!query || typeof query !== 'string') {
+    return <Component className={className}>{text}</Component>;
   }
 
-  // Tokenize text into individual words and delimiters (spaces, punctuation)
+  const cleanQ = query.replace(/[:،؛.؟!«»"”'’[\](){}<>–—/\\+\-_]/g, ' ').trim();
+  if (cleanQ.length < 2) {
+    return <Component className={className}>{text}</Component>;
+  }
+
   try {
-    const segments = text.split(/(\s+|[،؛.؟!«»"”'’[\](){}<>–—]+)/);
+    // 1. بناء مجرى الحروف المطبّعة مع خريطة الفهارس المطابقة في النص الأصلي
+    const normChars: string[] = [];
+    const origIndices: number[] = [];
 
-    return (
-      <span className={className}>
-        {segments.map((segment, index) => {
-          if (!segment) return null;
-          const normSeg = normalizeArabic(segment);
-          const isMatch = normTokens.some((qToken) => {
-            if (!normSeg || normSeg.length < 2) return false;
-            if (normSeg === qToken) return true;
-            // Check common Arabic prefixes (ال، و، ف، ب، ل)
-            if (normSeg.startsWith('ال') && normSeg.slice(2) === qToken) return true;
-            if (normSeg.startsWith('و') && normSeg.slice(1) === qToken) return true;
-            if (normSeg.startsWith('ف') && normSeg.slice(1) === qToken) return true;
-            if (normSeg.startsWith('ب') && normSeg.slice(1) === qToken) return true;
-            if (normSeg.startsWith('ل') && normSeg.slice(1) === qToken) return true;
-            if (qToken.startsWith('ال') && qToken.slice(2) === normSeg) return true;
-            return false;
-          });
+    for (let i = 0; i < text.length; i++) {
+      const norm = normalizeCharForMapping(text[i]);
+      if (norm !== null) {
+        normChars.push(norm);
+        origIndices.push(i);
+      }
+    }
 
-          if (isMatch) {
-            return (
-              <mark
-                key={index}
-                className="bg-amber-200/80 text-stone-900 rounded px-0.5 dark:bg-amber-400/25 dark:text-amber-200 dark:ring-1 dark:ring-amber-400/40 font-semibold"
-              >
-                {segment}
-              </mark>
-            );
-          }
-          return <React.Fragment key={index}>{segment}</React.Fragment>;
-        })}
-      </span>
-    );
+    const normStr = normChars.join('');
+    if (!normStr) {
+      return <Component className={className}>{text}</Component>;
+    }
+
+    // 2. استخراج العبارة الكاملة والكلمات المفردة للاستعلام
+    const normFullQ = normalizeArabic(cleanQ);
+    const words = normFullQ.split(/\s+/).filter((w) => w.length >= 2);
+
+    const rawIntervals: { start: number; end: number }[] = [];
+
+    const addNormInterval = (start: number, end: number) => {
+      if (start >= 0 && end > start && end <= normStr.length) {
+        rawIntervals.push({ start, end });
+      }
+    };
+
+    // أ. مطابقة العبارة الكاملة المتتالية (إذا كان الاستعلام من كلمتين فأكثر)
+    if (words.length >= 2 && normFullQ.length >= 3) {
+      let pIdx = 0;
+      while ((pIdx = normStr.indexOf(normFullQ, pIdx)) !== -1) {
+        addNormInterval(pIdx, pIdx + normFullQ.length);
+        pIdx += Math.max(1, normFullQ.length);
+      }
+    }
+
+    // ب. مطابقة الكلمات المفردة مع حدود الكلمات والسوابق العربية الشائعة دون تقطيع الحروف
+    for (const word of words) {
+      if (!word || word.length < 2) continue;
+
+      let searchPos = 0;
+      while (searchPos < normStr.length) {
+        // الانتقال لبداية الكلمة التالية
+        while (searchPos < normStr.length && normStr[searchPos] === ' ') {
+          searchPos++;
+        }
+        if (searchPos >= normStr.length) break;
+
+        // تحديد نهاية الكلمة الحالية
+        let wordEnd = searchPos;
+        while (wordEnd < normStr.length && normStr[wordEnd] !== ' ') {
+          wordEnd++;
+        }
+
+        const curWord = normStr.slice(searchPos, wordEnd);
+
+        // 1. تطابق تام لكلمة كاملة
+        if (curWord === word) {
+          addNormInterval(searchPos, wordEnd);
+        }
+        // 2. سابقة التعريف «ال»
+        else if (curWord.startsWith('ال') && curWord.slice(2) === word) {
+          addNormInterval(searchPos, wordEnd);
+        }
+        // 3. سوابق متصلة «وال، فال، بال، كال، لل»
+        else if (
+          (curWord.startsWith('وال') ||
+            curWord.startsWith('فال') ||
+            curWord.startsWith('بال') ||
+            curWord.startsWith('كال')) &&
+          curWord.slice(3) === word
+        ) {
+          addNormInterval(searchPos, wordEnd);
+        } else if (curWord.startsWith('لل') && curWord.slice(2) === word) {
+          addNormInterval(searchPos, wordEnd);
+        }
+        // 4. أحرف العطف والجر المفردة «و، ف، ب، ل، ك»
+        else if (
+          curWord.length === word.length + 1 &&
+          'وفبلك'.includes(curWord[0]) &&
+          curWord.slice(1) === word
+        ) {
+          addNormInterval(searchPos, wordEnd);
+        }
+        // 5. إذا كان استعلام المستخدم بمعرّف «ال» والنص مجرد (مثل: كوثر vs الكوثر)
+        else if (word.startsWith('ال') && word.slice(2) === curWord) {
+          addNormInterval(searchPos, wordEnd);
+        }
+
+        searchPos = wordEnd;
+      }
+    }
+
+    if (rawIntervals.length === 0) {
+      return <Component className={className}>{text}</Component>;
+    }
+
+    // 3. إعادة إسقاط الفترات على النص الأصلي مع شمل كافة حركات التشكيل والعلامات العثمانية
+    const origIntervals: MatchInterval[] = [];
+
+    for (const { start, end } of rawIntervals) {
+      const origStart = origIndices[start];
+      const lastBaseOrig = origIndices[end - 1];
+
+      // توسيع نهاية الفترة لتشمل كل حركات التشكيل والتنوين والسكون اللاحقة بالحرف الأخير
+      let origEnd = lastBaseOrig + 1;
+      while (origEnd < text.length && DIACRITICS_REGEX.test(text[origEnd])) {
+        origEnd++;
+      }
+
+      origIntervals.push({ origStart, origEnd });
+    }
+
+    // 4. ترتيب الفترات ودمج المتداخل أو المتجاور منها
+    origIntervals.sort((a, b) => a.origStart - b.origStart);
+
+    const merged: MatchInterval[] = [];
+    for (const iv of origIntervals) {
+      if (merged.length === 0) {
+        merged.push({ ...iv });
+      } else {
+        const last = merged[merged.length - 1];
+        if (iv.origStart <= last.origEnd) {
+          last.origEnd = Math.max(last.origEnd, iv.origEnd);
+        } else {
+          merged.push({ ...iv });
+        }
+      }
+    }
+
+    // 5. بناء عناصر الـ JSX المتناسقة مع هوية «المخطوطة واللازورد»
+    const nodes: React.ReactNode[] = [];
+    let cursor = 0;
+
+    for (let i = 0; i < merged.length; i++) {
+      const { origStart, origEnd } = merged[i];
+
+      if (origStart > cursor) {
+        nodes.push(text.slice(cursor, origStart));
+      }
+
+      const matchSegment = text.slice(origStart, origEnd);
+      nodes.push(
+        <mark
+          key={`hl-${i}`}
+          className="bg-[#9E6B2B]/20 text-[#121B28] dark:bg-[#D4A359]/25 dark:text-[#F5D08A] rounded px-0.5"
+        >
+          {matchSegment}
+        </mark>
+      );
+
+      cursor = origEnd;
+    }
+
+    if (cursor < text.length) {
+      nodes.push(text.slice(cursor));
+    }
+
+    return <Component className={className}>{nodes}</Component>;
   } catch {
-    return <span className={className}>{text}</span>;
+    return <Component className={className}>{text}</Component>;
   }
 }

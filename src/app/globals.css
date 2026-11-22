@@ -207,17 +207,17 @@
   }
 
   mark {
-    background-color: rgba(253, 230, 138, 0.8) !important;
-    color: #1c1917 !important;
+    background-color: rgba(158, 107, 43, 0.2) !important;
+    color: #121B28 !important;
     border-radius: 0.25rem;
     padding: 0 0.125rem;
   }
 
   .dark mark,
   html.dark mark {
-    background-color: rgba(251, 191, 36, 0.25) !important;
-    color: #fde68a !important;
-    outline: 1px solid rgba(251, 191, 36, 0.4) !important;
+    background-color: rgba(212, 163, 89, 0.25) !important;
+    color: #F5D08A !important;
+    outline: 1px solid rgba(212, 163, 89, 0.3) !important;
     font-weight: 600;
   }
 }

@@ -263,44 +263,134 @@ function searchQuran(rawQuery: string): QuranVerseMatch[] {
     return results;
   }
 
-  // ج. البحث في نص الآيات
-  const queryTokens = normQ
-    .split(' ')
-    .map(cleanStem)
-    .filter((w) => w.length >= 2 && !STOP_WORDS.has(w));
+  // ج. البحث والترتيب الصارم في نص 6,236 آية
+  const queryWords = normQ.split(/\s+/).filter((w) => w.length > 0);
+  if (queryWords.length === 0) return [];
+
+  const paddedQuery = ' ' + normQ + ' ';
+
+  interface ScoredVerse {
+    item: QuranRawEntry;
+    score: number;
+    rank: number; // 1: phrase, 2: in-order words, 3: all words any order, 4: partial
+  }
+
+  const scoredVerses: ScoredVerse[] = [];
 
   for (const item of quranIndex) {
     const verseNorm = normalizeArabic(item.t);
+    const paddedVerse = ' ' + verseNorm + ' ';
 
-    // تطابق العبارة الكاملة
-    if (verseNorm.includes(normQ)) {
-      results.push({
-        type: 'quran',
-        surahNumber: item.c,
-        ayahNumber: item.v,
-        surahName: SURAH_NAMES[item.c] || `السورة ${item.c}`,
-        text: item.t,
-        url: `https://quran.com/ar/${item.c}/${item.v}`,
-      });
-      if (results.length >= 8) break;
-      continue;
-    }
+    let score = 0;
+    let rank = 99;
 
-    // تطابق الكلمات الجوهرية (إذا كانت أكثر من كلمة)
-    if (queryTokens.length >= 2) {
-      const allMatched = queryTokens.every((tok) => verseNorm.includes(tok));
-      if (allMatched) {
-        results.push({
-          type: 'quran',
-          surahNumber: item.c,
-          ayahNumber: item.v,
-          surahName: SURAH_NAMES[item.c] || `السورة ${item.c}`,
-          text: item.t,
-          url: `https://quran.com/ar/${item.c}/${item.v}`,
-        });
-        if (results.length >= 8) break;
+    // 1. المرتبة الأولى: تطابق العبارة الكاملة المتتالية (أعلى وزن)
+    if (paddedVerse.includes(paddedQuery)) {
+      // تطابق العبارة مع حدود الكلمات من الطرفين
+      rank = 1;
+      const pos = paddedVerse.indexOf(paddedQuery);
+      score =
+        100_000 +
+        (2000 - Math.min(1900, verseNorm.length)) +
+        (1000 - Math.min(999, pos));
+    } else if (verseNorm.includes(normQ)) {
+      // تطابق العبارة المتتالية كجزء من الكلمات
+      rank = 1;
+      const pos = verseNorm.indexOf(normQ);
+      score =
+        80_000 +
+        (2000 - Math.min(1900, verseNorm.length)) +
+        (1000 - Math.min(999, pos));
+    } else if (queryWords.length >= 2) {
+      // 2. إذا كان الاستعلام من كلمتين فأكثر
+      // حساب عدد الكلمات المطابقة
+      let matchCount = 0;
+      for (const w of queryWords) {
+        if (verseNorm.includes(w)) {
+          matchCount++;
+        }
+      }
+
+      // شرط إجباري: تجاهل النتائج الضعيفة التي لا تحتوي إلا على كلمة واحدة فقط من الاستعلام
+      if (matchCount < 2) {
+        continue;
+      }
+
+      // فحص إذا كانت كل كلمات البحث موجودة بالترتيب نفسه داخل الآية (المرتبة الثانية)
+      let inOrder = true;
+      let lastPos = 0;
+      let allWordBoundaries = true;
+
+      for (const word of queryWords) {
+        const foundAt = verseNorm.indexOf(word, lastPos);
+        if (foundAt === -1) {
+          inOrder = false;
+          break;
+        }
+        const isWbStart = foundAt === 0 || verseNorm[foundAt - 1] === ' ';
+        const isWbEnd =
+          foundAt + word.length === verseNorm.length ||
+          verseNorm[foundAt + word.length] === ' ';
+        if (!isWbStart || !isWbEnd) {
+          allWordBoundaries = false;
+        }
+        lastPos = foundAt + word.length;
+      }
+
+      if (inOrder) {
+        rank = 2;
+        score =
+          (allWordBoundaries ? 50_000 : 40_000) +
+          (1000 - Math.min(900, verseNorm.length));
+      } else if (matchCount === queryWords.length) {
+        // كل كلمات البحث موجودة بأي ترتيب (المرتبة الثالثة)
+        rank = 3;
+        const allWb = queryWords.every((w) => paddedVerse.includes(' ' + w + ' '));
+        score =
+          (allWb ? 25_000 : 15_000) +
+          (1000 - Math.min(900, verseNorm.length));
+      } else if (queryWords.length >= 3 && matchCount >= 2) {
+        // تطابق جزئي لا يُقبل إلا عند غياب التطابقات الصريحة
+        rank = 4;
+        score = 1_000 * matchCount + (500 - Math.min(450, verseNorm.length));
+      }
+    } else {
+      // حالة البحث بكلمة واحدة فقط
+      const singleWord = queryWords[0];
+      if (paddedVerse.includes(' ' + singleWord + ' ')) {
+        rank = 1;
+        score = 10_000 + (1000 - Math.min(900, verseNorm.length));
+      } else if (verseNorm.includes(singleWord)) {
+        rank = 2;
+        score = 5_000 + (1000 - Math.min(900, verseNorm.length));
       }
     }
+
+    if (score > 0) {
+      scoredVerses.push({ item, score, rank });
+    }
+  }
+
+  // إذا وُجدت نتائج قوية (المراتب 1-3)، نستبعد تماماً أي نتائج جزئية في المرتبة 4
+  const hasStrongMatches = scoredVerses.some((v) => v.rank <= 3);
+  const eligibleVerses = hasStrongMatches
+    ? scoredVerses.filter((v) => v.rank <= 3)
+    : scoredVerses;
+
+  // ترتيب تنازلي حسب الدرجة
+  eligibleVerses.sort((a, b) => b.score - a.score);
+
+  // أخذ أفضل 10 آيات
+  const topVerses = eligibleVerses.slice(0, 10);
+  for (const { item } of topVerses) {
+    results.push({
+      type: 'quran',
+      surahNumber: item.c,
+      ayahNumber: item.v,
+      surahName: SURAH_NAMES[item.c] || `السورة ${item.c}`,
+      text: item.t,
+      url: `https://quran.com/ar/${item.c}/${item.v}`,
+    });
   }
 
   return results;

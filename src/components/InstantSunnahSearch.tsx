@@ -26,6 +26,7 @@ import {
   NawawiMatch,
   SeerahMatch,
 } from '@/lib/instant-search';
+import { HighlightArabicText } from '@/lib/arabic-search';
 import { HadithText } from './HadithText';
 
 type FilterTab = 'all' | 'quran' | 'adhkar' | 'nawawi' | 'seerah' | 'fake';
@@ -340,17 +341,17 @@ export function InstantSunnahSearch() {
                         <span>تنبيه علمي في صيانة الحديث • الدرر السنية</span>
                       </div>
                       <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/20 text-rose-700 dark:text-rose-300">
-                        {fake.ruling}
+                        <HighlightArabicText text={fake.ruling} query={debouncedQuery} />
                       </span>
                     </div>
 
                     <p className="text-sm sm:text-base font-text text-charcoal-light dark:text-charcoal-dark leading-relaxed font-semibold">
-                      {fake.hadithText}
+                      <HighlightArabicText text={fake.hadithText} query={debouncedQuery} />
                     </p>
 
                     {fake.explanation && (
                       <p className="text-xs text-muted-light dark:text-muted-dark font-text leading-relaxed">
-                        {fake.explanation}
+                        <HighlightArabicText text={fake.explanation} query={debouncedQuery} />
                       </p>
                     )}
 
@@ -410,7 +411,7 @@ export function InstantSunnahSearch() {
                     </div>
 
                     <p className="font-quran text-lg sm:text-xl text-charcoal-light dark:text-charcoal-dark leading-loose font-medium">
-                      ﴿ {item.text} ﴾
+                      ﴿ <HighlightArabicText text={item.text} query={debouncedQuery} /> ﴾
                     </p>
 
                     <div className="pt-1 flex items-center justify-end text-xs">
@@ -438,7 +439,7 @@ export function InstantSunnahSearch() {
                       <div className="flex items-center gap-2">
                         <Sparkles className="w-3.5 h-3.5 text-[#9E6B2B] dark:text-[#D4A359]" strokeWidth={1.8} />
                         <span className="font-bold text-charcoal-light dark:text-charcoal-dark font-display">
-                          {item.categoryTitle}
+                          <HighlightArabicText text={item.categoryTitle} query={debouncedQuery} />
                         </span>
                       </div>
 
@@ -462,7 +463,7 @@ export function InstantSunnahSearch() {
                     </div>
 
                     <p className="font-hadith text-base sm:text-lg text-charcoal-light dark:text-charcoal-dark leading-loose">
-                      {item.text}
+                      <HighlightArabicText text={item.text} query={debouncedQuery} />
                     </p>
 
                     <div className="pt-2 border-t border-subtle-light/50 dark:border-subtle-dark/50 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-light dark:text-muted-dark">
@@ -489,7 +490,7 @@ export function InstantSunnahSearch() {
                       <div className="flex items-center gap-2">
                         <Scroll className="w-3.5 h-3.5 text-[#9E6B2B] dark:text-[#D4A359]" strokeWidth={1.8} />
                         <span className="font-bold text-charcoal-light dark:text-charcoal-dark font-display">
-                          الأربعون النووية • الحديث {item.id}: {item.title}
+                          الأربعون النووية • الحديث {item.id}: <HighlightArabicText text={item.title} query={debouncedQuery} />
                         </span>
                       </div>
 
@@ -508,7 +509,7 @@ export function InstantSunnahSearch() {
                     </div>
 
                     <div className="py-1">
-                      <HadithText text={item.text} className="text-base sm:text-lg leading-loose" />
+                      <HadithText text={item.text} highlightQuery={debouncedQuery} className="text-base sm:text-lg leading-loose" />
                     </div>
 
                     <div className="pt-2 border-t border-subtle-light/50 dark:border-subtle-dark/50 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-light dark:text-muted-dark">
@@ -538,7 +539,7 @@ export function InstantSunnahSearch() {
                       <div className="flex items-center gap-2">
                         <Compass className="w-3.5 h-3.5 text-[#9E6B2B] dark:text-[#D4A359]" strokeWidth={1.8} />
                         <span className="font-bold text-charcoal-light dark:text-charcoal-dark font-display">
-                          {item.title}
+                          <HighlightArabicText text={item.title} query={debouncedQuery} />
                         </span>
                       </div>
                       <span className="text-[11px] text-muted-light dark:text-muted-dark font-sans">
@@ -547,7 +548,7 @@ export function InstantSunnahSearch() {
                     </div>
 
                     <p className="text-xs sm:text-sm font-text text-charcoal-light dark:text-charcoal-dark leading-relaxed">
-                      {item.summary}
+                      <HighlightArabicText text={item.summary} query={debouncedQuery} />
                     </p>
 
                     <div className="pt-2 border-t border-subtle-light/50 dark:border-subtle-dark/50 flex items-center justify-between text-xs">

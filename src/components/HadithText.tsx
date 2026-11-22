@@ -2,11 +2,13 @@
 
 import React from 'react';
 import { getQuranComUrl } from '@/lib/external-refs';
+import { HighlightArabicText } from '@/lib/arabic-search';
 
 interface HadithTextProps {
   text: string;
   className?: string;
   as?: React.ElementType;
+  highlightQuery?: string;
 }
 
 interface Segment {
@@ -81,6 +83,7 @@ export function HadithText({
   text,
   className = '',
   as: Component = 'p',
+  highlightQuery = '',
 }: HadithTextProps) {
   if (!text) return null;
 
@@ -102,7 +105,7 @@ export function HadithText({
               title="اقرأ الآية وتفسيرها في Quran.com"
               className="font-quran font-bold text-[#9E6B2B] dark:text-[#D4A359] text-[1.12em] leading-[2.1] px-1 select-text hover:underline decoration-[#9E6B2B]/50 dark:decoration-[#D4A359]/50 underline-offset-4 transition-colors"
             >
-              {seg.text}
+              <HighlightArabicText text={seg.text} query={highlightQuery} />
             </a>
           );
         }
@@ -124,7 +127,7 @@ export function HadithText({
               key={idx}
               className="text-[#8A5A1E] dark:text-[#DFB46B] font-bold transition-colors"
             >
-              {seg.text}
+              <HighlightArabicText text={seg.text} query={highlightQuery} />
             </span>
           );
         }
@@ -135,7 +138,7 @@ export function HadithText({
             key={idx}
             className="text-charcoal-light dark:text-charcoal-dark transition-colors"
           >
-            {seg.text}
+            <HighlightArabicText text={seg.text} query={highlightQuery} />
           </span>
         );
       })}
