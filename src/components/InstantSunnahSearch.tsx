@@ -207,10 +207,8 @@ export function InstantSunnahSearch() {
     <div className="w-full max-w-3xl mx-auto space-y-5 text-start">
       {/* 1. حقل الإدخال الكبسولي الفوري */}
       <div className="relative">
-        <div className="relative flex items-center rounded-full bg-paper-light dark:bg-paper-dark border border-subtle-light/90 dark:border-subtle-dark/90 focus-within:border-[#9E6B2B] dark:focus-within:border-[#D4A359] focus-within:ring-1 focus-within:ring-[#9E6B2B]/20 dark:focus-within:ring-[#D4A359]/20 transition-all p-1.5 sm:p-2 shadow-xs">
-          <div className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full text-muted-light dark:text-muted-dark shrink-0 ms-1">
-            <Search className="w-4 h-4 sm:w-5 sm:h-5 text-[#9E6B2B] dark:text-[#D4A359]" strokeWidth={1.8} />
-          </div>
+        <div className="relative flex items-center gap-1.5 sm:gap-2 w-full max-w-full overflow-hidden rounded-full bg-paper-light dark:bg-paper-dark border border-subtle-light/90 dark:border-subtle-dark/90 focus-within:border-[#9E6B2B] dark:focus-within:border-[#D4A359] focus-within:ring-1 focus-within:ring-[#9E6B2B]/20 dark:focus-within:ring-[#D4A359]/20 transition-all ps-3.5 sm:ps-4 pe-1.5 sm:pe-2 py-1 sm:py-1.5 shadow-xs">
+          <Search className="w-4 h-4 sm:w-5 sm:h-5 text-[#9E6B2B] dark:text-[#D4A359] shrink-0" strokeWidth={1.8} />
 
           <input
             ref={inputRef}
@@ -228,7 +226,7 @@ export function InstantSunnahSearch() {
                 ? 'جاري الاستماع لصوتك باللغة العربية...'
                 : 'ابحث فوريًا: سورة، آية، حديث، ذكر، أو حدث في السيرة...'
             }
-            className="flex-1 py-2 ps-2 pe-3 bg-transparent text-sm sm:text-base text-charcoal-light dark:text-charcoal-dark placeholder:text-muted-light/60 dark:placeholder:text-muted-dark/60 focus:outline-hidden font-sans"
+            className="min-w-0 flex-1 w-full py-1.5 sm:py-2 px-1 bg-transparent text-sm sm:text-base text-charcoal-light dark:text-charcoal-dark placeholder:text-muted-light/60 dark:placeholder:text-muted-dark/60 focus:outline-hidden font-sans"
           />
 
           {/* زر المسح عند وجود نص */}
@@ -236,8 +234,9 @@ export function InstantSunnahSearch() {
             <button
               type="button"
               onClick={handleClear}
-              className="p-1.5 rounded-full text-muted-light hover:text-charcoal-light dark:hover:text-charcoal-dark hover:bg-black/5 dark:hover:bg-white/5 transition-colors me-1"
+              className="p-1.5 rounded-full text-muted-light hover:text-charcoal-light dark:hover:text-charcoal-dark hover:bg-black/5 dark:hover:bg-white/5 transition-colors shrink-0"
               title="مسح البحث"
+              aria-label="مسح البحث"
             >
               <X className="w-4 h-4" strokeWidth={1.8} />
             </button>
@@ -248,12 +247,13 @@ export function InstantSunnahSearch() {
             <button
               type="button"
               onClick={toggleVoice}
-              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-all me-0.5 ${
+              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-all ${
                 isListening
                   ? 'bg-rose-500 text-white animate-pulse ring-2 ring-rose-400'
                   : 'text-muted-light hover:text-charcoal-light dark:hover:text-charcoal-dark hover:bg-black/5 dark:hover:bg-white/5'
               }`}
               title={isListening ? 'إيقاف التسجيل' : 'البحث بالصوت (العربية)'}
+              aria-label={isListening ? 'إيقاف التسجيل' : 'البحث بالصوت'}
             >
               {isListening ? (
                 <MicOff className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.8} />
@@ -268,12 +268,13 @@ export function InstantSunnahSearch() {
             type="button"
             onClick={() => handleTriggerSmartQuery()}
             disabled={!query.trim() || isSmartLoading}
-            className={`inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full text-xs font-semibold shrink-0 transition-all me-0.5 ${
+            aria-label="توجيه ذكي"
+            title="توجيه ذكي"
+            className={`shrink-0 w-9 h-9 sm:w-auto sm:px-3.5 py-1.5 sm:py-2 rounded-full flex items-center justify-center gap-1.5 text-xs font-semibold transition-all ${
               query.trim()
                 ? 'bg-[#121B28] text-[#F7F4EE] hover:bg-[#1C283A] dark:bg-[#D4A359] dark:text-[#0F141B] dark:hover:bg-[#E0B26E] shadow-xs cursor-pointer'
                 : 'bg-black/5 dark:bg-white/5 text-muted-light/40 dark:text-muted-dark/40 cursor-not-allowed'
             }`}
-            title="تحليل نوع المسألة وتوجيهها للمصادر المتخصصة (Enter)"
           >
             <Sparkles className="w-3.5 h-3.5 shrink-0" strokeWidth={1.8} />
             <span className="hidden sm:inline">توجيه ذكي</span>
