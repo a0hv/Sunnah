@@ -43,13 +43,21 @@ export function SmartQueryModal({
   const [keywords, setKeywords] = useState('');
   const [copiedKeywords, setCopiedKeywords] = useState(false);
   const [copiedHadeethEnc, setCopiedHadeethEnc] = useState(false);
+  const [cache, setCache] = useState<Record<string, SmartQueryData>>({});
+  const [effectiveData, setEffectiveData] = useState<SmartQueryData | null>(data);
+  const [isCategoryLoading, setIsCategoryLoading] = useState(false);
 
-  // تحديث البيانات عند فتح النافذة أو وصول نتيجة الاستدعاء
+  // تحديث البيانات عند فتح النافذة أو وصول نتيجة الاستدعاء الأولي
   useEffect(() => {
     if (data) {
+      const trimmedQuery = rawQuery.trim();
+      const key = `${trimmedQuery}:${data.category}`;
+      setCache((prev) => ({ ...prev, [key]: data }));
+      setEffectiveData(data);
       setActiveCategory(data.category);
-      setKeywords(data.smartKeywords || rawQuery);
+      setKeywords(data.smartKeywords || trimmedQuery);
     } else if (isLoading) {
+      setEffectiveData(null);
       setKeywords('');
     } else if (rawQuery) {
       setKeywords(rawQuery);
@@ -67,6 +75,65 @@ export function SmartQueryModal({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
+
+  // تبديل التصنيف مع فحص الكاش الفوري (0ms) أو الاستدعاء الذكي لتوليد كلمات التصنيف
+  const handleCategorySelect = async (catId: SmartCategory) => {
+    if (catId === activeCategory && effectiveData && !isCategoryLoading) return;
+    setActiveCategory(catId);
+
+    const trimmedQuery = rawQuery.trim();
+    const key = `${trimmedQuery}:${catId}`;
+    const cached = cache[key];
+
+    if (cached) {
+      // استرجاع فوري من الكاش بـ 0 مللي ثانية
+      setEffectiveData(cached);
+      setKeywords(cached.smartKeywords);
+      return;
+    }
+
+    // غير موجود بالكاش: استدعاء التوليد الذكي المخصص لهذا التصنيف
+    setIsCategoryLoading(true);
+    try {
+      const res = await fetch('/api/smart-query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: trimmedQuery, forcedCategory: catId }),
+      });
+      if (res.ok) {
+        const json: SmartQueryData = await res.json();
+        setCache((prev) => ({ ...prev, [key]: json }));
+        setEffectiveData(json);
+        setKeywords(json.smartKeywords);
+      } else {
+        const fallback: SmartQueryData = {
+          category: catId,
+          categoryLabel: CATEGORIES.find((c) => c.id === catId)?.label || '',
+          smartKeywords: trimmedQuery,
+          hadithKeywords: trimmedQuery,
+          suggestedKeywords: [],
+          poweredBy: 'local',
+        };
+        setCache((prev) => ({ ...prev, [key]: fallback }));
+        setEffectiveData(fallback);
+        setKeywords(fallback.smartKeywords);
+      }
+    } catch {
+      const fallback: SmartQueryData = {
+        category: catId,
+        categoryLabel: CATEGORIES.find((c) => c.id === catId)?.label || '',
+        smartKeywords: trimmedQuery,
+        hadithKeywords: trimmedQuery,
+        suggestedKeywords: [],
+        poweredBy: 'local',
+      };
+      setCache((prev) => ({ ...prev, [key]: fallback }));
+      setEffectiveData(fallback);
+      setKeywords(fallback.smartKeywords);
+    } finally {
+      setIsCategoryLoading(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -95,7 +162,7 @@ export function SmartQueryModal({
 
   const encodedKeywords = encodeURIComponent(keywords || rawQuery);
   const encodedHadith = encodeURIComponent(
-    data?.hadithKeywords || keywords || rawQuery
+    effectiveData?.hadithKeywords || keywords || rawQuery
   );
 
   return (
@@ -159,12 +226,12 @@ export function SmartQueryModal({
                 التصنيف المكتشف للمسألة:
               </span>
               <div className="flex items-center gap-2">
-                {data?.poweredBy === 'ai' ? (
+                {effectiveData?.poweredBy === 'ai' ? (
                   <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 px-2 py-0.5 rounded-full">
                     <Sparkles className="w-2.5 h-2.5" />
                     <span>صياغة ذكية بالـ AI</span>
                   </span>
-                ) : data ? (
+                ) : effectiveData ? (
                   <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-light dark:text-muted-dark bg-black/5 dark:bg-white/5 border border-subtle-light/60 px-2 py-0.5 rounded-full">
                     <span>تحليل لغوي فوري</span>
                   </span>
@@ -191,7 +258,11 @@ export function SmartQueryModal({
                   value={keywords}
                   onChange={(e) => setKeywords(e.target.value)}
                   placeholder={
-                    isLoading ? 'جاري استخراج أدق كلمات البحث...' : 'كلمات البحث الذكية...'
+                    isCategoryLoading
+                      ? 'جاري استخراج وتوليد كلمات البحث لهذا التصنيف...'
+                      : isLoading
+                      ? 'جاري استخراج أدق كلمات البحث...'
+                      : 'كلمات البحث الذكية...'
                   }
                   className="flex-1 px-3.5 py-2 rounded-xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark text-xs sm:text-sm text-charcoal-light dark:text-charcoal-dark font-sans focus:outline-hidden focus:border-[#9E6B2B] dark:focus:border-[#D4A359] transition-colors"
                 />
@@ -218,21 +289,25 @@ export function SmartQueryModal({
               </div>
 
               {/* مؤشر التحميل اللطيف */}
-              {isLoading && (
+              {(isLoading || isCategoryLoading) && (
                 <div className="flex items-center gap-2 pt-1 text-xs text-[#9E6B2B] dark:text-[#D4A359]">
                   <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin shrink-0" />
-                  <span>جاري استخراج أدق كلمات البحث وتصفيتها...</span>
+                  <span>
+                    {isCategoryLoading
+                      ? `جاري توليد صياغة مخصصة لتصنيف (${currentCategoryObj.label})...`
+                      : 'جاري استخراج أدق كلمات البحث وتصفيتها...'}
+                  </span>
                 </div>
               )}
 
               {/* شرائح الكلمات المقترحة البديلة */}
-              {data?.suggestedKeywords && data.suggestedKeywords.length > 0 && (
+              {effectiveData?.suggestedKeywords && effectiveData.suggestedKeywords.length > 0 && (
                 <div className="pt-2 space-y-1.5">
                   <span className="text-[11px] font-semibold text-muted-light dark:text-muted-dark block">
                     صيغ واقتراحات بحث بديلة مصاغة فقهيًا:
                   </span>
                   <div className="flex flex-wrap gap-1.5">
-                    {data.suggestedKeywords.map((suggestion, idx) => (
+                    {effectiveData.suggestedKeywords.map((suggestion, idx) => (
                       <button
                         key={idx}
                         type="button"
@@ -526,10 +601,10 @@ export function SmartQueryModal({
             )}
           </div>
 
-          {/* شريط تبديل التصنيف يدوياً */}
+          {/* شريط تبديل التصنيف يدوياً مع التوليد الذكي الفوري */}
           <div className="pt-3 border-t border-subtle-light/70 dark:border-subtle-dark/70 space-y-2">
             <span className="text-[11px] font-semibold text-muted-light dark:text-muted-dark block">
-              أو اختر تصنيفاً آخر لعرض مصادره المتخصصة:
+              أو اختر تصنيفاً آخر لتوليد كلمات بحثه ومصادره المتخصصة:
             </span>
             <div className="flex flex-wrap gap-1.5">
               {CATEGORIES.map((cat) => {
@@ -539,11 +614,12 @@ export function SmartQueryModal({
                   <button
                     key={cat.id}
                     type="button"
-                    onClick={() => setActiveCategory(cat.id)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs transition-colors ${
+                    onClick={() => handleCategorySelect(cat.id)}
+                    disabled={isCategoryLoading}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs transition-colors cursor-pointer disabled:opacity-60 ${
                       isSelected
                         ? 'bg-[#121B28] dark:bg-[#D4A359] text-[#F7F4EE] dark:text-[#0F141B] font-bold shadow-xs'
-                        : 'bg-paper-light dark:bg-paper-dark border border-subtle-light/80 dark:border-subtle-dark/80 text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark'
+                        : 'bg-paper-light dark:bg-paper-dark border border-subtle-light/80 dark:border-subtle-dark/80 text-muted-light dark:text-muted-dark hover:text-charcoal-light dark:hover:text-charcoal-dark hover:border-[#9E6B2B]/40 dark:hover:border-[#D4A359]/40'
                     }`}
                   >
                     <Icon className="w-3 h-3" strokeWidth={1.8} />

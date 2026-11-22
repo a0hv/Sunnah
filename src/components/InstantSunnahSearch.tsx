@@ -29,7 +29,7 @@ import {
 import { HighlightArabicText } from '@/lib/arabic-search';
 import { HadithText } from './HadithText';
 import { SmartQueryModal } from './SmartQueryModal';
-import type { SmartQueryData } from '@/app/api/smart-query/route';
+import type { SmartQueryData, SmartCategory } from '@/app/api/smart-query/route';
 
 type FilterTab = 'all' | 'quran' | 'adhkar' | 'nawawi' | 'seerah' | 'fake';
 
@@ -148,7 +148,7 @@ export function InstantSunnahSearch() {
     inputRef.current?.focus();
   };
 
-  const handleTriggerSmartQuery = async (targetQuery?: string) => {
+  const handleTriggerSmartQuery = async (targetQuery?: string, forcedCategory?: SmartCategory) => {
     const q = (targetQuery || query || debouncedQuery).trim();
     if (!q || q.length < 2) return;
 
@@ -161,15 +161,15 @@ export function InstantSunnahSearch() {
       const res = await fetch('/api/smart-query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: q }),
+        body: JSON.stringify({ query: q, forcedCategory }),
       });
       if (res.ok) {
         const json: SmartQueryData = await res.json();
         setSmartData(json);
       } else {
         setSmartData({
-          category: 'hadith',
-          categoryLabel: 'حديث نبوي',
+          category: forcedCategory || 'hadith',
+          categoryLabel: forcedCategory ? (forcedCategory === 'fatwa' ? 'فتوى وفقه' : forcedCategory === 'seerah' ? 'السيرة النبوية' : forcedCategory === 'quran' ? 'القرآن والتفسير' : forcedCategory === 'adhkar' ? 'أذكار وأدعية' : 'حديث نبوي') : 'حديث نبوي',
           smartKeywords: q,
           hadithKeywords: q,
           suggestedKeywords: [],
@@ -178,8 +178,8 @@ export function InstantSunnahSearch() {
       }
     } catch {
       setSmartData({
-        category: 'hadith',
-        categoryLabel: 'حديث نبوي',
+        category: forcedCategory || 'hadith',
+        categoryLabel: forcedCategory ? (forcedCategory === 'fatwa' ? 'فتوى وفقه' : forcedCategory === 'seerah' ? 'السيرة النبوية' : forcedCategory === 'quran' ? 'القرآن والتفسير' : forcedCategory === 'adhkar' ? 'أذكار وأدعية' : 'حديث نبوي') : 'حديث نبوي',
         smartKeywords: q,
         hadithKeywords: q,
         suggestedKeywords: [],
