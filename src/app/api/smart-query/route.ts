@@ -10,6 +10,8 @@ export interface SmartQueryData {
   categoryLabel: string;
   smartKeywords: string;
   hadithKeywords: string;
+  suggestedKeywords: string[];
+  poweredBy: 'ai' | 'local';
 }
 
 const CATEGORY_LABELS: Record<SmartCategory, string> = {
@@ -20,28 +22,140 @@ const CATEGORY_LABELS: Record<SmartCategory, string> = {
   adhkar: 'أذكار وأدعية',
 };
 
+const SYSTEM_PROMPT = `أنت خبير محرك بحث متخصص في العلوم الشرعية والحديثية والفقهية.
+مهمتك الصارمة: تحويل سؤال المستخدم (سواء كان بلهجة عامية، أو ركيكاً، أو يحكي قصة حديث، أو فيه خطأ إملائي) إلى أدق مصطلحات بحثية فصيحة ومصفاة تعطي نتائج حقيقية ومباشرة في الموسوعة الحديثية (الدرر السنية) ومواقع الفتاوى المعتمدة.
+
+قواعد إلزامية صارمة:
+1. يُمنع منعًا باتًا نسخ جملة المستخدم كما هي!
+2. يُمنع منعًا باتًا الإبقاء على كلمات الحشو والعامية مثل: "حديث"، "ما حكم"، "هل يجوز"، "عايز"، "أعمل إيه"، "وش"، "سؤال"، "بيقول".
+3. استخرج جوهر المسألة فقط بصيغة مركّزة ودقيقة في علم الفقه أو متون الأحاديث.
+4. حظر تام لتوليد أي فتوى أو حكم أو آية أو متن جديد: وظيفتك استخراج كلمات بحث فقط.
+
+التصنيفات المسموحة:
+- "fatwa": فتاوى، فقه، أحكام العبادات والمعاملات، طهارة، صلاة، صيام، معاملات.
+- "hadith": أحاديث نبوية، صحة حديث، رواة، تخريج متون.
+- "seerah": السيرة النبوية والمغازي والوقائع التاريخية للعهد النبوي والصحابة.
+- "quran": القرآن الكريم، السور، الآيات، التفسير، علوم القرآن.
+- "adhkar": الأذكار المأثورة، الأدعية، أذكار اليوم والليلة، حصن المسلم.
+
+أمثلة مرجعية واجب اتباع منهجها:
+- المدخل: "لو نسيت التشهد الأوسط أعمل إيه"
+  النتيجة: {"category": "fatwa", "categoryLabel": "فتوى وفقه", "smartKeywords": "نسيان التشهد الأوسط سجود السهو", "hadithKeywords": "التشهد الأول سجود السهو", "suggestedKeywords": ["سجود السهو التشهد الأول", "حكم ترك التشهد الأوسط", "صفة سجود السهو"]}
+- المدخل: "الحديث اللي بيقول الابتسامة صدقة"
+  النتيجة: {"category": "hadith", "categoryLabel": "حديث نبوي", "smartKeywords": "تبسمك في وجه أخيك صدقة", "hadithKeywords": "تبسمك في وجه أخيك", "suggestedKeywords": ["تبسمك في وجه أخيك", "فضل الابتسامة في السنة", "تبسمك صدقة تخريج"]}
+- المدخل: "غزوة بدر متى كانت ومين استشهد فيها"
+  النتيجة: {"category": "seerah", "categoryLabel": "السيرة النبوية", "smartKeywords": "تاريخ غزوة بدر شهداء بدر", "hadithKeywords": "يوم بدر الفرقان", "suggestedKeywords": ["تاريخ غزوة بدر الكبرى", "شهداء غزوة بدر", "أحداث غزوة بدر"]}
+- المدخل: "تفسير آية الكرسي ومعنى القيوم"
+  النتيجة: {"category": "quran", "categoryLabel": "القرآن والتفسير", "smartKeywords": "تفسير آية الكرسي الحي القيوم", "hadithKeywords": "الله لا إله إلا هو الحي القيوم", "suggestedKeywords": ["تفسير آية الكرسي السعدي", "معنى اسم الله القيوم", "فضل آية الكرسي"]}
+- المدخل: "دعاء الهم والحزن اللي يريح القلب"
+  النتيجة: {"category": "adhkar", "categoryLabel": "أذكار وأدعية", "smartKeywords": "دعاء الهم والحزن والكرب", "hadithKeywords": "اللهم إني أعوذ بك من الهم والحزن", "suggestedKeywords": ["أذكار تفريج الكرب", "دعاء الهم والغم والحزن", "سيد الاستغفار"]}
+
+يجب أن تجيب بصيغة JSON فقط بهذا الهيكل:
+{
+  "category": "fatwa | hadith | seerah | quran | adhkar",
+  "categoryLabel": "فتوى وفقه | حديث نبوي | السيرة النبوية | القرآن والتفسير | أذكار وأدعية",
+  "smartKeywords": "2 إلى 4 كلمات فصيحة مصفاة تمثل جوهر المسألة",
+  "hadithKeywords": "2 إلى 3 كلمات مميزة من أصل متن الحديث أو الذكر بدون كلمة حديث",
+  "suggestedKeywords": ["اقتراح بديل 1", "اقتراح بديل 2", "اقتراح بديل 3"]
+}`;
+
+function extractJsonFromText(rawText: string): any {
+  if (!rawText) return null;
+  const cleaned = rawText.trim();
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    // continue
+  }
+
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    const jsonStr = cleaned.slice(firstBrace, lastBrace + 1);
+    try {
+      return JSON.parse(jsonStr);
+    } catch {
+      // continue
+    }
+  }
+
+  return null;
+}
+
+function normalizeParsedData(
+  parsed: any,
+  rawQuery: string,
+  poweredBy: 'ai' | 'local'
+): SmartQueryData {
+  const validCategories: SmartCategory[] = [
+    'fatwa',
+    'hadith',
+    'seerah',
+    'quran',
+    'adhkar',
+  ];
+  const cat = validCategories.includes(parsed.category)
+    ? (parsed.category as SmartCategory)
+    : 'hadith';
+
+  let smart = String(parsed.smartKeywords || '').trim();
+  let hadith = String(parsed.hadithKeywords || parsed.smartKeywords || '').trim();
+
+  // تنظيف الكلمات إذا أعاد الموديل نص السؤال الخام
+  if (!smart || smart === rawQuery.trim()) {
+    const fallback = localAnalyzeQuery(rawQuery);
+    smart = fallback.smartKeywords;
+  }
+
+  if (!hadith) {
+    hadith = smart;
+  }
+
+  let suggestions: string[] = [];
+  if (Array.isArray(parsed.suggestedKeywords)) {
+    suggestions = parsed.suggestedKeywords
+      .map((s: any) => String(s || '').trim())
+      .filter((s: string) => s.length >= 2 && s !== smart)
+      .slice(0, 3);
+  }
+
+  if (suggestions.length === 0) {
+    const fallback = localAnalyzeQuery(rawQuery);
+    suggestions = fallback.suggestedKeywords;
+  }
+
+  return {
+    category: cat,
+    categoryLabel: CATEGORY_LABELS[cat],
+    smartKeywords: smart,
+    hadithKeywords: hadith,
+    suggestedKeywords: suggestions,
+    poweredBy,
+  };
+}
+
 /**
- * تحليل محلي فوري فائق السرعة (< 5ms) لتصنيف السؤال واستخراج الكلمات المفتاحية
- * يعمل كبديل تلقائي عند غياب مفتاح Groq أو تأخر الاستجابة
+ * تحليل محلي فوري فائق السرعة (< 5ms) عند غياب مفاتيح الـ AI
  */
 function localAnalyzeQuery(rawQuery: string): SmartQueryData {
   const q = rawQuery.trim();
   const lowerQ = q.toLowerCase();
 
-  // تنظيف عبارات البداية العامية والتساؤلية
+  // تنظيف عبارات البداية العامية والتساؤلية والكلمات العامة
   const cleanKeywords = q
     .replace(
-      /^(هل\s+يجوز\s+لي|هل\s+يجوز|ما\s+حكم|حكم|هل\s+حرام|هل\s+يصح|وش\s+حكم|ايش\s+حكم|شو\s+حكم|ازاي|ازي|شلون|كيف|عايز\s+اعرف|اريد\s+ان\s+اعرف|ابغى\s+اعرف|ودي\s+اعرف|بدي\s+اعرف|سؤال\s+عن|ما\s+هي|ما\s+هو|متى\s+كان|متى\s+كانت|اين\s+وقعت|اين\s+وقع)\s+/i,
+      /^(هل\s+يجوز\s+لي|هل\s+يجوز|ما\s+حكم|حكم|هل\s+حرام|هل\s+يصح|وش\s+حكم|ايش\s+حكم|شو\s+حكم|ازاي|ازي|شلون|كيف|عايز\s+اعرف|اريد\s+ان\s+اعرف|ابغى\s+اعرف|ودي\s+اعرف|بدي\s+اعرف|سؤال\s+عن|ما\s+هي|ما\s+هو|متى\s+كان|متى\s+كانت|اين\s+وقعت|اين\s+وقع|الحديث\s+اللي\s+بيقول|الحديث\s+عن|حديث\s+عن|حديث)\s+/i,
       ''
     )
+    .replace(/(حديث|ما\s+حكم|هل\s+يجوز|عايز\s+اعرف|أعمل\s+إيه|اعمل\s+ايه|سؤال)/gi, ' ')
     .replace(/[؟?.,!،؛"«»()]+/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
 
-  // تحديد التصنيف
   let category: SmartCategory = 'hadith';
 
   if (
-    /(حكم|يجوز|حرام|حلال|مكروه|واجب|مستحب|بدعة|بدعه|صلاة|صلاه|صيام|رمضان|زكاة|زكاه|طهارة|طهاره|وضوء|غسل|تيمم|جنابة|جنابه|حيض|نفاس|طلاق|نكاح|زواج|مهر|خلع|عدة|عده|حجاب|نقاب|عورة|عوره|بيع|شراء|ربا|قرض|فائدة|فائده|يمين|كفارة|كفاره|نذر|حج|عمرة|عمره|أضحية|اضحيه|صيد|ذبح|تأمين|معاملات|فقه|فتوى|افتاء|إفتاء)/i.test(
+    /(حكم|يجوز|حرام|حلال|مكروه|واجب|مستحب|بدعة|بدعه|صلاة|صلاه|صيام|رمضان|زكاة|زكاه|طهارة|طهاره|وضوء|غسل|تيمم|جنابة|جنابه|حيض|نفاس|طلاق|نكاح|زواج|مهر|خلع|عدة|عده|حجاب|نقاب|عورة|عوره|بيع|شراء|ربا|قرض|فائدة|فائده|يمين|كفارة|كفاره|نذر|حج|عمرة|عمره|أضحية|اضحيه|صيد|ذبح|تأمين|معاملات|فقه|فتوى|افتاء|إفتاء|نسيت\s+التشهد|سجود\s+السهو)/i.test(
       lowerQ
     )
   ) {
@@ -65,7 +179,7 @@ function localAnalyzeQuery(rawQuery: string): SmartQueryData {
   ) {
     category = 'seerah';
   } else if (
-    /(حديث|حديثه|صحيح|ضعيف|مكذوب|موضوع|لا يصح|أخرجه|اخرجه|رواه|البخاري|مسلم|الترمذي|النسائي|أبو داود|ابن ماجه|الدرر السنية|متن|إسناد|اسناد|راوي|تخريج)/i.test(
+    /(صحيح|ضعيف|مكذوب|موضوع|لا يصح|أخرجه|اخرجه|رواه|البخاري|مسلم|الترمذي|النسائي|أبو داود|ابن ماجه|الدرر السنية|متن|إسناد|اسناد|راوي|تخريج|تبسمك|الصدقة)/i.test(
       lowerQ
     )
   ) {
@@ -74,25 +188,57 @@ function localAnalyzeQuery(rawQuery: string): SmartQueryData {
     category = 'fatwa';
   }
 
-  // استخراج 2 إلى 4 كلمات جوهرية
   const words = cleanKeywords.split(/\s+/).filter((w) => w.length >= 2);
-  const smartWords = words.slice(0, 4);
-  const smartKeywords = smartWords.join(' ') || q;
+  const core = words.slice(0, 4).join(' ') || q;
 
-  // استخراج 2 إلى 3 كلمات للمتون
-  const hadithKeywords = words.slice(0, 3).join(' ') || smartKeywords;
+  const smartKeywords = core;
+  const hadithKeywords = words.slice(0, 3).join(' ') || core;
+  let suggestedKeywords: string[] = [];
+
+  if (category === 'fatwa') {
+    suggestedKeywords = [
+      `حكم ${core}`,
+      `مسألة ${words.slice(0, 2).join(' ')}`,
+      `فتاوى ${core}`,
+    ];
+  } else if (category === 'hadith') {
+    suggestedKeywords = [
+      `تخريج ${core}`,
+      `صحة حديث ${words.slice(0, 2).join(' ')}`,
+      `روايات ${core}`,
+    ];
+  } else if (category === 'seerah') {
+    suggestedKeywords = [
+      `أحداث ${core}`,
+      `تاريخ ${words.slice(0, 2).join(' ')}`,
+      `دروس وعبر ${core}`,
+    ];
+  } else if (category === 'quran') {
+    suggestedKeywords = [
+      `تفسير ${core}`,
+      `معاني ${words.slice(0, 2).join(' ')}`,
+      `أسباب نزول ${core}`,
+    ];
+  } else {
+    suggestedKeywords = [
+      `فضل ${core}`,
+      `صيغة ${words.slice(0, 2).join(' ')}`,
+      `أدعية وأذكار ${core}`,
+    ];
+  }
 
   return {
     category,
     categoryLabel: CATEGORY_LABELS[category],
     smartKeywords,
     hadithKeywords,
+    suggestedKeywords,
+    poweredBy: 'local',
   };
 }
 
 /**
- * استدعاء Groq لتصنيف السؤال واستخراج كلمات البحث الفصيحة فقط
- * صفر توليد فتاوى أو أحكام أو آيات أو أحاديث
+ * 1. استدعاء Groq مع رفع max_tokens إلى 600 وإتاحة التفكير الخفيف
  */
 async function callGroqForSmartQuery(
   apiKey: string,
@@ -104,24 +250,20 @@ async function callGroqForSmartQuery(
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const systemPrompt = `أنت مصنف ذكي لمحرك بحث في العلوم الشرعية والسنة النبوية.
-مهمتك الوحيدة: تصنيف سؤال المستخدم إلى أحد التصنيفات الخمسة التالية، واستخراج كلمات بحث عربية فصيحة وموجزة من السؤال نفسه.
-يُمنع منعًا باتًا توليد أي فتوى أو حكم فقهي أو متن حديث أو آية قرآنية.
+    const payload: any = {
+      model: modelName,
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: `سؤال المستخدم: "${query}"` },
+      ],
+      temperature: 0.1,
+      max_tokens: 600,
+    };
 
-التصنيفات المسموحة فقط:
-- "fatwa": فتاوى، فقه، أحكام العبادات والمعاملات، الحلال والحرام، هل يجوز، ما حكم.
-- "hadith": أحاديث نبوية، صحة حديث، رواة، تخريج، أسانيد.
-- "seerah": السيرة النبوية، مغازي النبي ﷺ، الصحابة، أحداث تاريخ الإسلام النبوي.
-- "quran": القرآن الكريم، السور، الآيات، التفسير، علوم القرآن.
-- "adhkar": الأذكار، الأدعية المأثورة، حصن المسلم، أذكار اليوم والليلة.
-
-يجب أن ترجع JSON فقط بدون أي نص إضافي أو علامات markdown بالصيغة التالية:
-{
-  "category": "fatwa" | "hadith" | "seerah" | "quran" | "adhkar",
-  "categoryLabel": "فتوى وفقه" | "حديث نبوي" | "السيرة النبوية" | "القرآن والتفسير" | "أذكار وأدعية",
-  "smartKeywords": "2 إلى 4 كلمات فصيحة دقيقة تمثل جوهر السؤال للبحث",
-  "hadithKeywords": "2 إلى 3 كلمات مميزة للبحث في متون الأحاديث"
-}`;
+    // إضافة reasoning_effort لموديلات gpt-oss
+    if (modelName.includes('gpt-oss') || modelName.includes('openai')) {
+      payload.reasoning_effort = 'low';
+    }
 
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -129,41 +271,123 @@ async function callGroqForSmartQuery(
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        model: modelName,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `السؤال: ${query}` },
-        ],
-        temperature: 0.1,
-        max_tokens: 150,
-        response_format: { type: 'json_object' },
-      }),
+      body: JSON.stringify(payload),
       signal: controller.signal,
     });
 
     if (!res.ok) {
+      // محاولة سريعة بدون reasoning_effort إذا أعاد السيرفر 400
+      if (payload.reasoning_effort) {
+        delete payload.reasoning_effort;
+        const retryRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        });
+        if (retryRes.ok) {
+          const retryData = await retryRes.json();
+          const retryContent = retryData?.choices?.[0]?.message?.content;
+          const retryParsed = extractJsonFromText(retryContent);
+          if (retryParsed && retryParsed.category && retryParsed.smartKeywords) {
+            return normalizeParsedData(retryParsed, query, 'ai');
+          }
+        }
+      }
       return null;
     }
 
     const data = await res.json();
     const content = data?.choices?.[0]?.message?.content;
-    if (!content) return null;
-
-    const parsed = JSON.parse(content);
+    const parsed = extractJsonFromText(content);
     if (!parsed || !parsed.category || !parsed.smartKeywords) {
       return null;
     }
 
-    const validCategories: SmartCategory[] = ['fatwa', 'hadith', 'seerah', 'quran', 'adhkar'];
-    const cat = validCategories.includes(parsed.category) ? (parsed.category as SmartCategory) : 'hadith';
+    return normalizeParsedData(parsed, query, 'ai');
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
 
-    return {
-      category: cat,
-      categoryLabel: CATEGORY_LABELS[cat],
-      smartKeywords: String(parsed.smartKeywords || '').trim() || query,
-      hadithKeywords: String(parsed.hadithKeywords || parsed.smartKeywords || '').trim() || query,
-    };
+/**
+ * 2. استدعاء Gemini كاحتياطي ثانٍ ذكي
+ */
+async function callGeminiForSmartQuery(
+  apiKey: string,
+  modelName: string,
+  query: string,
+  timeoutMs: number
+): Promise<SmartQueryData | null> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const prompt = `${SYSTEM_PROMPT}\n\nسؤال المستخدم: "${query}"\nأجب بكائن JSON صالح فقط:`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: prompt }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.1,
+          maxOutputTokens: 600,
+          responseMimeType: 'application/json',
+          thinkingConfig: {
+            thinkingLevel: 'minimal',
+          },
+        },
+      }),
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      // محاولة بديلة دون thinkingConfig إذا رفض الموديل المعامل
+      const fallbackRes = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens: 600,
+          },
+        }),
+        signal: controller.signal,
+      });
+
+      if (!fallbackRes.ok) return null;
+      const fallbackData = await fallbackRes.json();
+      const fallbackText = fallbackData?.candidates?.[0]?.content?.parts?.[0]?.text;
+      const fallbackParsed = extractJsonFromText(fallbackText);
+      if (fallbackParsed && fallbackParsed.category && fallbackParsed.smartKeywords) {
+        return normalizeParsedData(fallbackParsed, query, 'ai');
+      }
+      return null;
+    }
+
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const parsed = extractJsonFromText(text);
+    if (!parsed || !parsed.category || !parsed.smartKeywords) {
+      return null;
+    }
+
+    return normalizeParsedData(parsed, query, 'ai');
   } catch {
     return null;
   } finally {
@@ -180,25 +404,39 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'query is required' }, { status: 400 });
     }
 
+    // 1. تجربة Groq أولاً
     const groqKey = process.env.GROQ_API_KEY;
     if (groqKey) {
       const primaryModel = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
-      const backupModel = 'openai/gpt-oss-20b';
-
-      // المحاولة الأولى: الموديل الأساسي (مهلة 5 ثوانٍ)
       const primaryResult = await callGroqForSmartQuery(groqKey, primaryModel, query, 5000);
       if (primaryResult) {
         return NextResponse.json(primaryResult);
       }
 
-      // المحاولة الثانية: الموديل الاحتياطي السريع (مهلة 3 ثوانٍ)
-      const backupResult = await callGroqForSmartQuery(groqKey, backupModel, query, 3000);
+      const backupModel = 'openai/gpt-oss-20b';
+      const backupResult = await callGroqForSmartQuery(groqKey, backupModel, query, 4000);
       if (backupResult) {
         return NextResponse.json(backupResult);
       }
     }
 
-    // البديل المحلي الفوري الصارم في أقل من 5 مللي ثانية
+    // 2. تجربة Gemini كاحتياطي ثانٍ ذكي
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (geminiKey) {
+      const geminiModel = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
+      const geminiResult = await callGeminiForSmartQuery(geminiKey, geminiModel, query, 5000);
+      if (geminiResult) {
+        return NextResponse.json(geminiResult);
+      }
+
+      // تجربة gemini-2.5-flash
+      const geminiBackupResult = await callGeminiForSmartQuery(geminiKey, 'gemini-2.5-flash', query, 4000);
+      if (geminiBackupResult) {
+        return NextResponse.json(geminiBackupResult);
+      }
+    }
+
+    // 3. البديل المحلي الفوري الصارم (< 5 مللي ثانية)
     const localResult = localAnalyzeQuery(query);
     return NextResponse.json(localResult);
   } catch {

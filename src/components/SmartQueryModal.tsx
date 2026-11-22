@@ -49,10 +49,12 @@ export function SmartQueryModal({
     if (data) {
       setActiveCategory(data.category);
       setKeywords(data.smartKeywords || rawQuery);
+    } else if (isLoading) {
+      setKeywords('');
     } else if (rawQuery) {
       setKeywords(rawQuery);
     }
-  }, [data, rawQuery]);
+  }, [data, isLoading, rawQuery]);
 
   // إغلاق النافذة بزر Escape
   useEffect(() => {
@@ -152,14 +154,27 @@ export function SmartQueryModal({
 
           {/* شارة التصنيف المكتشف + الكلمات المفتاحية */}
           <div className="p-4 rounded-2xl bg-paper-light dark:bg-paper-dark border border-subtle-light/70 dark:border-subtle-dark/70 space-y-3">
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-[11px] font-semibold text-muted-light dark:text-muted-dark">
-                التصنيف المكتشف للسؤال:
+                التصنيف المكتشف للمسألة:
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#9E6B2B]/10 text-[#9E6B2B] dark:bg-[#D4A359]/15 dark:text-[#D4A359] border border-[#9E6B2B]/20 dark:border-[#D4A359]/30">
-                <CategoryIcon className="w-3.5 h-3.5" strokeWidth={1.8} />
-                <span>{currentCategoryObj.label}</span>
-              </span>
+              <div className="flex items-center gap-2">
+                {data?.poweredBy === 'ai' ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                    <Sparkles className="w-2.5 h-2.5" />
+                    <span>صياغة ذكية بالـ AI</span>
+                  </span>
+                ) : data ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-light dark:text-muted-dark bg-black/5 dark:bg-white/5 border border-subtle-light/60 px-2 py-0.5 rounded-full">
+                    <span>تحليل لغوي فوري</span>
+                  </span>
+                ) : null}
+
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#9E6B2B]/10 text-[#9E6B2B] dark:bg-[#D4A359]/15 dark:text-[#D4A359] border border-[#9E6B2B]/20 dark:border-[#D4A359]/30">
+                  <CategoryIcon className="w-3.5 h-3.5" strokeWidth={1.8} />
+                  <span>{currentCategoryObj.label}</span>
+                </span>
+              </div>
             </div>
 
             <div className="space-y-1.5">
@@ -175,7 +190,9 @@ export function SmartQueryModal({
                   type="text"
                   value={keywords}
                   onChange={(e) => setKeywords(e.target.value)}
-                  placeholder="كلمات البحث الذكية..."
+                  placeholder={
+                    isLoading ? 'جاري استخراج أدق كلمات البحث...' : 'كلمات البحث الذكية...'
+                  }
                   className="flex-1 px-3.5 py-2 rounded-xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark text-xs sm:text-sm text-charcoal-light dark:text-charcoal-dark font-sans focus:outline-hidden focus:border-[#9E6B2B] dark:focus:border-[#D4A359] transition-colors"
                 />
                 <button
@@ -199,6 +216,40 @@ export function SmartQueryModal({
                   )}
                 </button>
               </div>
+
+              {/* مؤشر التحميل اللطيف */}
+              {isLoading && (
+                <div className="flex items-center gap-2 pt-1 text-xs text-[#9E6B2B] dark:text-[#D4A359]">
+                  <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin shrink-0" />
+                  <span>جاري استخراج أدق كلمات البحث وتصفيتها...</span>
+                </div>
+              )}
+
+              {/* شرائح الكلمات المقترحة البديلة */}
+              {data?.suggestedKeywords && data.suggestedKeywords.length > 0 && (
+                <div className="pt-2 space-y-1.5">
+                  <span className="text-[11px] font-semibold text-muted-light dark:text-muted-dark block">
+                    صيغ واقتراحات بحث بديلة مصاغة فقهيًا:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {data.suggestedKeywords.map((suggestion, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setKeywords(suggestion)}
+                        className={`px-2.5 py-1 rounded-xl text-xs transition-all ${
+                          keywords === suggestion
+                            ? 'bg-[#121B28] text-[#F7F4EE] dark:bg-[#D4A359] dark:text-[#0F141B] font-bold shadow-2xs'
+                            : 'bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark hover:border-[#9E6B2B]/50 dark:hover:border-[#D4A359]/50 text-charcoal-light dark:text-charcoal-dark font-medium'
+                        }`}
+                        title="اختيار هذا الاقتراح للبحث"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

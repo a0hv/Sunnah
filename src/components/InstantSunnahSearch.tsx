@@ -153,6 +153,7 @@ export function InstantSunnahSearch() {
     if (!q || q.length < 2) return;
 
     setSmartQueryInput(q);
+    setSmartData(null);
     setIsSmartModalOpen(true);
     setIsSmartLoading(true);
 
@@ -171,6 +172,8 @@ export function InstantSunnahSearch() {
           categoryLabel: 'حديث نبوي',
           smartKeywords: q,
           hadithKeywords: q,
+          suggestedKeywords: [],
+          poweredBy: 'local',
         });
       }
     } catch {
@@ -179,6 +182,8 @@ export function InstantSunnahSearch() {
         categoryLabel: 'حديث نبوي',
         smartKeywords: q,
         hadithKeywords: q,
+        suggestedKeywords: [],
+        poweredBy: 'local',
       });
     } finally {
       setIsSmartLoading(false);
