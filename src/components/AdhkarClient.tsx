@@ -748,9 +748,9 @@ export function AdhkarClient() {
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-24 sm:bottom-10 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-charcoal-light dark:bg-charcoal-dark text-white text-xs font-medium shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-150"
+          className="fixed bottom-24 sm:bottom-10 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#121B28] text-[#F7F4EE] border border-subtle-light/40 dark:bg-[#1A2433] dark:text-[#EAE6DF] dark:border-[#D4A359]/40 text-xs font-medium shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-150"
         >
-          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+          <Check className="w-4 h-4 text-emerald-400 dark:text-[#D4A359] shrink-0" strokeWidth={1.8} />
           <span>{feedbackToast}</span>
         </div>
       )}

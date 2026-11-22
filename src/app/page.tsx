@@ -3,7 +3,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { ArrowLeft } from 'lucide-react';
 import { HadithOfTheDay } from '@/components/HadithOfTheDay';
-import { SunnahAssistant } from '@/components/SunnahAssistant';
+import { InstantSunnahSearch } from '@/components/InstantSunnahSearch';
 
 export const metadata: Metadata = {
   title: 'الباحث في السنة | المرجع الشامل للسنة النبوية',
@@ -51,8 +51,8 @@ export default function HomePage() {
           الباحث في السنة
         </h1>
 
-        {/* واجهة المساعد الذكي */}
-        <SunnahAssistant />
+        {/* واجهة الباحث الفوري الموثّق */}
+        <InstantSunnahSearch />
       </section>
 
       {/* 2. فهرس المكتبة المرقّم */}

@@ -5,7 +5,6 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
-import { FloatingAssistant } from '@/components/FloatingAssistant';
 
 const amiri = Amiri({
   subsets: ['arabic'],
@@ -65,7 +64,6 @@ export default function RootLayout({
             </div>
             <Footer />
             <MobileBottomNav />
-            <FloatingAssistant />
           </div>
         </ThemeProvider>
       </body>
