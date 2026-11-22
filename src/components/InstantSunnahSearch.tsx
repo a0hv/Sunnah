@@ -28,6 +28,8 @@ import {
 } from '@/lib/instant-search';
 import { HighlightArabicText } from '@/lib/arabic-search';
 import { HadithText } from './HadithText';
+import { SmartQueryModal } from './SmartQueryModal';
+import type { SmartQueryData } from '@/app/api/smart-query/route';
 
 type FilterTab = 'all' | 'quran' | 'adhkar' | 'nawawi' | 'seerah' | 'fake';
 
@@ -47,6 +49,10 @@ export function InstantSunnahSearch() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
+  const [isSmartModalOpen, setIsSmartModalOpen] = useState(false);
+  const [smartData, setSmartData] = useState<SmartQueryData | null>(null);
+  const [isSmartLoading, setIsSmartLoading] = useState(false);
+  const [smartQueryInput, setSmartQueryInput] = useState('');
   const [, startTransition] = useTransition();
 
   const recognitionRef = useRef<any>(null);
@@ -142,6 +148,43 @@ export function InstantSunnahSearch() {
     inputRef.current?.focus();
   };
 
+  const handleTriggerSmartQuery = async (targetQuery?: string) => {
+    const q = (targetQuery || query || debouncedQuery).trim();
+    if (!q || q.length < 2) return;
+
+    setSmartQueryInput(q);
+    setIsSmartModalOpen(true);
+    setIsSmartLoading(true);
+
+    try {
+      const res = await fetch('/api/smart-query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: q }),
+      });
+      if (res.ok) {
+        const json: SmartQueryData = await res.json();
+        setSmartData(json);
+      } else {
+        setSmartData({
+          category: 'hadith',
+          categoryLabel: 'حديث نبوي',
+          smartKeywords: q,
+          hadithKeywords: q,
+        });
+      }
+    } catch {
+      setSmartData({
+        category: 'hadith',
+        categoryLabel: 'حديث نبوي',
+        smartKeywords: q,
+        hadithKeywords: q,
+      });
+    } finally {
+      setIsSmartLoading(false);
+    }
+  };
+
   const hasResults = results && results.totalCount > 0;
   const isSearching = query.trim().length >= 2;
 
@@ -169,6 +212,12 @@ export function InstantSunnahSearch() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleTriggerSmartQuery();
+              }
+            }}
             placeholder={
               isListening
                 ? 'جاري الاستماع لصوتك باللغة العربية...'
@@ -208,6 +257,22 @@ export function InstantSunnahSearch() {
               )}
             </button>
           )}
+
+          {/* زر التوجيه الذكي للمصادر المتخصصة */}
+          <button
+            type="button"
+            onClick={() => handleTriggerSmartQuery()}
+            disabled={!query.trim() || isSmartLoading}
+            className={`inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full text-xs font-semibold shrink-0 transition-all me-0.5 ${
+              query.trim()
+                ? 'bg-[#121B28] text-[#F7F4EE] hover:bg-[#1C283A] dark:bg-[#D4A359] dark:text-[#0F141B] dark:hover:bg-[#E0B26E] shadow-xs cursor-pointer'
+                : 'bg-black/5 dark:bg-white/5 text-muted-light/40 dark:text-muted-dark/40 cursor-not-allowed'
+            }`}
+            title="تحليل نوع المسألة وتوجيهها للمصادر المتخصصة (Enter)"
+          >
+            <Sparkles className="w-3.5 h-3.5 shrink-0" strokeWidth={1.8} />
+            <span className="hidden sm:inline">توجيه ذكي</span>
+          </button>
         </div>
 
         {/* اقتراحات البحث السريعة (تظهر فقط عندما تكون الخانة فارغة) */}
@@ -601,15 +666,15 @@ export function InstantSunnahSearch() {
               </a>
 
               <a
-                href={`https://www.google.com/search?q=${encodeURIComponent('site:islamweb.net/ar ' + query)}`}
+                href={`https://binbaz.org.sa/search?q=${encodeURIComponent(query)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-light dark:bg-surface-dark border border-subtle-light/80 dark:border-subtle-dark/80 hover:border-[#9E6B2B]/50 dark:hover:border-[#D4A359]/50 text-xs text-charcoal-light dark:text-charcoal-dark transition-colors group"
               >
                 <span className="font-semibold group-hover:text-[#9E6B2B] dark:group-hover:text-[#D4A359] transition-colors">
-                  إسلام ويب
+                  موقع الشيخ ابن باز
                 </span>
-                <span className="text-[10px] text-muted-light dark:text-muted-dark">• استشارات وأحكام</span>
+                <span className="text-[10px] text-muted-light dark:text-muted-dark">• فتاوى وأحكام</span>
                 <ExternalLink className="w-3 h-3 text-muted-light ms-0.5" strokeWidth={1.6} />
               </a>
 
@@ -629,6 +694,15 @@ export function InstantSunnahSearch() {
           </div>
         </div>
       )}
+
+      {/* 5. نافذة التوجيه الذكي للمصادر المتخصصة */}
+      <SmartQueryModal
+        isOpen={isSmartModalOpen}
+        onClose={() => setIsSmartModalOpen(false)}
+        data={smartData}
+        isLoading={isSmartLoading}
+        rawQuery={smartQueryInput || query}
+      />
     </div>
   );
 }
