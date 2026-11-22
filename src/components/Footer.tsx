@@ -12,7 +12,7 @@ export function Footer() {
           <div className="space-y-3">
             <BrandLogo size="md" showSubtitle={false} href="/" />
             <p className="text-xs text-muted-light dark:text-muted-dark leading-relaxed">
-              محرك بحث نبوي فوري موثّق يعتمد على النصوص الأصلية المعتمدة، يجمع بين متون الأحاديث وشروحها، السيرة النبوية، أذكار حصن المسلم، ومتتبع السنن اليومية في واجهة تحريرية هادئة.
+              محرك بحث في القرآن الكريم والسنة النبوية والسيرة وأذكار حصن المسلم، بواجهة هادئة وسريعة.
             </p>
           </div>
 
@@ -65,10 +65,10 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* العمود 3: المصادر العلمية الموثقة */}
+          {/* العمود 3: الكتب والمصادر */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-charcoal-light dark:text-charcoal-dark font-display">
-              المصادر العلمية المعتمدة
+              الكتب والمصادر
             </h4>
             <ul className="space-y-2 text-xs text-muted-light dark:text-muted-dark font-text">
               <li>
@@ -92,7 +92,7 @@ export function Footer() {
                   href="/about"
                   className="text-[#9E6B2B] dark:text-[#D4A359] hover:underline font-medium inline-flex items-center gap-1"
                 >
-                  <span>عن المنصة والمنهج العلمي</span>
+                  <span>عن الموقع</span>
                   <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.6} />
                 </Link>
               </li>
@@ -130,7 +130,7 @@ export function Footer() {
               href="/about"
               className="hover:text-[#9E6B2B] dark:hover:text-[#D4A359] transition-colors"
             >
-              عن المنصة
+              عن الموقع
             </Link>
           </div>
         </div>

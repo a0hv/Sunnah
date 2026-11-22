@@ -13,7 +13,7 @@ const NAV_LINKS = [
   { href: '/adhkar', label: 'حصن المسلم' },
   { href: '/seerah', label: 'السيرة النبوية' },
   { href: '/daily-tracker', label: 'يومك وليلتك' },
-  { href: '/about', label: 'عن المنصة' },
+  { href: '/about', label: 'عن الموقع' },
 ];
 
 export function Navbar() {

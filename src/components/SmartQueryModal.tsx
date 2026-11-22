@@ -188,10 +188,10 @@ export function SmartQueryModal({
                 id="smart-query-modal-title"
                 className="font-display font-bold text-base sm:text-lg text-charcoal-light dark:text-charcoal-dark truncate"
               >
-                موجّه البحث الشرعي الذكي
+                التوجيه الذكي للبحث
               </h2>
               <p className="text-[11px] text-muted-light dark:text-muted-dark truncate">
-                تحليل نوع المسألة وتوجيهك لأوثق المصادر المتخصصة مباشرة
+                اختر المصدر المناسب لسؤالك
               </p>
             </div>
           </div>
@@ -214,29 +214,18 @@ export function SmartQueryModal({
             <div className="p-6 text-center space-y-2">
               <div className="inline-block w-6 h-6 border-2 border-[#9E6B2B] dark:border-[#D4A359] border-t-transparent rounded-full animate-spin" />
               <p className="text-xs text-muted-light dark:text-muted-dark">
-                جاري استخلاص كلمات البحث وتصنيف المسألة...
+                جاري تجهيز كلمات البحث...
               </p>
             </div>
           )}
 
-          {/* شارة التصنيف المكتشف + الكلمات المفتاحية */}
+          {/* شارة التصنيف + الكلمات المفتاحية */}
           <div className="p-4 rounded-2xl bg-paper-light dark:bg-paper-dark border border-subtle-light/70 dark:border-subtle-dark/70 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-[11px] font-semibold text-muted-light dark:text-muted-dark">
-                التصنيف المكتشف للمسألة:
+                التصنيف المقترح:
               </span>
               <div className="flex items-center gap-2">
-                {effectiveData?.poweredBy === 'ai' ? (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                    <Sparkles className="w-2.5 h-2.5" />
-                    <span>صياغة ذكية بالـ AI</span>
-                  </span>
-                ) : effectiveData ? (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-light dark:text-muted-dark bg-black/5 dark:bg-white/5 border border-subtle-light/60 px-2 py-0.5 rounded-full">
-                    <span>تحليل لغوي فوري</span>
-                  </span>
-                ) : null}
-
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#9E6B2B]/10 text-[#9E6B2B] dark:bg-[#D4A359]/15 dark:text-[#D4A359] border border-[#9E6B2B]/20 dark:border-[#D4A359]/30">
                   <CategoryIcon className="w-3.5 h-3.5" strokeWidth={1.8} />
                   <span>{currentCategoryObj.label}</span>
@@ -249,7 +238,7 @@ export function SmartQueryModal({
                 htmlFor="smart-keywords-input"
                 className="text-[11px] font-medium text-muted-light dark:text-muted-dark block"
               >
-                كلمات البحث الفصيحة المقترحة (يمكنك تعديلها وتتحدث الروابط تلقائياً):
+                كلمات البحث المقترحة:
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -259,10 +248,10 @@ export function SmartQueryModal({
                   onChange={(e) => setKeywords(e.target.value)}
                   placeholder={
                     isCategoryLoading
-                      ? 'جاري استخراج وتوليد كلمات البحث لهذا التصنيف...'
+                      ? 'جاري تحديث كلمات البحث لهذا التصنيف...'
                       : isLoading
-                      ? 'جاري استخراج أدق كلمات البحث...'
-                      : 'كلمات البحث الذكية...'
+                      ? 'جاري تجهيز كلمات البحث...'
+                      : 'كلمات البحث...'
                   }
                   className="flex-1 px-3.5 py-2 rounded-xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark text-xs sm:text-sm text-charcoal-light dark:text-charcoal-dark font-sans focus:outline-hidden focus:border-[#9E6B2B] dark:focus:border-[#D4A359] transition-colors"
                 />
@@ -288,14 +277,14 @@ export function SmartQueryModal({
                 </button>
               </div>
 
-              {/* مؤشر التحميل اللطيف */}
+              {/* مؤشر التحميل */}
               {(isLoading || isCategoryLoading) && (
                 <div className="flex items-center gap-2 pt-1 text-xs text-[#9E6B2B] dark:text-[#D4A359]">
                   <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin shrink-0" />
                   <span>
                     {isCategoryLoading
-                      ? `جاري توليد صياغة مخصصة لتصنيف (${currentCategoryObj.label})...`
-                      : 'جاري استخراج أدق كلمات البحث وتصفيتها...'}
+                      ? `جاري تحديث كلمات البحث لتصنيف (${currentCategoryObj.label})...`
+                      : 'جاري تجهيز كلمات البحث...'}
                   </span>
                 </div>
               )}
@@ -304,7 +293,7 @@ export function SmartQueryModal({
               {effectiveData?.suggestedKeywords && effectiveData.suggestedKeywords.length > 0 && (
                 <div className="pt-2 space-y-1.5">
                   <span className="text-[11px] font-semibold text-muted-light dark:text-muted-dark block">
-                    صيغ واقتراحات بحث بديلة مصاغة فقهيًا:
+                    اقتراحات بحث بديلة:
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {effectiveData.suggestedKeywords.map((suggestion, idx) => (
@@ -604,7 +593,7 @@ export function SmartQueryModal({
           {/* شريط تبديل التصنيف يدوياً مع التوليد الذكي الفوري */}
           <div className="pt-3 border-t border-subtle-light/70 dark:border-subtle-dark/70 space-y-2">
             <span className="text-[11px] font-semibold text-muted-light dark:text-muted-dark block">
-              أو اختر تصنيفاً آخر لتوليد كلمات بحثه ومصادره المتخصصة:
+              أو اختر تصنيفًا آخر لتحديث الاقتراحات والمصادر:
             </span>
             <div className="flex flex-wrap gap-1.5">
               {CATEGORIES.map((cat) => {

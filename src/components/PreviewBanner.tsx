@@ -43,19 +43,18 @@ export function PreviewBanner() {
           <p className="leading-snug sm:leading-normal">
             <span className="sm:hidden text-xs">
               <strong className="font-semibold text-charcoal-light dark:text-charcoal-dark">
-                نسخة معاينة
+                نسخة تجريبية
               </strong>{' '}
               <span className="text-muted-light dark:text-muted-dark font-normal">
-                — بانتظار ربط الدرر السنية
+                — الموقع قيد التطوير بانتظار الربط مع الدرر السنية
               </span>
             </span>
             <span className="hidden sm:inline">
               <strong className="font-semibold text-charcoal-light dark:text-charcoal-dark">
-                نسخة معاينة قيد التطوير
+                نسخة تجريبية
               </strong>{' '}
               <span className="text-muted-light dark:text-muted-dark font-normal">
-                — يعمل البحث حاليًا بالمكتبة المحلية الموثّقة، ويجري استكمال الإطلاق الكامل فور تفعيل الربط الرسمي مع{' '}
-                <strong className="font-semibold text-charcoal-light dark:text-charcoal-dark">مؤسسة الدرر السنية</strong>.
+                — الموقع قيد التطوير بانتظار الربط مع الدرر السنية.
               </span>
             </span>
           </p>

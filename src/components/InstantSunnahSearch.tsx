@@ -53,10 +53,32 @@ export function InstantSunnahSearch() {
   const [smartData, setSmartData] = useState<SmartQueryData | null>(null);
   const [isSmartLoading, setIsSmartLoading] = useState(false);
   const [smartQueryInput, setSmartQueryInput] = useState('');
+  const [showSmartHint, setShowSmartHint] = useState(false);
   const [, startTransition] = useTransition();
 
   const recognitionRef = useRef<any>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // فحص حالة ظهور تلميح التوجيه الذكي من التخزين المحلي
+  useEffect(() => {
+    try {
+      const isDismissed = localStorage.getItem('smart_route_hint_dismissed') === 'true';
+      if (!isDismissed) {
+        setShowSmartHint(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const handleDismissSmartHint = () => {
+    setShowSmartHint(false);
+    try {
+      localStorage.setItem('smart_route_hint_dismissed', 'true');
+    } catch {
+      // ignore
+    }
+  };
 
   // فحص دعم التعرف الصوتي في المتصفح
   useEffect(() => {
@@ -149,6 +171,9 @@ export function InstantSunnahSearch() {
   };
 
   const handleTriggerSmartQuery = async (targetQuery?: string, forcedCategory?: SmartCategory) => {
+    if (showSmartHint) {
+      handleDismissSmartHint();
+    }
     const q = (targetQuery || query || debouncedQuery).trim();
     if (!q || q.length < 2) return;
 
@@ -281,6 +306,64 @@ export function InstantSunnahSearch() {
           </button>
         </div>
 
+        {/* فقاعة إرشادية تشير لزر التوجيه الذكي */}
+        {showSmartHint && (
+          <div
+            role="tooltip"
+            className="absolute top-full mt-2.5 end-0 z-30 max-w-[calc(100vw-32px)] sm:max-w-xs animate-in fade-in slide-in-from-top-1 duration-200"
+          >
+            {/* السهم المشير للأعلى نحو زر التوجيه الذكي */}
+            <svg
+              className="absolute -top-1.5 end-3.5 sm:end-4 w-3.5 h-2 overflow-visible"
+              viewBox="0 0 14 7"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M1 7 L7 1 L13 7"
+                className="stroke-[#9E6B2B]/40 dark:stroke-[#D4A359]/50"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <polygon
+                points="1.5,7 7,1.5 12.5,7"
+                className="fill-paper-light dark:fill-paper-dark"
+              />
+            </svg>
+
+            <div className="relative flex items-center justify-between gap-2 px-3 py-1.5 sm:py-2 rounded-2xl bg-paper-light dark:bg-paper-dark border border-[#9E6B2B]/40 dark:border-[#D4A359]/50 shadow-md text-xs text-charcoal-light dark:text-charcoal-dark font-sans">
+              <button
+                type="button"
+                onClick={() => {
+                  if (query.trim().length >= 2) {
+                    handleTriggerSmartQuery();
+                  } else {
+                    inputRef.current?.focus();
+                  }
+                  handleDismissSmartHint();
+                }}
+                className="flex items-center gap-1.5 text-start hover:text-[#9E6B2B] dark:hover:text-[#D4A359] transition-colors cursor-pointer min-w-0"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#9E6B2B] dark:text-[#D4A359] shrink-0" strokeWidth={1.8} />
+                <span className="font-medium leading-snug">
+                  اضغط هنا لتوجيه سؤالك للمصدر المناسب
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDismissSmartHint}
+                className="p-1 rounded-lg text-muted-light hover:text-charcoal-light dark:text-muted-dark dark:hover:text-charcoal-dark hover:bg-black/5 dark:hover:bg-white/5 transition-colors shrink-0"
+                title="إغلاق التلميح"
+                aria-label="إغلاق التلميح"
+              >
+                <X className="w-3.5 h-3.5" strokeWidth={1.8} />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* اقتراحات البحث السريعة (تظهر فقط عندما تكون الخانة فارغة) */}
         {!query.trim() && (
           <div className="flex items-center gap-1.5 pt-3 flex-nowrap overflow-x-auto pb-1 sm:pb-0 sm:flex-wrap sm:justify-center no-scrollbar">
@@ -389,17 +472,25 @@ export function InstantSunnahSearch() {
       {isSearching && (
         <div className="space-y-4">
           {!hasResults ? (
-            <div className="p-8 rounded-2xl bg-surface-light dark:bg-surface-dark border border-subtle-light/70 dark:border-subtle-dark/70 text-center space-y-2">
+            <div className="p-6 sm:p-8 rounded-2xl bg-surface-light dark:bg-surface-dark border border-subtle-light/70 dark:border-subtle-dark/70 text-center space-y-3">
               <p className="text-sm font-semibold text-charcoal-light dark:text-charcoal-dark">
-                لم نجد نصًا مباشرًا يطابق «{query}» في قواعد البيانات الخمس المحلية.
+                لم نجد نتائج مطابقة لـ «{query}» في المكتبة الحالية.
               </p>
-              <p className="text-xs text-muted-light dark:text-muted-dark">
-                يمكنك التوسع في البحث عبر مصادر التحقيق المعتمدة أدناه.
-              </p>
+              <div className="pt-2 border-t border-subtle-light/60 dark:border-subtle-dark/60 flex flex-wrap items-center justify-center gap-1.5 text-xs text-muted-light dark:text-muted-dark">
+                <span>لم تجد ما تبحث عنه؟ اكتب تفاصيل أكثر في البحث، أو</span>
+                <button
+                  type="button"
+                  onClick={() => handleTriggerSmartQuery()}
+                  className="font-semibold text-[#9E6B2B] dark:text-[#D4A359] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5" strokeWidth={1.8} />
+                  <span>اضغط على زر التوجيه الذكي</span>
+                </button>
+              </div>
             </div>
           ) : (
             <div className="space-y-3">
-              {/* أ. بطاقة التحذير العلمي من الأحاديث التي لا تصح (تتصدر دائماً عند التطابق) */}
+              {/* أ. بطاقة التحذير من الأحاديث التي لا تصح (تتصدر دائماً عند التطابق) */}
               {(activeTab === 'all' || activeTab === 'fake') &&
                 results.fakeHadiths.map((fake) => (
                   <div
@@ -409,7 +500,7 @@ export function InstantSunnahSearch() {
                     <div className="flex items-center justify-between gap-2 border-b border-rose-500/20 pb-2.5">
                       <div className="flex items-center gap-2 text-rose-700 dark:text-rose-400 font-bold text-xs sm:text-sm font-display">
                         <ShieldAlert className="w-4 h-4 shrink-0" strokeWidth={1.8} />
-                        <span>تنبيه علمي في صيانة الحديث • الدرر السنية</span>
+                        <span>تنبيه حول صحة الحديث • الدرر السنية</span>
                       </div>
                       <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/20 text-rose-700 dark:text-rose-300">
                         <HighlightArabicText text={fake.ruling} query={debouncedQuery} />
@@ -639,10 +730,23 @@ export function InstantSunnahSearch() {
             </div>
           )}
 
-          {/* 4. شريط التوسع في المصادر الأربعة المعتمدة (يظهر عند وجود نص بحث) */}
+          {/* سطر المساعدة أسفل نتائج البحث */}
+          <div className="py-2.5 px-3.5 sm:px-4 rounded-xl bg-surface-light dark:bg-surface-dark border border-subtle-light/70 dark:border-subtle-dark/70 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-light dark:text-muted-dark">
+            <span>لم تجد ما تبحث عنه؟ اكتب تفاصيل أكثر في البحث، أو</span>
+            <button
+              type="button"
+              onClick={() => handleTriggerSmartQuery()}
+              className="font-semibold text-[#9E6B2B] dark:text-[#D4A359] hover:underline inline-flex items-center gap-1 cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5" strokeWidth={1.8} />
+              <span>اضغط على زر التوجيه الذكي</span>
+            </button>
+          </div>
+
+          {/* 4. شريط البحث في المصادر الخارجية (يظهر عند وجود نص بحث) */}
           <div className="pt-4 border-t border-subtle-light/60 dark:border-subtle-dark/60 space-y-2">
             <span className="text-xs font-bold text-muted-light dark:text-muted-dark block">
-              التوسع في المصادر العلمية الموثّقة:
+              البحث في المصادر الخارجية:
             </span>
             <div className="flex flex-wrap gap-2">
               <a

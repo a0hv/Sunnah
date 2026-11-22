@@ -61,8 +61,8 @@ export default function HomePage() {
           <h2 className="text-xl sm:text-2xl font-bold font-display text-charcoal-light dark:text-charcoal-dark">
             فهرس المكتبة
           </h2>
-          <span className="text-xs text-muted-light dark:text-muted-dark">
-            أربعة مراجع موثّقة
+          <span className="text-xs text-muted-light dark:text-muted-dark font-sans">
+            المكتبة
           </span>
         </div>
 

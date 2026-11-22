@@ -260,7 +260,7 @@ export function AdhkarClient() {
               </h2>
             </div>
             <p className="text-xs text-muted-light dark:text-muted-dark">
-              مجموع الأذكار النبوية المشكولة بالكامل بأسانيدها الصحيحة وتخريجها المعتمد.
+              أذكار اليوم والليلة من كتاب حصن المسلم مع التخريج والفضائل.
             </p>
           </div>
 
@@ -270,7 +270,7 @@ export function AdhkarClient() {
               {categories.length} باباً
             </span>
             <span className="px-3 py-1 rounded-xl bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark text-xs font-bold text-emerald-brand dark:text-emerald-brand-dark">
-              {adhkarData.meta.totalDhikrsCount} ذكراً مشكولاً
+              {adhkarData.meta.totalDhikrsCount} ذكراً
             </span>
           </div>
         </div>
