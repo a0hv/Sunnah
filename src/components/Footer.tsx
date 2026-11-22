@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { Mail, ArrowLeft } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
 
 export function Footer() {
@@ -89,9 +90,10 @@ export function Footer() {
               <li className="pt-1">
                 <Link
                   href="/about"
-                  className="text-emerald-brand dark:text-emerald-brand-dark hover:underline font-medium inline-block"
+                  className="text-[#9E6B2B] dark:text-[#D4A359] hover:underline font-medium inline-flex items-center gap-1"
                 >
-                  عن المنصة والمنهج العلمي ←
+                  <span>عن المنصة والمنهج العلمي</span>
+                  <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.6} />
                 </Link>
               </li>
             </ul>
@@ -99,16 +101,34 @@ export function Footer() {
         </div>
 
         {/* الشريط السفلي */}
-        <div className="pt-6 border-t border-subtle-light/60 dark:border-subtle-dark/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-muted-light dark:text-muted-dark">
-          <div>
-            جميع الحقوق محفوظة © {new Date().getFullYear()} • الباحث في السنة
-          </div>
-          <div className="flex items-center gap-3">
-            <span>خدمة مجانية لوجه الله تعالى</span>
-            <span className="opacity-40">•</span>
+        <div className="pt-6 border-t border-subtle-light/60 dark:border-subtle-dark/60 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-light dark:text-muted-dark font-sans text-center md:text-start">
+          <p className="leading-relaxed">
+            جميع الحقوق محفوظة © 2026 · الباحث في السنة — إعداد وتطوير{' '}
+            <strong className="font-semibold text-charcoal-light dark:text-charcoal-dark">
+              أحمد بن جابر القاضي
+            </strong>
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 text-xs">
+            <a
+              href="mailto:ag.elkady1@gmail.com"
+              className="inline-flex items-center gap-1.5 text-muted-light dark:text-muted-dark hover:text-[#9E6B2B] dark:hover:text-[#D4A359] transition-colors"
+            >
+              <Mail className="w-3.5 h-3.5 shrink-0" strokeWidth={1.6} />
+              <span>للتواصل:</span>
+              <span
+                dir="ltr"
+                className="font-mono text-[11px] underline decoration-[#9E6B2B]/40 dark:decoration-[#D4A359]/40 underline-offset-2"
+              >
+                ag.elkady1@gmail.com
+              </span>
+            </a>
+
+            <span className="opacity-30 hidden sm:inline" aria-hidden="true">•</span>
+
             <Link
               href="/about"
-              className="hover:text-emerald-brand dark:hover:text-emerald-brand-dark transition-colors"
+              className="hover:text-[#9E6B2B] dark:hover:text-[#D4A359] transition-colors"
             >
               عن المنصة
             </Link>
