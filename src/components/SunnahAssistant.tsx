@@ -68,7 +68,7 @@ const SCOPE_MODES: { id: AssistantMode; label: string }[] = [
   { id: 'adhkar', label: 'الأذكار' },
   { id: 'seerah', label: 'السيرة' },
   { id: 'hadith', label: 'الحديث' },
-  { id: 'general', label: 'معلومات عامة' },
+  { id: 'general', label: 'أسئلة دينية' },
 ];
 
 const QUICK_PROMPTS = [

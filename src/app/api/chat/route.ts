@@ -7,6 +7,13 @@ import {
 } from '@/lib/rag';
 import { queryDorarApi, extractDistinctiveHadithKeywords } from '@/lib/dorar-api';
 import { sanitizeQuranQuotes } from '@/lib/quran-guard';
+import {
+  buildSystemInstruction,
+  OUT_OF_SCOPE_APOLOGY,
+  isOutOfScopeReply,
+  stripOutOfScopeTag,
+  isExplicitlyNonReligiousQuery,
+} from '@/lib/assistant-persona';
 
 // أقصى مدة استجابة للمسار 30 ثانية لتسريع الإجابة وتجنب التعليق على Vercel
 export const maxDuration = 30;
@@ -32,27 +39,7 @@ interface ExternalSourceLink {
   url: string;
 }
 
-const SYSTEM_INSTRUCTION = `
-أنت «الباحث في السنة» (Al-Bahith fi Al-Sunnah) — باحث ومرجع إلكتروني ذكي، رصين، موثوق وهادئ في السنة النبوية الشريفة، وسيرة النبي ﷺ، والعقيدة، والآداب الإسلامية.
-
-الضوابط الصارمة للهوية والسلوك:
-1. الهوية الرسمية:
-   - أنت «الباحث في السنة» فقط؛ يُمنع تماماً وقطعياً قول «أنا ChatGPT» أو «GPT-4» أو ذكر «OpenAI» أو أي نموذج خارجي. إذا سُئلت «من أنت» أو «أي نموذج أنت»: أجب باعتزاز وأدب واقتضاب أنك «الباحث في السنة»، مرجع رقمي موثق في السنة النبوية المطهرة.
-2. منع تأليف القرآن والحديث الشريف:
-   - يُمنع منعاً باتاً كتابة أو اختلاق أي آية قرآنية ﴿...﴾ أو حديث نبوي شريف من ذاكرتك؛ لا تنقل آية أو حديثاً إلا إذا ورد نصّه حرفياً في «السياق الموثّق» المرفق.
-   - لا تضع الأقواس القرآنية ﴿...﴾ إلا لآيات قرآنية ورد نصها الحرفي في السياق الموثق.
-   - عند الاستشهاد بحديث أو ذكر وارد في «السياق الموثّق»: انقله بنصه وأمانته حرفياً وضعه بين علامتي «...».
-3. ضوابط التحية والسلام:
-   - لا تبدأ ردك بـ «وعليكم السلام» أبدًا إلا إذا ألقى المستخدم السلام صراحةً ولَفْظاً («السلام عليكم» أو «سلام»).
-   - في باقي الاستفسارات والأسئلة والكلام العابر، ادخل في صلب الجواب مباشرة دون «وعليكم السلام».
-4. التعامل مع الإساءة والألفاظ النابية:
-   - إذا احتوت رسالة المستخدم على سبّ أو لفظ بذيء، لا تكرر اللفظ أبدًا، ورد بجملة واحدة مهذبة وحازمة: «أرجو الالتزام بأدب الحديث، هذه المنصة مخصصة لخدمة السنة النبوية والعلوم الشرعية.»
-5. الكلام غير المفهوم أو العشوائي (مثل «واوووو»، «ههههه»، «أها»، «تمام»):
-   - رد بجملة قصيرة طبيعية بدون «وعليكم السلام» تسأله كيف يمكنك مساعدته في رحاب السنة النبوية.
-6. النبرة والأسلوب:
-   - فصحى حديثة، رصينة، هادئة، طبيعية، ومختصرة ومباشرة، خالية من التملق والعبارات العامية المبتذلة (مثل «يا غالي»، «من عيوني»، «أنا أخوك الصغير»).
-   - صلِّ وسلم على رسول الله ﷺ كلما ذكر اسمه الشريف.
-`.trim();
+const SYSTEM_INSTRUCTION = buildSystemInstruction();
 
 // قائمة الألفاظ البذيئة والشتائم لحماية المنصة بشكل حتمي
 const ABUSIVE_WORDS = new Set([
@@ -144,6 +131,9 @@ function sanitizeFinalReply(reply: string, userMessage: string): string {
     .replace(/\b(ChatGPT|GPT-4o?|GPT-3\.5|OpenAI)\b/gi, 'الباحث في السنة')
     .replace(/شات\s*جي\s*بي\s*تي/g, 'الباحث في السنة');
 
+  // 4. حذف الوسم الخفي [OUT_OF_SCOPE] من نص الرد المعروض
+  cleaned = stripOutOfScopeTag(cleaned);
+
   return cleaned.trim();
 }
 
@@ -206,7 +196,8 @@ export async function POST(req: Request) {
     const isIdentity = isIdentityQuestion(trimmedMessage);
     const isGibberish = isGibberishOrReaction(trimmedMessage);
     const isGreetingOrChat = isConversationalOrGreeting(trimmedMessage) || isIdentity || isGibberish;
-    const isNonKnowledge = isGreetingOrChat || isIdentity || isGibberish;
+    const isExplicitlyNonReligious = isExplicitlyNonReligiousQuery(trimmedMessage);
+    const isNonKnowledge = isGreetingOrChat || isIdentity || isGibberish || isExplicitlyNonReligious;
 
     // 1. الاسترجاع المعزز الموثّق (RAG) من قواعد بيانات المنصة المحلية حسب النطاق المختار
     const ragResult = retrieveVerifiedContext(trimmedMessage, mode);
@@ -230,8 +221,8 @@ export async function POST(req: Request) {
       fullContext = fullContext ? `${fullContext}\n\n---\n\n${dorarBlock}` : dorarBlock;
     }
 
-    // إخفاء المصادر غير الملائمة إذا كانت الرسالة مجرد تحية أو دردشة عادية أو سؤال هوية
-    const returnedSources = isNonKnowledge ? [] : ragResult.sources;
+    // إخفاء المصادر غير الملائمة إذا كانت الرسالة مجرد تحية أو دردشة عادية أو سؤال هوية أو غير دينية
+    let returnedSources = isNonKnowledge ? [] : ragResult.sources;
 
     // هل السؤال يخص الحديث الشريف أو التثبّت أو الأذكار أو الأدعية؟
     const normMsg = normalizeArabic(trimmedMessage);
@@ -447,7 +438,9 @@ export async function POST(req: Request) {
     if (!aiResponseText) {
       engineUsed = 'fallback';
 
-      if (isIdentity) {
+      if (isExplicitlyNonReligious) {
+        aiResponseText = OUT_OF_SCOPE_APOLOGY;
+      } else if (isIdentity) {
         aiResponseText =
           'أهلاً بك! أنا «الباحث في السنة»، مرجعك الرقمي الموثق في نصوص الأحاديث النبوية، كتاب حصن المسلم، الأربعين النووية، والسيرة العطرة.';
       } else if (isGibberish) {
@@ -484,6 +477,20 @@ export async function POST(req: Request) {
       aiResponseText = 'لم نجد نصاً مباشراً في هذا الموضوع ضمن قواعد بيانات الباحث في السنة المعتمدة حالياً.';
     }
 
+    // فحص ما إذا كان الرد اعتذاراً عن الخروج عن التخصص الديني أو يحمل الوسم [OUT_OF_SCOPE]
+    const isOutOfScope = isOutOfScopeReply(aiResponseText) || isExplicitlyNonReligious;
+
+    if (isOutOfScope) {
+      // إزالة أي أثر للوسم الخفي وتوحيد صيغة الاعتذار إذا لم تكن مضبوطة
+      aiResponseText = stripOutOfScopeTag(aiResponseText);
+      if (isExplicitlyNonReligious && (!aiResponseText || !aiResponseText.includes('مخصص للأسئلة الدينية'))) {
+        aiResponseText = OUT_OF_SCOPE_APOLOGY;
+      }
+      // إخفاء روابط المصادر تماماً
+      returnedSources = [];
+      externalSources = [];
+    }
+
     const latencyMs = Date.now() - requestStart;
 
     return NextResponse.json(
@@ -493,12 +500,12 @@ export async function POST(req: Request) {
         engineUsed,
         latencyMs,
         fallbackReason: engineUsed === 'fallback' ? (lastError || 'BOTH_ENGINES_UNAVAILABLE') : undefined,
-        sources: returnedSources,
-        externalSources,
-        dorarUrl: isNonKnowledge ? '' : ragResult.dorarSearchUrl,
+        sources: isOutOfScope ? [] : returnedSources,
+        externalSources: isOutOfScope ? [] : externalSources,
+        dorarUrl: isNonKnowledge || isOutOfScope ? '' : ragResult.dorarSearchUrl,
         hasGroqKey,
         hasGeminiKey,
-        isFakeWarning: ragResult.isFakeWarning,
+        isFakeWarning: isOutOfScope ? false : ragResult.isFakeWarning,
       },
       { headers: NO_CACHE_HEADERS }
     );
