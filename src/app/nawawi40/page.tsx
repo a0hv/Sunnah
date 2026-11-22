@@ -18,7 +18,7 @@ export default function Nawawi40Page() {
           <Scroll className="w-3.5 h-3.5" />
           <span>كليات الدين وقواعد الشريعة الإسلامية</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold font-sans text-slate-900 dark:text-white">
+        <h1 className="text-3xl sm:text-4xl font-bold font-display text-charcoal-light dark:text-charcoal-dark">
           الأربعون النووية
         </h1>
         <p className="text-xs sm:text-sm text-muted-light dark:text-muted-dark leading-relaxed">

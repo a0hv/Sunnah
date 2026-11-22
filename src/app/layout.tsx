@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Amiri } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { PreviewBanner } from '@/components/PreviewBanner';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
@@ -58,8 +59,9 @@ export default function RootLayout({
       <body className="min-h-screen bg-paper-light text-charcoal-light dark:bg-paper-dark dark:text-charcoal-dark antialiased font-sans selection:bg-emerald-brand selection:text-white transition-colors overflow-x-hidden w-full max-w-full">
         <ThemeProvider>
           <div className="flex flex-col min-h-screen overflow-x-hidden w-full max-w-full">
+            <PreviewBanner />
             <Navbar />
-            <div className="flex-1 pb-20 md:pb-0 overflow-x-hidden w-full max-w-full">
+            <div className="flex-1 pb-24 md:pb-12 overflow-x-hidden w-full max-w-full">
               {children}
             </div>
             <Footer />

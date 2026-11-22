@@ -195,8 +195,8 @@ export function DailyTrackerClient() {
     <div className="space-y-8 text-start">
       {/* Toast */}
       {feedbackToast && (
-        <div className="fixed bottom-20 md:bottom-8 start-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-5 py-2.5 rounded-2xl shadow-xl text-xs sm:text-sm font-medium flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
-          <Sparkles className="w-4 h-4 text-emerald-400" />
+        <div className="fixed bottom-20 md:bottom-8 start-1/2 -translate-x-1/2 z-50 bg-[#121B28] text-[#F7F4EE] dark:bg-[#1A2433] dark:text-[#EAE6DF] px-5 py-2.5 rounded-2xl shadow-xl text-xs sm:text-sm font-medium flex items-center gap-2 border border-subtle-light/40 dark:border-subtle-dark/40 animate-in fade-in slide-in-from-bottom-2">
+          <Sparkles className="w-4 h-4 text-emerald-brand dark:text-emerald-brand-dark" />
           <span>{feedbackToast}</span>
         </div>
       )}
@@ -209,7 +209,7 @@ export function DailyTrackerClient() {
               <Calendar className="w-3.5 h-3.5 text-emerald-brand" />
               <span>{isMounted ? getFormattedArabicDate() : 'اليوم الحالي'}</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold font-display text-slate-900 dark:text-white">
+            <h2 className="text-xl sm:text-2xl font-bold font-display text-charcoal-light dark:text-charcoal-dark">
               محطات يومك وليلتك مع هدي النبوة
             </h2>
             <p className="text-xs text-muted-light dark:text-muted-dark max-w-xl leading-relaxed">
@@ -240,16 +240,16 @@ export function DailyTrackerClient() {
         {/* Progress Bar */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs font-semibold">
-            <span className="text-slate-800 dark:text-slate-200">
+            <span className="text-charcoal-light dark:text-charcoal-dark">
               إنجاز اليوم: {completedCount} من أصل {totalCount} محطة
             </span>
             <span className="font-mono text-emerald-brand dark:text-emerald-brand-dark">
               {progressPercentage}%
             </span>
           </div>
-          <div className="w-full h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+          <div className="w-full h-3 rounded-full bg-paper-light dark:bg-paper-dark border border-subtle-light dark:border-subtle-dark overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-emerald-brand to-teal-500 transition-all duration-500"
+              className="h-full rounded-full bg-emerald-brand dark:bg-emerald-brand-dark transition-all duration-500"
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
@@ -355,7 +355,7 @@ export function DailyTrackerClient() {
                         className={`font-display font-bold text-lg sm:text-xl ${
                           isDone
                             ? 'line-through text-muted-light dark:text-muted-dark'
-                            : 'text-slate-900 dark:text-white'
+                            : 'text-charcoal-light dark:text-charcoal-dark'
                         }`}
                       >
                         {station.title}
@@ -369,7 +369,7 @@ export function DailyTrackerClient() {
                             ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200 dark:border-rose-900'
                             : station.priority === 'مؤكدة'
                             ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-900'
-                            : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+                            : 'bg-surface-light text-muted-light dark:bg-surface-dark dark:text-muted-dark border border-subtle-light dark:border-subtle-dark'
                         }`}
                       >
                         {station.priority}
@@ -397,7 +397,7 @@ export function DailyTrackerClient() {
 
                     {/* Hadith Quote */}
                     {station.hadithQuote && (
-                      <div className="p-3.5 rounded-2xl bg-paper-light dark:bg-paper-dark border border-subtle-light/70 dark:border-subtle-dark/70 text-xs sm:text-sm font-hadith text-slate-800 dark:text-slate-200 leading-[2.85]">
+                      <div className="p-3.5 rounded-2xl bg-paper-light dark:bg-paper-dark border border-subtle-light/70 dark:border-subtle-dark/70 text-xs sm:text-sm font-hadith text-charcoal-light dark:text-charcoal-dark leading-[2.85]">
                         {station.hadithQuote}
                       </div>
                     )}
@@ -452,7 +452,7 @@ export function DailyTrackerClient() {
         {filteredStations.length === 0 && (
           <div className="p-12 text-center rounded-3xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark space-y-3">
             <Award className="w-12 h-12 text-emerald-brand mx-auto opacity-70" />
-            <h3 className="font-bold text-base text-slate-900 dark:text-white">
+            <h3 className="font-bold text-base text-charcoal-light dark:text-charcoal-dark">
               لا توجد محطات في هذا الفلتر
             </h3>
             <p className="text-xs text-muted-light dark:text-muted-dark">

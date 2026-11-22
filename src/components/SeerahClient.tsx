@@ -194,7 +194,7 @@ export function SeerahClient() {
     <div className="space-y-8 text-start max-w-5xl mx-auto">
       {/* Toast */}
       {feedbackToast && (
-        <div className="fixed bottom-6 start-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-slate-900 text-white text-xs sm:text-sm font-semibold shadow-xl border border-slate-800 animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <div className="fixed bottom-6 start-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-[#121B28] text-[#F7F4EE] dark:bg-[#1A2433] dark:text-[#EAE6DF] text-xs sm:text-sm font-semibold shadow-xl border border-subtle-light/40 dark:border-subtle-dark/40 animate-in fade-in slide-in-from-bottom-2 duration-200">
           {feedbackToast}
         </div>
       )}
@@ -214,7 +214,7 @@ export function SeerahClient() {
             <span>مستند إلى كتاب «الرحيق المختوم» الحائز على الجائزة الأولى لرابطة العالم الإسلامي</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-bold font-display text-slate-900 dark:text-white leading-tight">
+          <h1 className="text-3xl sm:text-4xl font-bold font-display text-charcoal-light dark:text-charcoal-dark leading-tight">
             السيرة النبوية العطرة: دراسةٌ وعبرةٌ واقتداء
           </h1>
 
@@ -248,7 +248,7 @@ export function SeerahClient() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                <h3 className="font-bold text-sm text-charcoal-light dark:text-charcoal-dark">
                   متتبع قراءة وتدبر السيرة النبوية
                 </h3>
                 {isMounted && completedCount === totalCount && (
@@ -411,7 +411,7 @@ export function SeerahClient() {
       {filteredMilestones.length === 0 ? (
         <div className="p-12 text-center rounded-3xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark space-y-3">
           <Compass className="w-12 h-12 text-muted-light dark:text-muted-dark mx-auto opacity-40" />
-          <h3 className="font-bold text-base text-slate-900 dark:text-white">
+          <h3 className="font-bold text-base text-charcoal-light dark:text-charcoal-dark">
             لا توجد محطات مطابقة للبحث أو التصفية الحالية
           </h3>
           <p className="text-xs text-muted-light dark:text-muted-dark max-w-md mx-auto">
@@ -492,7 +492,7 @@ export function SeerahClient() {
 
                 {/* Milestone Title & Summary */}
                 <div className="space-y-2">
-                  <h2 className="text-xl sm:text-2xl font-bold font-display text-slate-900 dark:text-white leading-snug">
+                  <h2 className="text-xl sm:text-2xl font-bold font-display text-charcoal-light dark:text-charcoal-dark leading-snug">
                     {milestone.title}
                   </h2>
 

@@ -12,8 +12,6 @@
     "fetch:nawawi": "node scripts/fetch-nawawi40.mjs"
   },
   "dependencies": {
-    "fast-xml-parser": "^4.5.3",
-    "jszip": "^3.10.1",
     "lucide-react": "^1.16.0",
     "next": "^15.1.7",
     "react": "^19.0.0",

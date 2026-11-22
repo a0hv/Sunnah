@@ -18,7 +18,7 @@ export default function AboutPage() {
           <span>التعريف والمنهجية العلمية</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl font-bold font-display text-slate-900 dark:text-white leading-tight">
+        <h1 className="text-3xl sm:text-5xl font-bold font-display text-charcoal-light dark:text-charcoal-dark leading-tight">
           عن «الباحث في السنة»
         </h1>
 
@@ -38,7 +38,7 @@ export default function AboutPage() {
 
       {/* الرؤية والرسالة */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold font-display text-slate-900 dark:text-white flex items-center gap-2">
+        <h2 className="text-2xl font-bold font-display text-charcoal-light dark:text-charcoal-dark flex items-center gap-2">
           <Heart className="w-5 h-5 text-emerald-brand" />
           <span>الرؤية والهدف</span>
         </h2>
@@ -54,7 +54,7 @@ export default function AboutPage() {
 
       {/* الأركان والمصادر العلمية */}
       <section className="space-y-6">
-        <h2 className="text-2xl font-bold font-display text-slate-900 dark:text-white">
+        <h2 className="text-2xl font-bold font-display text-charcoal-light dark:text-charcoal-dark">
           المصادر العلمية المعتمدة في المنصة
         </h2>
 
@@ -144,7 +144,7 @@ export default function AboutPage() {
             </p>
             <Link
               href="/nawawi40"
-              className="inline-flex items-center gap-1 text-xs font-bold text-teal-600 dark:text-teal-400 hover:underline pt-2"
+              className="inline-flex items-center gap-1 text-xs font-bold text-emerald-brand dark:text-emerald-brand-dark hover:underline pt-2"
             >
               <span>فتح الأربعين النووية</span>
               <ArrowLeft className="w-3.5 h-3.5" />
@@ -155,7 +155,7 @@ export default function AboutPage() {
 
       {/* الروابط التوثيقية الخارجية */}
       <section className="p-6 sm:p-8 rounded-3xl bg-surface-light dark:bg-surface-dark border border-subtle-light dark:border-subtle-dark space-y-4">
-        <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white">
+        <h2 className="text-xl font-bold font-display text-charcoal-light dark:text-charcoal-dark">
           التوثيق والربط الخارجي المعتمد
         </h2>
         <ul className="space-y-3 text-xs sm:text-sm text-charcoal-light dark:text-charcoal-dark font-sans">
