@@ -40,23 +40,8 @@ export function PreviewBanner() {
             className="w-1.5 h-1.5 rounded-full bg-[#9E6B2B] dark:bg-[#D4A359] shrink-0"
             aria-hidden="true"
           />
-          <p className="leading-snug sm:leading-normal">
-            <span className="sm:hidden text-xs">
-              <strong className="font-semibold text-charcoal-light dark:text-charcoal-dark">
-                نسخة تجريبية
-              </strong>{' '}
-              <span className="text-muted-light dark:text-muted-dark font-normal">
-                — الموقع قيد التطوير بانتظار الربط مع الدرر السنية
-              </span>
-            </span>
-            <span className="hidden sm:inline">
-              <strong className="font-semibold text-charcoal-light dark:text-charcoal-dark">
-                نسخة تجريبية
-              </strong>{' '}
-              <span className="text-muted-light dark:text-muted-dark font-normal">
-                — الموقع قيد التطوير بانتظار الربط مع الدرر السنية.
-              </span>
-            </span>
+          <p className="leading-snug sm:leading-normal text-xs sm:text-sm text-charcoal-light dark:text-charcoal-dark font-normal">
+            الموقع قيد التطوير بانتظار الربط مع الدرر السنية.
           </p>
         </div>
 

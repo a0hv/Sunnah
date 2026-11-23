@@ -57,13 +57,10 @@ export default function HomePage() {
 
       {/* 2. فهرس المكتبة المرقّم */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-subtle-light/80 dark:border-subtle-dark/80">
+        <div className="pb-3 border-b border-subtle-light/80 dark:border-subtle-dark/80">
           <h2 className="text-xl sm:text-2xl font-bold font-display text-charcoal-light dark:text-charcoal-dark">
             فهرس المكتبة
           </h2>
-          <span className="text-xs text-muted-light dark:text-muted-dark font-sans">
-            المكتبة
-          </span>
         </div>
 
         <div className="divide-y divide-subtle-light/80 dark:divide-subtle-dark/80 border-b border-subtle-light/80 dark:border-subtle-dark/80">
